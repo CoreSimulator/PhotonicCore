@@ -13,6 +13,7 @@ import java.util.Map;
  */
 public abstract class Analyzer 
 {
+	//test
 	public int resultEntriesPerRow;
 	
 	public String resultDescription = "Results of Analysis";

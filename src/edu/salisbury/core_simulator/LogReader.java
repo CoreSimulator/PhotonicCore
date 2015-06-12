@@ -92,7 +92,7 @@ public class LogReader
 	        				 Integer.parseInt(logData[2]), Integer.parseInt(logData[3]), 
 	        				 Integer.parseInt(logData[4]), Integer.parseInt(logData[5]));
 	        		 
-	        		 if(entryToAdd.destY() != 0 && entryToAdd.sourceY() != 0) 
+	        		 if(entryToAdd.destX() != 0 && entryToAdd.sourceX() != 0) 
 	        		 { 
 	        			 logFromFile.addEntry(entryToAdd);
 	        		 }

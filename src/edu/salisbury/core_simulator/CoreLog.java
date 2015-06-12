@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class CoreLog 
 {
 	private ArrayList<LogEntry> log;
-	private ArrayList<LogAnalyser> experiments = new ArrayList<LogAnalyser>();
+	private ArrayList<Analyzer> experiments = new ArrayList<Analyzer>();
 	
 	/**
 	 * Constructor for a CoreLog.
@@ -92,12 +92,12 @@ public class CoreLog
 	/**
 	 * Performs the specified LogAnalyser test on this CoreLog.
 	 * 
-	 * @param A LogAnalyser test to run on this Log.
+	 * @param test to run on this Log.
 	 * @return The results of the test
 	 */
-	public String performAnalysis(LogAnalyser test)
+	public String performAnalysis(Analyzer test)
 	{
-		return test.analyse(this);	
+		return test.analyze(this);	
 	}
 	
 	/**
@@ -105,12 +105,12 @@ public class CoreLog
 	 * have been added will be run when the runExperiments() method 
 	 * is called.
 	 * 
-	 * @param entry to add to this CoreLog
+	 * @param test to add to this CoreLog
 	 * @return Boolean indicating if the action occurred successfully
 	 */
-	public boolean addExperiment(LogAnalyser experiment)
+	public boolean addExperiment(Analyzer test)
 	{
-		return experiments.add(experiment);
+		return experiments.add(test);
 	}
 	
 	/**
@@ -133,13 +133,13 @@ public class CoreLog
 		if(experiments.size() == 0) return null;
 		
 		StringBuilder builder = new StringBuilder();
-		for(LogAnalyser experiment : experiments)
+		for(Analyzer experiment : experiments)
 		{
-			builder.append(experiment.analyse(this)+ "\n");
+			builder.append(experiment.analyze(this)+ "\n");
 		}
 		
 		//remove the last /n from the string
 		String toReturn = builder.toString();
-		return toReturn.substring(0, toReturn.length()-1);
+		return toReturn.substring(0, toReturn.length() - 1);
 	}
 }

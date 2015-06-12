@@ -13,7 +13,6 @@ import java.util.Map;
  */
 public abstract class Analyzer 
 {
-	//testing to make sure I can push a local branch to git
 	public int resultEntriesPerRow;
 	
 	public String resultDescription = "Results of Analysis";

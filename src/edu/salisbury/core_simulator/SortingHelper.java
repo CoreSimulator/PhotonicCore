@@ -1,4 +1,4 @@
-package edu.salisbury.core_basic_layout;
+package edu.salisbury.core_simulator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class SortingHelper
 {
 	
 	/**
-	 * An implementation of binary insertion sort which sorts {@code int}s into an already sorted {@link ArrayList}.
+	 * An implementation of binary insertion sort which sorts ints into an already sorted {@link ArrayList}.
 	 * @param sortedList which the integer is to be inserted into
 	 * @param toSort 
 	 * @return the index at which the int was inserted at in the given sortedList
@@ -76,10 +76,10 @@ public class SortingHelper
 
 	/**
 	 * Sorts a {@link HashMap} with any key and an {@link Integer} value sequentially into an 
-	 * {@link ArrayList} of {@link java.util.Map.Entry}s.
+	 * {@link ArrayList} of {@link java.util.Map.Entry Map.Entry}s.
 	 * @param <K> Key type for the given HashMap
 	 * @param mapToSort
-	 * @return a sorted ArrayList containing map
+	 * @return A sorted ArrayList containing map
 	 */
 	public static <K> ArrayList<Map.Entry<K, Integer>> SortHashMapByValue(HashMap<K, Integer> mapToSort) 
 	{

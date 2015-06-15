@@ -7,28 +7,28 @@ import java.util.Map;
 
 /**
  * A subclass of {@link Analyzer} which can be used to evaluate the number
- * of times each core has received data based on a log-file represented by a {@link CoreLog} object.
+ * of times each core has sent data based on a log-file  represented by a {@link CoreLog} object.
  * @author tptravitz
  *
  */
-public class SenderAnalyzer extends Analyzer 
+public class ReceiverAnalyzer extends Analyzer 
 {
 	/**
-	 * Constructs a SenderAnalyzer. With resultEntriesPerRow equal to 2.
+	 * Constructs a ReceiverAnalyzer. With resultEntriesPerRow equal to 2.
 	 */
-	public SenderAnalyzer()
+	public ReceiverAnalyzer()
 	{
-		resultDescription = "Cores that sent the most messages";
+		resultDescription = "Cores that received the most messages";
 	}
 	
 	/**
-	 *  Constructor for SenderAnalyzer
+	 *  Constructor for ReceiverAnalyzer
 	 * @param resultEntriesPerRow for the resulting {@code String} of the experiment
 	 */
-	public SenderAnalyzer(int resultEntriesPerRow)
+	public ReceiverAnalyzer(int resultEntriesPerRow)
 	{
 		this.resultEntriesPerRow = resultEntriesPerRow;
-		resultDescription = "Cores that sent the most messages";
+		resultDescription = "Cores that received the most messages";
 	}
 	
 	@Override
@@ -40,18 +40,18 @@ public class SenderAnalyzer extends Analyzer
 		{
 			LogEntry entry = log.getEntry(i);
 			
-			Coordinate sourceCoord = new Coordinate(entry.sourceX(), entry.sourceY());
+			Coordinate destCoord = new Coordinate(entry.destX(), entry.destY());
 			
 			//If the key already exists update the value, timesOccured
 			//otherwise put a new entry in for the key
-			if(sentMessages.containsKey(sourceCoord))
+			if(sentMessages.containsKey(destCoord))
 			{
-				int timesOccured = sentMessages.remove(sourceCoord);
-				sentMessages.put(sourceCoord, ++timesOccured);
+				int timesOccured = sentMessages.remove(destCoord);
+				sentMessages.put(destCoord, ++timesOccured);
 			} 
 			else 
 			{
-				sentMessages.put(sourceCoord, 1);
+				sentMessages.put(destCoord, 1);
 			}
 		}
 		

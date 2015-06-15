@@ -1,4 +1,4 @@
-package edu.salisbury.core_basic_layout;
+package edu.salisbury.core_simulator;
 
 /**
  * Coordinate class for the basic layout test scheme

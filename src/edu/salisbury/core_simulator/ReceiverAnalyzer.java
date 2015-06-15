@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * A subclass of {@link Analyzer} which can be used to evaluate the number
- * of times each core has sent data based on a log-file  represented by a {@link CoreLog} object.
+ * of times each core has received data based on a log-file  represented by a {@link CoreLog} object.
  * @author timfoil
  *
  */

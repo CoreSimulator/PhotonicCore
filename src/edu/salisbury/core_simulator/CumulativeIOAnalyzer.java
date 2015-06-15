@@ -7,7 +7,8 @@ import java.util.Map;
 
 /**
  * A subclass of {@link Analyzer} which can be used to evaluate the number
- * of times each core has sent data based on a log-file  represented by a {@link CoreLog} object.
+ * of times each core has sent or received data based on a log-file 
+ * represented by a {@link CoreLog} object.
  * @author timfoil
  *
  */
@@ -54,7 +55,7 @@ public class CumulativeIOAnalyzer extends Analyzer
 				sentMessages.put(destCoord, 1);
 			}
 			
-			Coordinate sourceCoord = new Coordinate(entry.destX(), entry.destY());
+			Coordinate sourceCoord = new Coordinate(entry.sourceX(), entry.sourceY());
 			
 			//If the key already exists update the value, timesOccured
 			//otherwise put a new entry in for the key

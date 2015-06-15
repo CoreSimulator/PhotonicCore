@@ -1,8 +1,4 @@
-import edu.salisbury.core_simulator.Analyzer;
-import edu.salisbury.core_simulator.AnalyzerSuite;
-import edu.salisbury.core_simulator.CumulativeIOFlitAnalyzer;
-import edu.salisbury.core_simulator.FlitReceiverAnalyzer;
-import edu.salisbury.core_simulator.FlitSenderAnalyzer;
+package edu.salisbury.core_simulator;
 
 /**
  * Subclass of {@link AnalyzerSuite} an accumulation of communication {@link Analyzer} classes.

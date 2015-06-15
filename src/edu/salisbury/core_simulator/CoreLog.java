@@ -84,9 +84,9 @@ public class CoreLog
 			builder.append("log event: "+ i + " " + entry.toString()+ "\n");
 		}
 		
-		//remove the last /n from the string
-		String toReturn = builder.toString();
-		return toReturn.substring(0, toReturn.length()-1);
+		//remove the last "/n" from the string
+		return builder.delete(builder.length()-1, builder.length()).toString();
+		
 	}
 	
 	/**
@@ -135,11 +135,10 @@ public class CoreLog
 		StringBuilder builder = new StringBuilder();
 		for(Analyzer experiment : experiments)
 		{
-			builder.append(experiment.analyze(this)+ "\n");
+			builder.append(experiment.analyze(this)+ "\n\n");
 		}
 		
-		//remove the last /n from the string
-		String toReturn = builder.toString();
-		return toReturn.substring(0, toReturn.length() - 1);
+		//remove the last "/n/n" from the string
+		return builder.delete(builder.length() - 2, builder.length()).toString();
 	}
 }

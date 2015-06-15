@@ -7,28 +7,28 @@ import java.util.Map;
 
 /**
  * A subclass of {@link Analyzer} which can be used to evaluate the number
- * of times each core has received data based on a log-file represented by a {@link CoreLog} object.
+ * of times each core has sent data based on a log-file  represented by a {@link CoreLog} object.
  * @author tptravitz
  *
  */
-public class SenderAnalyzer extends Analyzer 
+public class CumulativeIOAnalyzer extends Analyzer 
 {
 	/**
-	 * Constructs a SenderAnalyzer. With resultEntriesPerRow equal to 2.
+	 * Constructs a CumulativeIOAnalyzer. With resultEntriesPerRow equal to 2.
 	 */
-	public SenderAnalyzer()
+	public CumulativeIOAnalyzer()
 	{
-		resultDescription = "Cores that sent the most messages";
+		resultDescription = "Cores that are communicating the most (combined IO operations)";
 	}
 	
 	/**
-	 *  Constructor for SenderAnalyzer
+	 * Constructor for CumulativeIOAnalyzer
 	 * @param resultEntriesPerRow for the resulting {@code String} of the experiment
 	 */
-	public SenderAnalyzer(int resultEntriesPerRow)
+	public CumulativeIOAnalyzer(int resultEntriesPerRow)
 	{
 		this.resultEntriesPerRow = resultEntriesPerRow;
-		resultDescription = "Cores that sent the most messages";
+		resultDescription = "Cores that are communicating the most (combined IO operations)";
 	}
 	
 	@Override
@@ -40,7 +40,21 @@ public class SenderAnalyzer extends Analyzer
 		{
 			LogEntry entry = log.getEntry(i);
 			
-			Coordinate sourceCoord = new Coordinate(entry.sourceX(), entry.sourceY());
+			Coordinate destCoord = new Coordinate(entry.destX(), entry.destY());
+			
+			//If the key already exists update the value, timesOccured
+			//otherwise put a new entry in for the key
+			if(sentMessages.containsKey(destCoord))
+			{
+				int timesOccured = sentMessages.remove(destCoord);
+				sentMessages.put(destCoord, ++timesOccured);
+			} 
+			else 
+			{
+				sentMessages.put(destCoord, 1);
+			}
+			
+			Coordinate sourceCoord = new Coordinate(entry.destX(), entry.destY());
 			
 			//If the key already exists update the value, timesOccured
 			//otherwise put a new entry in for the key
@@ -53,6 +67,7 @@ public class SenderAnalyzer extends Analyzer
 			{
 				sentMessages.put(sourceCoord, 1);
 			}
+			
 		}
 		
 		ArrayList<Map.Entry<Coordinate, Integer>> sortedList = SortingHelper.SortHashMapByValue(sentMessages);//analyze sentMessages

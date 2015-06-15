@@ -13,8 +13,11 @@ import java.util.Map;
  */
 public abstract class Analyzer 
 {
-	//test
-	public int resultEntriesPerRow;
+	/** 
+	 * Number of results that are displayed per row in the {@link Analyzer#sortMapEntriesByDescendingValue(ArrayList) 
+	 * &ltK&gt String sortMapEntriesByDescendingValue(ArrayList &ltMap.Entry &ltK, Integer&gt&gt sortedList) } method
+	 */
+	public int resultEntriesPerRow = 2;
 	
 	public String resultDescription = "Results of Analysis";
 	
@@ -43,9 +46,9 @@ public abstract class Analyzer
 		for(int i = sortedList.size() - 1, entriesInRow = 0; i >= 0; i--)
 		{
 			Map.Entry<K, Integer> entry = sortedList.get(i);
-			if(entriesInRow <= resultEntriesPerRow)
+			entriesInRow++;
+			if(entriesInRow < resultEntriesPerRow)
 			{
-				entriesInRow++;
 				baseString.append(sortedList.size() - i + ".) " + entry.getKey() + ": "+ entry.getValue());
 				baseString.append(",\t");
 			} 

@@ -3,7 +3,7 @@ package edu.salisbury.core_simulator;
 
 /**
  * A dataStructure for holding Log Data
- * @author tptravitz
+ * @author timfoil
  */
 public class LogEntry 
 {

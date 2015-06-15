@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * An object that represents a log file that supervises communications between cores.
  * CoreLogs can be created by adding entries to an empty log or by loading a log from
  * a file using {@link LogReader}
- * @author tptravitz
+ * @author timfoil
  *
  */
 public class CoreLog 

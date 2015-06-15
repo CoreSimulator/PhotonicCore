@@ -4,38 +4,37 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * A subclass of {@link Analyzer} which can be used to evaluate the number
- * of times each core has sent or received data based on a log-file 
+ * of flits each core has sent or received based on a log-file 
  * represented by a {@link CoreLog} object.
  * @author timfoil
  *
  */
-public class CumulativeIOAnalyzer extends Analyzer 
+public class CumulativeIOFlitAnalyzer extends Analyzer 
 {
 	/**
-	 * Constructs a CumulativeIOAnalyzer. With resultEntriesPerRow equal to 2.
+	 * Constructs a CumulativeIOFlitAnalyzer. With resultEntriesPerRow equal to 2.
 	 */
-	public CumulativeIOAnalyzer()
+	public CumulativeIOFlitAnalyzer()
 	{
-		resultDescription = "Cores that are communicating the most (combined IO operations)";
+		resultDescription = "Cores that are sending/receiving the most flits";
 	}
 	
 	/**
-	 * Constructor for CumulativeIOAnalyzer
+	 * Constructor for CumulativeIOFlitAnalyzer
 	 * @param resultEntriesPerRow for the resulting {@code String} of the experiment
 	 */
-	public CumulativeIOAnalyzer(int resultEntriesPerRow)
+	public CumulativeIOFlitAnalyzer(int resultEntriesPerRow)
 	{
 		this.resultEntriesPerRow = resultEntriesPerRow;
-		resultDescription = "Cores that are communicating the most (combined IO operations)";
+		resultDescription = "Cores that are sending/receiving the most flits";
 	}
 	
 	@Override
 	public String analyze(CoreLog log) 
 	{
-		HashMap<Coordinate,Integer> sentMessages = new HashMap<>();
+		HashMap<Coordinate,Integer> messages = new HashMap<>();
 		
 		for(int i = 0; i < log.logSize(); i++)
 		{
@@ -45,33 +44,33 @@ public class CumulativeIOAnalyzer extends Analyzer
 			
 			//If the key already exists update the value, timesOccured
 			//otherwise put a new entry in for the key
-			if(sentMessages.containsKey(destCoord))
+			if(messages.containsKey(destCoord))
 			{
-				int timesOccured = sentMessages.remove(destCoord);
-				sentMessages.put(destCoord, ++timesOccured);
+				int timesOccured = messages.remove(destCoord);
+				messages.put(destCoord, timesOccured + entry.packetSize());
 			} 
 			else 
 			{
-				sentMessages.put(destCoord, 1);
+				messages.put(destCoord, entry.packetSize());
 			}
 			
 			Coordinate sourceCoord = new Coordinate(entry.sourceX(), entry.sourceY());
 			
 			//If the key already exists update the value, timesOccured
 			//otherwise put a new entry in for the key
-			if(sentMessages.containsKey(sourceCoord))
+			if(messages.containsKey(sourceCoord))
 			{
-				int timesOccured = sentMessages.remove(sourceCoord);
-				sentMessages.put(sourceCoord, ++timesOccured);
+				int timesOccured = messages.remove(sourceCoord);
+				messages.put(sourceCoord, timesOccured + entry.packetSize());
 			} 
 			else 
 			{
-				sentMessages.put(sourceCoord, 1);
+				messages.put(sourceCoord, entry.packetSize());
 			}
 			
 		}
 		
-		ArrayList<Map.Entry<Coordinate, Integer>> sortedList = SortingHelper.SortHashMapByValue(sentMessages);//analyze sentMessages
+		ArrayList<Map.Entry<Coordinate, Integer>> sortedList = SortingHelper.SortHashMapByValue(messages);//analyze messages
 		return sortMapEntriesByDescendingValue(sortedList);
 	}
 

@@ -2,6 +2,11 @@ package edu.salisbury.core_simulator;
 
 import java.util.ArrayList;
 
+/**
+ * A class designed to group similar {@link Analyzer}s into a single Analyzer.
+ * @author timfoil
+ *
+ */
 public abstract class AnalyzerSuite extends Analyzer 
 {
 	/**

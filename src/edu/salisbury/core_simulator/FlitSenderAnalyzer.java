@@ -7,28 +7,28 @@ import java.util.Map;
 
 /**
  * A subclass of {@link Analyzer} which can be used to evaluate the number
- * of times each core has received data based on a log-file  represented by a {@link CoreLog} object.
+ * of flits each core has sent based on a log-file represented by a {@link CoreLog} object.
  * @author timfoil
  *
  */
-public class ReceiverAnalyzer extends Analyzer 
+public class FlitSenderAnalyzer extends Analyzer 
 {
 	/**
-	 * Constructs a ReceiverAnalyzer. With resultEntriesPerRow equal to 2.
+	 * Constructs a FlitSenderAnalyzer. With resultEntriesPerRow equal to 2.
 	 */
-	public ReceiverAnalyzer()
+	public FlitSenderAnalyzer()
 	{
-		resultDescription = "Cores that received the most messages";
+		resultDescription = "Cores that sent the most flits";
 	}
 	
 	/**
-	 *  Constructor for ReceiverAnalyzer
+	 *  Constructor for FlitSenderAnalyzer
 	 * @param resultEntriesPerRow for the resulting {@code String} of the experiment
 	 */
-	public ReceiverAnalyzer(int resultEntriesPerRow)
+	public FlitSenderAnalyzer(int resultEntriesPerRow)
 	{
 		this.resultEntriesPerRow = resultEntriesPerRow;
-		resultDescription = "Cores that received the most messages";
+		resultDescription = "Cores that sent the most flits";
 	}
 	
 	@Override
@@ -40,18 +40,18 @@ public class ReceiverAnalyzer extends Analyzer
 		{
 			LogEntry entry = log.getEntry(i);
 			
-			Coordinate destCoord = new Coordinate(entry.destX(), entry.destY());
+			Coordinate sourceCoord = new Coordinate(entry.sourceX(), entry.sourceY());
 			
 			//If the key already exists update the value, timesOccured
 			//otherwise put a new entry in for the key
-			if(sentMessages.containsKey(destCoord))
+			if(sentMessages.containsKey(sourceCoord))
 			{
-				int timesOccured = sentMessages.remove(destCoord);
-				sentMessages.put(destCoord, ++timesOccured);
+				int timesOccured = sentMessages.remove(sourceCoord);
+				sentMessages.put(sourceCoord, entry.packetSize() + timesOccured);
 			} 
 			else 
 			{
-				sentMessages.put(destCoord, 1);
+				sentMessages.put(sourceCoord, entry.packetSize());
 			}
 		}
 		

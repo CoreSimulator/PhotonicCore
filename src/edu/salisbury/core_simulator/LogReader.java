@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 /**
  * Class with static utility methods for reading logFiles.
- * @author tptravitz
+ * @author timfoil
  *
  */
 public class LogReader 

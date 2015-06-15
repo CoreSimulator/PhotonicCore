@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * This class contains various sorting methods which assist in
  * organizing data to display for {@link Analyzer} subclasses.
- * @author tptravitz
+ * @author timfoil
  *
  */
 public class SortingHelper 

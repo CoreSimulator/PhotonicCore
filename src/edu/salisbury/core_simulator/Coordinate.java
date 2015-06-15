@@ -6,6 +6,8 @@ package edu.salisbury.core_simulator;
  * <p>Increasing Y indicates cores in rightward direction.
  * Increasing X indicates cores in downward direction
  * <p>Due to this the origin of the coord system is at the top leftmost corner.
+ * 
+ * @author timfoil
 **/
 public class Coordinate 
 {

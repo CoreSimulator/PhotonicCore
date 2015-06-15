@@ -1,5 +1,16 @@
 package edu.salisbury.core_simulator;
 
+/**
+ * Subclass of {@link AnalyzerSuite} an accumulation of communication {@link Analyzer} classes.
+ * 
+ * <p> This suite includes the following Analyzers:</p>
+ * <ul><li> {@link SenderAnalyzer}
+ * <li> {@link ReceiverAnalyzer}
+ * <li> {@link CumulativeIOAnalyzer}</ul>
+ * 
+ * @author timfoil
+ * 
+ */
 public class CommunicationAnalyzerSuite extends AnalyzerSuite 
 {
 	/**

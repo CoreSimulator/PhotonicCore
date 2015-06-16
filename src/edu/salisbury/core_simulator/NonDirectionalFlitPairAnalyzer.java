@@ -9,37 +9,38 @@ import java.util.Map;
  * A subclass of {@link Analyzer} which can be used to discover pairs of cores that are sending/receiving
  * the most messages with the aim to discover the "dominant flows" among the cores.
  * 
- * <p>Similar to {@link ReceiverAnalyzer} and {@link SenderAnalyzer} but it enumerates communication core 
- * pairs rather than just single cores. The direction of the communication and order of the 
- * {@link Coordinate}s in the pair does not matter. For instance, pair {(0, 0), (0, 1)} is equivalent to 
- * {(0, 1), (0, 0)} however only one of these two pairs of coordinates will be enumerated in the results.
+ * <p>Similar to {@link FlitReceiverAnalyzer} and {@link FlitSenderAnalyzer} but it enumerates 
+ * communication core pairs rather than just single cores. The direction of the communication and order of 
+ * the {@link Coordinate}s in the pair does not matter. For instance, pair {(0, 0), (0, 1)} is equivalent 
+ * to {(0, 1), (0, 0)} however only one of these two pairs of coordinates will be enumerated in the 
+ * results.
  * </p>
  * 
  * <p>
  * The following pair {(0,0), (0, 1)} indicates that core (0,0) or core (0,1) have messaged the other at 
- * some point.
+ * some point. 
  * </p>
  * @author timfoil
  *
  */
-public class NonDirectionalPairAnalyzer extends Analyzer 
+public class NonDirectionalFlitPairAnalyzer extends Analyzer 
 {
 	/**
-	 * Constructs a NonDirectionalPairAnalyzer. With resultEntriesPerRow equal to 2.
+	 * Constructs a NonDirectionalFlitPairAnalyzer. With resultEntriesPerRow equal to 2.
 	 */
-	public NonDirectionalPairAnalyzer()
+	public NonDirectionalFlitPairAnalyzer()
 	{
-		resultDescription = "Non-directional core pair message enumeration";
+		resultDescription = "Non-directional core pair flit enumeration";
 	}
 	
 	/**
-	 * Constructor for NonDirectionalPairAnalyzer
+	 * Constructor for NonDirectionalFlitPairAnalyzer
 	 * @param resultEntriesPerRow for the resulting {@code String} of the experiment
 	 */
-	public NonDirectionalPairAnalyzer(int resultEntriesPerRow)
+	public NonDirectionalFlitPairAnalyzer(int resultEntriesPerRow)
 	{
 		this.resultEntriesPerRow = resultEntriesPerRow;
-		resultDescription = "Non-directional core pair message enumeration";
+		resultDescription = "Non-directional core pair flit enumeration";
 	}
 	
 	@Override
@@ -60,11 +61,11 @@ public class NonDirectionalPairAnalyzer extends Analyzer
 			if(sentMessages.containsKey(pair))
 			{
 				int timesOccured = sentMessages.remove(pair);
-				sentMessages.put(pair, ++timesOccured);
+				sentMessages.put(pair, entry.packetSize() + timesOccured);
 			} 
 			else 
 			{
-				sentMessages.put(pair, 1);
+				sentMessages.put(pair, entry.packetSize());
 			}
 		}
 		ArrayList<Map.Entry<CoordinatePair, Integer>> sortedList = SortingHelper.SortHashMapByValue(sentMessages);//analyze sentMessages

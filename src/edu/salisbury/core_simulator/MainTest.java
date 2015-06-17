@@ -43,21 +43,24 @@ public class MainTest {
 			numberOfIterations ++;
 			
 			//HC: Phase1 = Subtask distribution
-			currentLogsInfo = headCore.getNextLog(tasksToStart, tasksStarted);
-			tasksStarted ++;
-			//Main: how long task will take based on 1 flit = 32b, and 1b transmitted per clock cycle (cc)
-			dataTransferDuration = howLongIsDataTransfer(currentLogsInfo[2]);
-			
-			 //HC: Phase2 = Subtask processing and forwarding
-			//TODO GET CLOCK CYLCE REPRESENTATION WORKING PROPERLY!!!!!!!
-			String routeDirection = headCore.findRouteForPacket(currentLogsInfo, activeTasks);
-			//HC: Queue active tasks
-			activeTasks.add(0, headCore.new CurrentTask(currentLogsInfo[0], currentLogsInfo[1], dataTransferDuration, routeDirection));	
-			clockCycle += headCore.delay; //comes from waiting on route to deliver packet (busy network)
+			if(tasksToStart.logSize() > tasksStarted){
+				currentLogsInfo = headCore.getNextLog(tasksToStart, tasksStarted);
+				tasksStarted ++;
+				//Main: how long task will take based on 1 flit = 32b, and 1b transmitted per clock cycle (cc)
+				dataTransferDuration = howLongIsDataTransfer(currentLogsInfo[2]);
+				
+				 //HC: Phase2 = Subtask processing and forwarding
+				//TODO GET CLOCK CYLCE REPRESENTATION WORKING PROPERLY!!!!!!!
+				String routeDirection = headCore.findRouteForPacket(currentLogsInfo, activeTasks);
+				//HC: Queue active tasks
+				activeTasks.add(0, headCore.new CurrentTask(currentLogsInfo[0], currentLogsInfo[1], dataTransferDuration, routeDirection));	
+				clockCycle += headCore.delay; //comes from waiting on route to deliver packet (busy network)
+			}
+
 			
 			//HC: Phase3 = Final result delivery 
 			//(Update task info and reset nodes if task is complete)
-			headCore.updateTaskQueue(activeTasks);
+			headCore.forwardAClockCycle(activeTasks);
 			
 			//Main: show what is going on
 			logActivityToConsole(clockCycle, headCore.delay, numberOfIterations, activeTasks);

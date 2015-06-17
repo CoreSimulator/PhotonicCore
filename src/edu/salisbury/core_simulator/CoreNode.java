@@ -35,7 +35,7 @@ public class CoreNode {
 		
 	}// end CurrentTask class
 
-	void updateTaskQueue(ArrayList<CurrentTask> activeTasks) {
+	private void updateTaskQueue(ArrayList<CurrentTask> activeTasks) {
 		for (int i = 0; i < activeTasks.size(); i++) {
 			if (activeTasks.get(i).clockCyclesRemaining <= 0) {
 				MainTest.activeTasks.remove(i);
@@ -99,7 +99,7 @@ public class CoreNode {
 		return true;
 	}
 
-	private void forwardAClockCycle(ArrayList<CurrentTask> activeTasks) {
+	public void forwardAClockCycle(ArrayList<CurrentTask> activeTasks) {
 		for (CurrentTask task: activeTasks){
 			task.clockCyclesRemaining--;
 		}

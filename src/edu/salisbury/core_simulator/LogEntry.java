@@ -92,8 +92,9 @@ public class LogEntry
 	//PrettyPrints the data in this object
 	public String toString() 
 	{
-		return "timeStamp: " + timeStamp + " sourceX: "+ sourceX + " sourceY: " +
-				sourceY + " destX: " + destX + " destY: " + destY + " packetSize: " + packetSize;
+		Coordinate source = new Coordinate(sourceX, sourceY);
+		Coordinate dest = new Coordinate(destX, destY);
+		return "timeStamp: " + timeStamp + " sourceCoord: " + source + " destCoord: " + dest + " packetSize: " + packetSize;
 		
 	}
 }

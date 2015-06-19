@@ -1,8 +1,10 @@
 package edu.salisbury.core_simulator;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
@@ -26,9 +28,11 @@ public class LogReader
 	public static CoreLog readLog(String fileName)
 	{
 		CoreLog logFromFile = new CoreLog();
-		try {
+		try 
+		{
 	         BufferedReader myBufferedReader = 
 	             new BufferedReader(new FileReader(fileName));
+	         
 	         String line = null;
 	         Pattern lastNumInLineRegex = Pattern.compile("\\s+");
 	         while((line = myBufferedReader.readLine()) != null) 
@@ -75,9 +79,11 @@ public class LogReader
 	public static CoreLog readLogIgnoreRepeaters(String fileName)
 	{
 		CoreLog logFromFile = new CoreLog();
-		try {
+		try 
+		{
 	         BufferedReader myBufferedReader = 
-	             new BufferedReader(new FileReader(fileName));
+	        		 new BufferedReader(new FileReader(fileName));
+	         
 	         String line = null;
 	         Pattern lastNumInLineRegex = Pattern.compile("\\s+");
 	         while((line = myBufferedReader.readLine()) != null) 
@@ -103,17 +109,44 @@ public class LogReader
 	         myBufferedReader.close();
 	         
 	     }
-	     catch(FileNotFoundException e) {
+	     catch(FileNotFoundException e) 
+	     {
 	         System.out.println(
 	             "Unable to find log file '" + 
 	             fileName + "'");                
 	     }
-	     catch(IOException e) {
+	     catch(IOException e) 
+	     {
 	         System.out.println("Error when attempting to read the log file '" + fileName + "'");                   
-
 	     }
 		return logFromFile;
 	}
 
-	
+	public static boolean writeToFile(String file, String content)
+	{
+		try 
+		{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			writer.write(content);
+			writer.close();
+		} 
+		catch (IOException e) 
+		{
+			System.out.println("An error occured when writing to file" + file);
+		}
+		return true;
+	}
+	public static void appendToFile(String file, String content)
+	{
+		try 
+		{
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+			bw.write(content);
+			bw.close();
+		} 
+		catch (IOException e)
+		{	
+			System.out.println("An error occured when writing to file " + file);
+		}
+	}
 }

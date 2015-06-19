@@ -8,12 +8,16 @@ import edu.salisbury.core_simulator.CoreNode.CurrentTask;
 public class MainTest {
 	
 	public static final String FILENAME = "flow_barnes.log";
+	public static final String DATA_OUTPUT = "data_output1.txt";
+	public static final float NUMBER_OF_LOGS = 62455;
 	public static ArrayList<CurrentTask> activeTasks = new ArrayList<>();
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		//Will be used to output log data
+		StringBuilder outputData = new StringBuilder();
 		
 		//Create the head core (core node)
 		CoreNode headCore = new CoreNode();
@@ -36,6 +40,7 @@ public class MainTest {
 		int clockCycle = 0; //(some parts sequential, some parts in parallel)
 		
 		int numberOfIterations = 0;
+		float estimatedPercentComplete;
 		
 		//Main loop (executes the simulation until all logs have become completed tasks)
 		while (headCore.hasNextLog(tasksToStart, tasksStarted) || headCore.tasksStillRunning(activeTasks)) {
@@ -62,37 +67,70 @@ public class MainTest {
 			//(Update task info and reset nodes if task is complete)
 			headCore.forwardAClockCycle(activeTasks);
 			
-			//Main: show what is going on
-			logActivityToConsole(clockCycle, headCore.delay, numberOfIterations, activeTasks);
+			//Main: gather data to be displayed
+			estimatedPercentComplete =  (tasksStarted/NUMBER_OF_LOGS)*100;
+			System.out.println("Simulating...        (" + estimatedPercentComplete + "%)");
+			outputData.append(buildStringOfData(clockCycle, headCore.delay, numberOfIterations, activeTasks));
 			
 		}//end while
 		
+		//Output data to a file
+		LogReader.writeToFile(DATA_OUTPUT, outputData.toString());
+		
 	}//end main
 	
-	private static void logActivityToConsole(int clockCycle, int delay,
+	private static String buildStringOfData(int clockCycle, int delay,
 			int numberOfIterations, ArrayList<CurrentTask> activeTasks) {
-		System.out.println("Cycle of Simulation:     " + numberOfIterations);
-		System.out.println("Clock Cycle:             " + clockCycle);
-		System.out.println("Delay for this cycle:    " + delay);
-		System.out.println(""); //extra space
-		printActiveTasks(activeTasks);
-		System.out.println("---------------------------\n");
+		String cycle = "Cycle of Simulation:     " + numberOfIterations;
+		String clock = "Clock Cycle:             " + clockCycle;
+		String delayCycle = "Delay for this cycle:    " + delay;
+		String nextLine = "\n"; //extra space
+		String logActivity = cycle + nextLine + clock + nextLine + delayCycle + nextLine;
+		String printTasks = printActiveTasks(activeTasks);
+		String spacer = "---------------------------\n";
+		String endOfLog = nextLine + spacer;
+		return logActivity + printTasks + endOfLog;
 		
 	}
 
-	private static void printActiveTasks(ArrayList<CurrentTask> activeTasks) {
+	private static String printActiveTasks(ArrayList<CurrentTask> activeTasks) {
 		int i = 1;
+		StringBuilder printTasks = new StringBuilder();
 		for (CurrentTask task: activeTasks) {
-			System.out.print(i + ".");
-			System.out.print("Source Node: " + task.sourceNode);
-			System.out.print(" | Destination Node: " + task.destinationNode);
-			System.out.print(" | Clock Cycles remaining: " + task.clockCyclesRemaining);
-			System.out.println(" | Direction: " + task.routeDirection);
-			System.out.println(""); //extra space
+			String index = i + ".";
+			String sNode = "Source Node: " + task.sourceNode;
+			String dNode = " | Destination Node: " + task.destinationNode;
+			String clock = " | Clock Cycles remaining: " + task.clockCyclesRemaining;
+			String direction = " | Direction: " + task.routeDirection;
+			String nextLine = "\n"; //extra space
 			i++;
+			printTasks.append(index + sNode + dNode + clock + direction + nextLine);
 		}
-		
+		return printTasks.toString();
 	}
+	
+//	private static void logActivityToConsole(int clockCycle, int delay,
+//			int numberOfIterations, ArrayList<CurrentTask> activeTasks) {
+//		System.out.println("Cycle of Simulation:     " + numberOfIterations);
+//		System.out.println("Clock Cycle:             " + clockCycle);
+//		System.out.println("Delay for this cycle:    " + delay);
+//		System.out.println(""); //extra space
+//		printActiveTasksToConsole(activeTasks);
+//		System.out.println("---------------------------\n");
+//	}
+	
+//	private static void printActiveTasksToConsole(ArrayList<CurrentTask> activeTasks) {
+//		int i = 1;
+//		for (CurrentTask task: activeTasks) {
+//			System.out.println(i + ".");
+//			System.out.println("Source Node: " + task.sourceNode);
+//			System.out.println(" | Destination Node: " + task.destinationNode);
+//			System.out.println(" | Clock Cycles remaining: " + task.clockCyclesRemaining);
+//			System.out.println(" | Direction: " + task.routeDirection);
+//			System.out.println(""); //extra space
+//			i++;
+//		}
+//	}
 
 	private static int howLongIsDataTransfer(int packetSize) {
 		//packet size = either 1 or 5

@@ -140,7 +140,7 @@ public class LogReader
 	{
 		try 
 		{
-			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
 			bw.write(content);
 			bw.close();
 		} 

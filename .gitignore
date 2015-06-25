@@ -1,7 +1,23 @@
-/flow_barnes.log
-/bin
-/data_output.log
+# Compiled source files #
+*.class
+
+# common packages #
+# just in case
+*.7z
+*.dmg
+*.rar
+*.iso
+*.tar
+*.zip
+*.jar
+
+# log file output #
+*.log
+
+# other misc. files #
+.docx
+
+# specific files #
 /data_output.txt
 /data_output1.txt
-/SimVersion1_Output.docx
 /test.txt

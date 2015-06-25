@@ -1,8 +1,10 @@
-package edu.salisbury.core_simulator;
+package edu.salisbury.basic_core_simulator;
 
 import java.util.ArrayList;
 
-import edu.salisbury.core_simulator.CoreNode.CurrentTask;
+import edu.salisbury.basic_core_simulator.BasicSimOverseerCoreNode.CurrentTask;
+import edu.salisbury.core_simulator.CoreLog;
+import edu.salisbury.core_simulator.LogReader;
 
 
 public class MainTest {
@@ -16,7 +18,7 @@ public class MainTest {
 	public static void main(String[] args) {
 		
 		//Create the head core (core node)
-		CoreNode headCore = new CoreNode();
+		BasicSimOverseerCoreNode headCore = new BasicSimOverseerCoreNode();
 		
 		//Get logs for head core; logs become tasks once they have been started (ie activeTasks)
 		CoreLog tasksToStart = new CoreLog();

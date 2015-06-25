@@ -89,6 +89,22 @@ public class LogEntry
 		return timeStamp;
 	}
 	
+	/**
+	 * @return the {@link Coordinate} of the source node in the LogEntry
+	 */
+	public Coordinate sourceNode()
+	{
+		return new Coordinate(sourceX, sourceY);
+	}
+	
+	/**
+	 * @return the {@link Coordinate} of the source node in the LogEntry
+	 */
+	public Coordinate destNode()
+	{
+		return new Coordinate(destX, destY);
+	}
+	
 	//PrettyPrints the data in this object
 	public String toString() 
 	{

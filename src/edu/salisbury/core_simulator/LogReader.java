@@ -75,7 +75,8 @@ public class LogReader
 	public static CoreLog readLogIgnoreRepeaters(String fileName)
 	{
 		CoreLog logFromFile = new CoreLog();
-		try {
+		try 
+		{
 	         BufferedReader myBufferedReader = 
 	             new BufferedReader(new FileReader(fileName));
 	         String line = null;
@@ -103,14 +104,15 @@ public class LogReader
 	         myBufferedReader.close();
 	         
 	     }
-	     catch(FileNotFoundException e) {
+	     catch(FileNotFoundException e) 
+	     {
 	         System.out.println(
 	             "Unable to find log file '" + 
 	             fileName + "'");                
 	     }
-	     catch(IOException e) {
+	     catch(IOException e) 
+	     {
 	         System.out.println("Error when attempting to read the log file '" + fileName + "'");                   
-
 	     }
 		return logFromFile;
 	}

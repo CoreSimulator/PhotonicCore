@@ -3,7 +3,6 @@ package edu.salisbury.basic_core_simulator;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import edu.salisbury.core_simulator.Coordinate;
 import edu.salisbury.core_simulator.CoreNode;
 import edu.salisbury.core_simulator.CoreNodeIOPort;
 import edu.salisbury.core_simulator.CoreTask;
@@ -13,12 +12,10 @@ public class BasicNode extends CoreNode
 {
 	public LinkedList<CoreTask> tasks = new LinkedList<CoreTask>();
 	
-	private Coordinate location;
 	private int nodeNumber;
 	
-	public BasicNode(BasicHeadNode overseerNode, Coordinate location, int nodeNumber)
+	public BasicNode(BasicHeadNode overseerNode, int nodeNumber)
 	{
-		this.location = location;
 		edges = new CoreNodeIOPort[3];
 		setOverseerEdge(overseerNode); 
 		this.nodeNumber = nodeNumber;
@@ -97,11 +94,7 @@ public class BasicNode extends CoreNode
 			}
 			if(((BasicTask) tasks.peek()).getStatus() == BasicTask.BasicTaskStatus.COMPLETE)
 			{
-				tasks.pop();
-				
-				
-				
-				//TODO Analyze finished task here
+				System.out.println(tasks.pop());
 			}
 		}
 	}
@@ -148,7 +141,7 @@ public class BasicNode extends CoreNode
 	
 	public void teardownConnectionToDestNode(BasicTask toCeaseComm)
 	{
-		if(toCeaseComm.getSourceNode().equals(location))
+		if(toCeaseComm.getSourceNodeNum() == nodeNumber)
 		{
 			switch(toCeaseComm.getDirection())
 			{
@@ -163,7 +156,7 @@ public class BasicNode extends CoreNode
 							"counter-clockwise.");
 			}
 			
-		} else if (toCeaseComm.getDestinationNode().equals(location))
+		} else if (toCeaseComm.getDestinationNodeNum() == nodeNumber)
 		{
 			switch(toCeaseComm.getDirection())
 			{
@@ -186,7 +179,7 @@ public class BasicNode extends CoreNode
 	
 	public void setupConnectionToDestNode(BasicTask toStartComm)
 	{
-		if(toStartComm.getSourceNode().equals(location))
+		if(toStartComm.getSourceNodeNum() == nodeNumber)
 		{
 			switch(toStartComm.getDirection())
 			{
@@ -201,7 +194,7 @@ public class BasicNode extends CoreNode
 							"counter-clockwise.");
 			}
 			
-		} else if (toStartComm.getDestinationNode().equals(location))
+		} else if (toStartComm.getDestinationNodeNum() == nodeNumber)
 		{
 			switch(toStartComm.getDirection())
 			{

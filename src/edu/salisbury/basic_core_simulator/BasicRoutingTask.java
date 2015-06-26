@@ -1,7 +1,5 @@
 package edu.salisbury.basic_core_simulator;
 
-import edu.salisbury.core_simulator.Coordinate;
-import edu.salisbury.core_simulator.CoreSimOverseer;
 import edu.salisbury.core_simulator.CoreTask;
 
 /**
@@ -24,28 +22,20 @@ public class BasicRoutingTask extends CoreTask
 	
 	private int timeLeftForTask = -1;
 	private int flitsToSend;
-	private Coordinate sourceNode;
-	private Coordinate destinationNode;
+	private int sourceNodeNumber;
+	private int destinationNodeNumber;
 	private BasicDirection direction = BasicDirection.UNDETERMINED;
-	
-	private int creationTime;
-
 	
 	public BasicRoutingTask(BasicTask request)
 	{
-		sourceNode = request.getSourceNode();
-		destinationNode = request.getDestinationNode();
-		creationTime = request.getTaskCreationTime();
+		sourceNodeNumber = request.getSourceNodeNum();
+		destinationNodeNumber = request.getDestinationNodeNum();
 		flitsToSend = request.getFlitSize();
 	}
-	
-	
 	
 	@Override
 	public void simulateCycle()
 	{
-		if(creationTime == 1047) System.out.println("CurrentCycle: "+CoreSimOverseer.cycles+
-				" Cycles run: "+ taskTime + " Cycles left to run: "+ timeLeftForTask);
 		if(timeLeftForTask == -1)
 			throw new RuntimeException("Task cannot be run. Has not been setup.");
 		if(finished) 
@@ -57,31 +47,31 @@ public class BasicRoutingTask extends CoreTask
 		if(timeLeftForTask == 0) 
 		{
 			//add option for debug-mode
-			if(true)
-			{
-				System.out.println("RoutingTask, creationCycle: " + creationTime + 
-						" deletionCycle: " + (CoreSimOverseer.cycles+1) + 
-						" Source->Dest:Direction " + this.sourceNode + "->" + this.destinationNode +
-						":" + direction+ "\n");
-			}
+//			if(true)
+//			{
+//				System.out.println("RoutingTask, creationCycle: " + creationTime + 
+//						" deletionCycle: " + (CoreSimOverseer.cycles+1) + 
+//						" Source->Dest:Direction " + this.sourceNode + "->" + this.destinationNode +
+//						":" + direction+ "\n");
+//			}
 			finished = true;
 		}
 	}
 
 	/**
-	 * @return the sourceNode
+	 * @return the sourceNodeNumber
 	 */
-	public Coordinate getSourceNode()
+	public int getSourceNodeNumber()
 	{
-		return sourceNode;
+		return sourceNodeNumber;
 	}
 
 	/**
-	 * @return the destinationNode
+	 * @return the destinationNodeNumber
 	 */
-	public Coordinate getDestinationNode()
+	public int getDestinationNodeNumber()
 	{
-		return destinationNode;
+		return destinationNodeNumber;
 	}
 
 	/**

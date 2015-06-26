@@ -1,6 +1,5 @@
 package edu.salisbury.basic_core_simulator;
 
-import edu.salisbury.core_simulator.Coordinate;
 import edu.salisbury.core_simulator.CoreNode;
 import edu.salisbury.core_simulator.CoreTask;
 
@@ -18,8 +17,8 @@ public class BasicTask extends CoreTask
 	}
 		
 	private CoreNode sourceNodeRef;
-	private Coordinate sourceNodeCoords;
-	private Coordinate destinationNodeCoords;
+	private int sourceNodeNum;
+	private int destinationNodeNum;
 	private BasicDirection direction = BasicDirection.UNDETERMINED;
 	private int flitSize;
 	private int bitsSent;
@@ -48,12 +47,12 @@ public class BasicTask extends CoreTask
 	 * @param flitSize 
 	 * @param taskCreationTime Cycle number this task was created on
 	 */
-	public BasicTask(CoreNode sourceNodeRef, Coordinate sourceNode, Coordinate destinationNode, 
-			int flitSize, int bitsPerFlit, int taskCreationTime) 
+	public BasicTask(CoreNode sourceNodeRef, int sourceNodeNum, int destinationNodeNum, 
+			int flitSize, int bitsPerFlit, int taskCreationTime, BasicArchitecture architecture) 
 	{
 		this.sourceNodeRef = sourceNodeRef;
-		this.sourceNodeCoords = sourceNode;
-		this.destinationNodeCoords = destinationNode;
+		this.sourceNodeNum = sourceNodeNum;
+		this.destinationNodeNum = destinationNodeNum;
 		this.status = BasicTaskStatus.NEW;
 		this.flitSize = flitSize;
 		this.bitsPerFlit = bitsPerFlit;
@@ -163,7 +162,6 @@ public class BasicTask extends CoreTask
 				incrementTotalTaskTime();//increment teardown
 				((BasicNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
 				status = BasicTaskStatus.COMPLETE;//change to complete
-				System.out.println(this);
 				break;
 			case COMPLETE:
 				throw new RuntimeException("This task is already complete, " +
@@ -241,20 +239,20 @@ public class BasicTask extends CoreTask
 
 	
 	/**
-	 * @return the sourceNode
+	 * @return the sourceNodeNum
 	 */
-	public Coordinate getSourceNode()
+	public int getSourceNodeNum()
 	{
-		return sourceNodeCoords;
+		return sourceNodeNum;
 	}
 	
 
 	/**
-	 * @return the destinationNode
+	 * @return the destinationNodeNum
 	 */
-	public Coordinate getDestinationNode()
+	public int getDestinationNodeNum()
 	{
-		return destinationNodeCoords;
+		return destinationNodeNum;
 	}
 
 	/**
@@ -313,8 +311,8 @@ public class BasicTask extends CoreTask
 		taskAnalysis.append(" Task finished at: ").append(taskCreationTime + taskTime);
 		taskAnalysis.append(" Task duration Time: ").append(taskTime);
 		taskAnalysis.append(" Task direction: ").append(direction);
-		taskAnalysis.append(" Task source: ").append(sourceNodeCoords);
-		taskAnalysis.append(" Task destination: ").append(destinationNodeCoords);
+		taskAnalysis.append(" Task source: ").append(sourceNodeNum);
+		taskAnalysis.append(" Task destination: ").append(destinationNodeNum);
 		taskAnalysis.append(" Flit size: ").append(this.flitSize);
 		//the following time variables should add up to the taskTime variable
 		

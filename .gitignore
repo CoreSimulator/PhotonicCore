@@ -18,6 +18,5 @@
 .docx
 
 # specific files #
-/data_output.txt
-/data_output1.txt
 /test.txt
+/bin

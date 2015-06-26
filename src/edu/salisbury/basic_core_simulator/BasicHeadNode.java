@@ -2,28 +2,22 @@ package edu.salisbury.basic_core_simulator;
 
 import java.util.LinkedList;
 
-import edu.salisbury.basic_core_simulator.BasicSimOverseer.BasicArchitecture;
 import edu.salisbury.core_simulator.CoreNode;
 import edu.salisbury.core_simulator.CoreNodeIOPort;
 
 public class BasicHeadNode extends CoreNode
 {
 	
-	private int bitsPerFlit;
-	private int teardownTime;
+	private BasicArchitecture underlyingArchitecture;
 	
 	public LinkedList<BasicRoutingTask> newlyReceivedTasks;
 	public LinkedList<BasicRoutingTask> previouslySentTasks;
 	public LinkedList<BasicRoutingTask> currentlyExecutingTasks;
-	public int headNodeCycle; //TODO
 	
-	public BasicHeadNode(BasicArchitecture architecture, int numberOfCoreNodes, int bitsPerFlit, 
-			int teardownTime)
+	public BasicHeadNode(BasicArchitecture architecture)
 	{
 		this.underlyingArchitecture = architecture;
-		this.teardownTime = teardownTime;
-		this.edges = new CoreNodeIOPort[numberOfCoreNodes];
-		this.bitsPerFlit = bitsPerFlit;
+		this.edges = new CoreNodeIOPort[architecture.numberOfCoreNodes()];
 		this.newlyReceivedTasks = new LinkedList<BasicRoutingTask>();
 		this.previouslySentTasks = new LinkedList<BasicRoutingTask>();
 		this.currentlyExecutingTasks = new LinkedList<BasicRoutingTask>();
@@ -55,7 +49,6 @@ public class BasicHeadNode extends CoreNode
 		}
 		
 		// simulate cycle for all edges
-		headNodeCycle++; //TODO
 		for(int i = 0; i < currentlyExecutingTasks.size(); i++)
 		{
 			BasicRoutingTask task = currentlyExecutingTasks.get(i);
@@ -68,18 +61,17 @@ public class BasicHeadNode extends CoreNode
 			}
 		}
 		for(int i = 0; i < previouslySentTasks.size(); i++)
+		{
+			if(attemptToAdd(previouslySentTasks.get(i)))
 			{
-				if(attemptToAdd(previouslySentTasks.get(i)))
-				{
-					BasicRoutingTask newTask = previouslySentTasks.remove(i);
-					newTask.setTimeLeftForTask(determineTimeLeft(newTask));
-						CoreNodeIOPort taskEdge = 
-								edges[underlyingArchitecture.coordinatesToNumber(
-										newTask.getSourceNode())];
-					approveTask(taskEdge, newTask.getDirection());	
-					i--;
-				}
+				BasicRoutingTask newTask = previouslySentTasks.remove(i);
+				newTask.setTimeLeftForTask(determineTimeLeft(newTask));
+					CoreNodeIOPort taskEdge = 
+							edges[newTask.getSourceNodeNumber()];
+				approveTask(taskEdge, newTask.getDirection());	
+				i--;
 			}
+		}
 		previouslySentTasks.addAll(newlyReceivedTasks);
 		newlyReceivedTasks = new LinkedList<BasicRoutingTask>();
 	}
@@ -93,28 +85,26 @@ public class BasicHeadNode extends CoreNode
 
 	private int determineTimeLeft(BasicRoutingTask task)
 	{
-		int timeLeft = task.getFlitsToSend() * bitsPerFlit;
-		timeLeft += teardownTime;
+		int timeLeft = task.getFlitsToSend() * underlyingArchitecture.bitsPerFlit();
+		timeLeft += underlyingArchitecture.getTeardownTime();
 		return timeLeft;
 	}
 
-	//TODO clean up this terribly messy method
 	private boolean attemptToAdd(BasicRoutingTask possibleTask) 
 	{
-		
-		ModulusRange clockwiseRangeToAdd = new ModulusRange(
-				underlyingArchitecture.coordinatesToNumber(possibleTask.getSourceNode()),
-				underlyingArchitecture.coordinatesToNumber(
-						possibleTask.getDestinationNode()));
+		ModulusRange clockwiseRangeToAdd = new ModulusRange(possibleTask.getSourceNodeNumber(),
+				possibleTask.getDestinationNodeNumber(), true);
 		
 		ModulusRange counterClockwiseRangeToAdd = new ModulusRange(clockwiseRangeToAdd, false);
 		
 		boolean cWRangeConflicts = false;
 		boolean cCWRangeConflicts = false;
 		
+		//check if a clockwise or counterclockwise path is available against currently
+		//executingTask paths
 		for(BasicRoutingTask runningTask:currentlyExecutingTasks)
 		{
-			ModulusRange comparisonRange = new ModulusRange(runningTask, underlyingArchitecture);
+			ModulusRange comparisonRange = new ModulusRange(runningTask);
 					
 			if(!cWRangeConflicts && 
 					clockwiseRangeToAdd.modulusRangesDoConflict(comparisonRange, edges.length)) 
@@ -134,6 +124,7 @@ public class BasicHeadNode extends CoreNode
 		//determine which way to take
 		currentlyExecutingTasks.add(possibleTask);
 		
+		//If one path is explicitly not available take the opposing path
 		if(cCWRangeConflicts)
 		{
 			//set clockwise
@@ -144,6 +135,9 @@ public class BasicHeadNode extends CoreNode
 			//set counterclockwise
 			possibleTask.setDirection(BasicDirection.COUNTERCLOCKWISE);
 		}
+		
+		//if both paths are available take the one with the smaller distance between the source and
+		//the destination nodes (if equi-distant take clockwise path).
 		else if(clockwiseRangeToAdd.getLast() > clockwiseRangeToAdd.getFirst())
 		{
 			int cWDistance = clockwiseRangeToAdd.getLast() - clockwiseRangeToAdd.getFirst();
@@ -168,7 +162,6 @@ public class BasicHeadNode extends CoreNode
 				possibleTask.setDirection(BasicDirection.CLOCKWISE); //set counterclockwise
 			}
 		}
-		
 		return true;
 	}
 	
@@ -178,7 +171,6 @@ public class BasicHeadNode extends CoreNode
 		private int last;
 		private boolean clockwise;
 
-		
 		public ModulusRange(ModulusRange range, boolean clockwise)
 		{
 			this.first = range.first;
@@ -193,13 +185,11 @@ public class BasicHeadNode extends CoreNode
 			this.clockwise = clockwise;
 		}
 		
-		public ModulusRange(BasicRoutingTask range, BasicArchitecture ringArchitecture)
+		public ModulusRange(BasicRoutingTask range)
 		{
 			//creates a clockwise Range
-			int source = ringArchitecture.coordinatesToNumber(
-					range.getSourceNode());
-			int dest = ringArchitecture.coordinatesToNumber(
-					range.getDestinationNode());
+			int source = range.getSourceNodeNumber();
+			int dest = range.getDestinationNodeNumber();
 			this.clockwise = true;
 			
 			switch(range.getDirection())
@@ -216,13 +206,6 @@ public class BasicHeadNode extends CoreNode
 					throw new IllegalArgumentException("BasicRoutingTask's range must have " +
 							"either a clockwise or counter clockwise direction");
 			}
-		}
-		
-		private ModulusRange(int first, int last)
-		{
-			this.first = first;
-			this.last = last;
-			this.clockwise = true;
 		}
 		
 		public boolean modulusRangesDoConflict(ModulusRange secondRange, int modulus)
@@ -243,22 +226,21 @@ public class BasicHeadNode extends CoreNode
 				} 
 				else 
 				{
-					return new ModulusRange[] {
-							new ModulusRange(toConvert.first, modulus), 
-							new ModulusRange(0, toConvert.last)};
+					return new ModulusRange[] { new ModulusRange(toConvert.first, modulus, true), 
+							new ModulusRange(0, toConvert.last, true)};
 				}
 			}
 			else 
 			{
 				if(toConvert.first < toConvert.last)
 				{
-					return new ModulusRange[] {
-							new ModulusRange(toConvert.last, modulus), 
-							new ModulusRange(0, toConvert.first)};
+					return new ModulusRange[] { new ModulusRange(toConvert.last, modulus, true), 
+							new ModulusRange(0, toConvert.first, true)};
 				} 
 				else 
 				{ 
-					return new ModulusRange[] {new ModulusRange(toConvert.last,toConvert.first)};
+					return new ModulusRange[] {
+							new ModulusRange(toConvert.last,toConvert.first, true)};
 				}
 			}
 		}
@@ -308,8 +290,6 @@ public class BasicHeadNode extends CoreNode
 		{
 			return last;
 		}
-		
-		
 	}
 
 	public boolean allTasksFinished()

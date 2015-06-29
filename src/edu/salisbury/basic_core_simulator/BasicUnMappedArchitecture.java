@@ -32,7 +32,9 @@ public class BasicUnMappedArchitecture extends BasicArchitecture
 	public Coordinate numberToCoordinate(int nodeNumber)
 	{
 		checkForValidNodeNumber(nodeNumber);
-		return new Coordinate((nodeNumber/8)+1 , nodeNumber % 8); 
+		return new Coordinate((nodeNumber/(getNumberOfCoreNodes()/2))+1, 
+				(nodeNumber < getNumberOfCoreNodes()/2) ? nodeNumber : 
+					((getNumberOfCoreNodes()/2) - 1) - (nodeNumber % (getNumberOfCoreNodes()/2))); 
 	}
 	
 	public BasicNode numberToNode(int nodeNumber)
@@ -44,7 +46,15 @@ public class BasicUnMappedArchitecture extends BasicArchitecture
 	public int coordinatesToNumber(Coordinate coord)
 	{
 		checkForValidCoordinates(coord);
-		return (coord.getY() + (coord.getX()-1) * 8);
+		switch(coord.getX())
+		{
+			case 1:
+				return coord.getY();
+			case 2:
+				return (getNumberOfCoreNodes() - 1) - coord.getY();
+			default:
+				throw new RuntimeException("Invalid X coordinate value");
+		}
 	}
 	
 	public BasicNode coordinatesToNode(Coordinate coord)
@@ -58,19 +68,19 @@ public class BasicUnMappedArchitecture extends BasicArchitecture
 		{
 			throw new IllegalArgumentException("X coordinate must be either 1 or 2");
 		}
-		if(coord.getY() > 7 || coord.getY() < 0)
+		if(coord.getY() >= (getNumberOfCoreNodes()/2) || coord.getY() < 0)
 		{
-			throw new IllegalArgumentException("Y coordinate must be between 0 and 7 " +
-					"inclusive.");
+			throw new IllegalArgumentException("Y coordinate must be between 0 and " +
+					"(getNumberOfCoreNodes()/2) - 1 inclusive.");
 		}
 	}
 	
 	protected void checkForValidNodeNumber(int nodeNumber)
 	{
-		if(nodeNumber < 0 || nodeNumber > 15) 
+		if(nodeNumber < 0 || nodeNumber > getNumberOfCoreNodes()-1) 
 		{
 			throw new IllegalArgumentException("The nodenumber for the basicArchitecture " +
-					"must be between 0 and 15 inclusive.");
+					"must be between 0 and getNumberOfCoreNodes()-1 inclusive.");
 		}
 	}
 }

@@ -1,21 +1,13 @@
 package edu.salisbury.basic_core_simulator;
 
+import edu.salisbury.core_simulator.BasicArchitecture;
 import edu.salisbury.core_simulator.Coordinate;
-import edu.salisbury.core_simulator.LogEntry;
 
-public class BasicArchitecture
+public class BasicUnMappedArchitecture extends BasicArchitecture
 {
-	private BasicHeadNode headNode; 
-	private BasicNode[] basicNodeList;
-	private int bitsPerFlit;
-	private int teardownTime;
-	
-	public BasicArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime)
+	public BasicUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime)
 	{
-		basicNodeList = new BasicNode[numberOfCoreNodes];
-		this.bitsPerFlit = bitsPerFlit;
-		this.teardownTime = teardownTime;
-		headNode = new BasicHeadNode(this);
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
 		initArchitecture();
 	}
 	
@@ -37,25 +29,6 @@ public class BasicArchitecture
 		headNode.setEdges(basicNodeList);
 	}
 
-	public void simulateTask(LogEntry entry)
-	{
-		BasicTask taskToAssign = new BasicTask(this.coordinatesToNode(entry.sourceNode()), 
-				coordinatesToNumber(entry.sourceNode()), coordinatesToNumber(entry.destNode()), 
-				entry.packetSize(), bitsPerFlit, teardownTime, this);
-		
-		numberToNode(taskToAssign.getSourceNodeNum()).addTask(taskToAssign);
-	}
-	
-	public void simCycle()
-	{
-		for(int i = 0; i < basicNodeList.length; i++)
-		{
-			basicNodeList[i].simulateCycle();
-		}
-		headNode.simulateCycle();
-	}
-	
-	//TODO replace with mapping function
 	public Coordinate numberToCoordinate(int nodeNumber)
 	{
 		checkForValidNodeNumber(nodeNumber);
@@ -68,21 +41,18 @@ public class BasicArchitecture
 		return basicNodeList[nodeNumber];
 	}
 	
-	//TODO replace with mapping function
 	public int coordinatesToNumber(Coordinate coord)
 	{
 		checkForValidCoordinates(coord);
 		return (coord.getY() + (coord.getX()-1) * 8);
 	}
 	
-	//TODO replaceThisAsWell
 	public BasicNode coordinatesToNode(Coordinate coord)
 	{
 		return basicNodeList[coordinatesToNumber(coord)];
 	}
 	
-	//TODO replace with mapping function
-	private void checkForValidCoordinates(Coordinate coord)
+	protected void checkForValidCoordinates(Coordinate coord)
 	{
 		if(coord.getX() > 2 || coord.getX() < 1)
 		{
@@ -95,36 +65,12 @@ public class BasicArchitecture
 		}
 	}
 	
-	//TODO replace with mapping function
-	private void checkForValidNodeNumber(int nodeNumber)
+	protected void checkForValidNodeNumber(int nodeNumber)
 	{
 		if(nodeNumber < 0 || nodeNumber > 15) 
 		{
 			throw new IllegalArgumentException("The nodenumber for the basicArchitecture " +
 					"must be between 0 and 15 inclusive.");
 		}
-	}
-	
-	public boolean allTasksFinished()
-	{
-		return headNode.allTasksFinished();
-	}
-	
-	public int numberOfCoreNodes()
-	{
-		return basicNodeList.length;
-	}
-
-	public int bitsPerFlit()
-	{
-		return bitsPerFlit;
-	}
-
-	/**
-	 * @return the teardownTime
-	 */
-	public int getTeardownTime()
-	{
-		return teardownTime;
 	}
 }

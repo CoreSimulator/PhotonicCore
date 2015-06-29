@@ -246,5 +246,13 @@ public class BasicNode extends CoreNode
 						"counter-clockwise.");
 		}
 	}
+
+	/**
+	 * @return the nodeNumber
+	 */
+	public int getNodeNumber()
+	{
+		return nodeNumber;
+	}
 }
 

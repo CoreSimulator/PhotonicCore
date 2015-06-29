@@ -2,6 +2,7 @@ package edu.salisbury.basic_core_simulator;
 
 import java.util.LinkedList;
 
+import edu.salisbury.core_simulator.BasicArchitecture;
 import edu.salisbury.core_simulator.CoreNode;
 import edu.salisbury.core_simulator.CoreNodeIOPort;
 
@@ -85,7 +86,7 @@ public class BasicHeadNode extends CoreNode
 
 	private int determineTimeLeft(BasicRoutingTask task)
 	{
-		int timeLeft = task.getFlitsToSend() * underlyingArchitecture.bitsPerFlit();
+		int timeLeft = task.getFlitsToSend() * underlyingArchitecture.getBitsPerFlit();
 		timeLeft += underlyingArchitecture.getTeardownTime();
 		return timeLeft;
 	}

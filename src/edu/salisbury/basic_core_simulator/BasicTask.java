@@ -1,7 +1,6 @@
 package edu.salisbury.basic_core_simulator;
 
-import edu.salisbury.core_simulator.Coordinate;
-import edu.salisbury.core_simulator.CoreNode;
+import edu.salisbury.core_simulator.BasicArchitecture;
 import edu.salisbury.core_simulator.CoreTask;
 
 
@@ -16,47 +15,48 @@ public class BasicTask extends CoreTask
 	{
 		NEW, REQUESTING, APPROVED, DENIED, SENDING, TEARDOWN, COMPLETE
 	}
-		
-	private CoreNode sourceNodeRef;
-	private Coordinate sourceNodeCoords;
-	private Coordinate destinationNodeCoords;
+	
 	private BasicDirection direction = BasicDirection.UNDETERMINED;
+
+	
+	private BasicNode sourceNodeRef;
+	private BasicArchitecture architecture;
+	
+	private int destinationNodeNum;
 	private int flitSize;
 	private int bitsSent;
-	private int bitsPerFlit;
 	
 	//the following time variables should add up to the taskTime variable
-	
-	protected int newTaskTime;
-	protected int requestingTaskTime;
-	protected int approvedTaskTime;
-	protected int deniedTaskTime;
-	protected int sendingTaskTime;
-	protected int completeTaskTime;
-	protected int teardownTaskTime;
+	private int newTaskTime;
+	private int requestingTaskTime;
+	private int approvedTaskTime;
+	private int deniedTaskTime;
+	private int sendingTaskTime;
+	private int completeTaskTime;
+	private int teardownTaskTime;
 	
 	/**Cycle number this task was created on*/
-	protected int taskCreationTime;
+	private int taskCreationTime;
 	
 	public BasicTaskStatus status;
 	
 	//TODO javadoc
 	/**
 	 * 
-	 * @param sourceNode
-	 * @param destinationNode
-	 * @param flitSize 
-	 * @param taskCreationTime Cycle number this task was created on
+	 * @param sourceNodeRef
+	 * @param destinationNodeNum
+	 * @param flitSize
+	 * @param taskCreationTime
+	 * @param architecture
 	 */
-	public BasicTask(CoreNode sourceNodeRef, Coordinate sourceNode, Coordinate destinationNode, 
-			int flitSize, int bitsPerFlit, int taskCreationTime) 
+	public BasicTask(BasicNode sourceNodeRef, int destinationNodeNum, 
+			int flitSize, int taskCreationTime, BasicArchitecture architecture) 
 	{
+		this.architecture = architecture;
 		this.sourceNodeRef = sourceNodeRef;
-		this.sourceNodeCoords = sourceNode;
-		this.destinationNodeCoords = destinationNode;
+		this.destinationNodeNum = destinationNodeNum;
 		this.status = BasicTaskStatus.NEW;
 		this.flitSize = flitSize;
-		this.bitsPerFlit = bitsPerFlit;
 		this.taskCreationTime = taskCreationTime;
 	}//end BasicTask constructor
 
@@ -142,6 +142,7 @@ public class BasicTask extends CoreTask
 				((BasicNode) sourceNodeRef).setupConnectionToDestNode(this);//Create port tunnel
 				
 				incrementTotalTaskTime();//increment
+				
 				//Start sending 
 				if(sendData()) //Send data
 				{
@@ -163,7 +164,6 @@ public class BasicTask extends CoreTask
 				incrementTotalTaskTime();//increment teardown
 				((BasicNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
 				status = BasicTaskStatus.COMPLETE;//change to complete
-				System.out.println(this);
 				break;
 			case COMPLETE:
 				throw new RuntimeException("This task is already complete, " +
@@ -241,24 +241,24 @@ public class BasicTask extends CoreTask
 
 	
 	/**
-	 * @return the sourceNode
+	 * @return the sourceNodeNum
 	 */
-	public Coordinate getSourceNode()
+	public int getSourceNodeNum()
 	{
-		return sourceNodeCoords;
+		return sourceNodeRef.getNodeNumber();
 	}
 	
 
 	/**
-	 * @return the destinationNode
+	 * @return the destinationNodeNum
 	 */
-	public Coordinate getDestinationNode()
+	public int getDestinationNodeNum()
 	{
-		return destinationNodeCoords;
+		return destinationNodeNum;
 	}
 
 	/**
-	 * @return the flitSize
+	 * @return the total flitSize of the package to send
 	 */
 	public int getFlitSize()
 	{
@@ -278,7 +278,7 @@ public class BasicTask extends CoreTask
 	 */
 	public int getBitsToSend()
 	{
-		return (flitSize * bitsPerFlit) - bitsSent;
+		return (flitSize * architecture.getBitsPerFlit()) - bitsSent;
 	}
 
 	/**
@@ -313,8 +313,8 @@ public class BasicTask extends CoreTask
 		taskAnalysis.append(" Task finished at: ").append(taskCreationTime + taskTime);
 		taskAnalysis.append(" Task duration Time: ").append(taskTime);
 		taskAnalysis.append(" Task direction: ").append(direction);
-		taskAnalysis.append(" Task source: ").append(sourceNodeCoords);
-		taskAnalysis.append(" Task destination: ").append(destinationNodeCoords);
+		taskAnalysis.append(" Task source: ").append(sourceNodeRef.getNodeNumber());
+		taskAnalysis.append(" Task destination: ").append(destinationNodeNum);
 		taskAnalysis.append(" Flit size: ").append(this.flitSize);
 		//the following time variables should add up to the taskTime variable
 		

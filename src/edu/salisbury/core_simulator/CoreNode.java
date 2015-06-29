@@ -1,7 +1,5 @@
 package edu.salisbury.core_simulator;
 
-import edu.salisbury.basic_core_simulator.BasicSimOverseer.BasicArchitecture;
-
 /**
  * Basic building block class for a Nodes in the simulator.
  * @author timfoil
@@ -9,7 +7,6 @@ import edu.salisbury.basic_core_simulator.BasicSimOverseer.BasicArchitecture;
  */
 public abstract class CoreNode
 {
-	protected BasicArchitecture underlyingArchitecture;
 	public CoreNodeIOPort[] edges;
 	public abstract void simulateCycle();
 	

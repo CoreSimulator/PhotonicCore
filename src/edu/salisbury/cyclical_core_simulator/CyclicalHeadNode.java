@@ -1,34 +1,55 @@
-package edu.salisbury.basic_core_simulator;
+package edu.salisbury.cyclical_core_simulator;
 
 import java.util.LinkedList;
 
-import edu.salisbury.core_simulator.BasicArchitecture;
 import edu.salisbury.core_simulator.CoreNode;
 import edu.salisbury.core_simulator.CoreNodeIOPort;
 
-public class BasicHeadNode extends CoreNode
+/**
+ * Headnode that can be used for an architecture that extends the abstract 
+ * {@link CyclicalArchitecture} class
+ * @author timfoil
+ *
+ */
+public class CyclicalHeadNode extends CoreNode
 {
+	private CyclicalArchitecture underlyingArchitecture;
 	
-	private BasicArchitecture underlyingArchitecture;
+	/**Task requests to the headNode that have been received this cycle*/
+	public LinkedList<CyclicalRoutingTask> newlyReceivedTasks;
 	
-	public LinkedList<BasicRoutingTask> newlyReceivedTasks;
-	public LinkedList<BasicRoutingTask> previouslySentTasks;
-	public LinkedList<BasicRoutingTask> currentlyExecutingTasks;
+	/**Task requests to the headNode that have been received in a previous cycle*/
+	public LinkedList<CyclicalRoutingTask> previouslySentTasks;
 	
-	public BasicHeadNode(BasicArchitecture architecture)
+	/**Tasks that are being currently executing in the overlying architecture*/
+	public LinkedList<CyclicalRoutingTask> currentlyExecutingTasks;
+	
+	/**
+	 * Constructor for the CyclicalHeadNode.
+	 * @param architecture The overlying architecture of which the headNode is presiding over
+	 */
+	public CyclicalHeadNode(CyclicalArchitecture architecture)
 	{
 		this.underlyingArchitecture = architecture;
 		this.edges = new CoreNodeIOPort[architecture.numberOfCoreNodes()];
-		this.newlyReceivedTasks = new LinkedList<BasicRoutingTask>();
-		this.previouslySentTasks = new LinkedList<BasicRoutingTask>();
-		this.currentlyExecutingTasks = new LinkedList<BasicRoutingTask>();
-	}
-
-	public void addRequestForTask(BasicTask request)
-	{
-		newlyReceivedTasks.add(new BasicRoutingTask(request));
+		this.newlyReceivedTasks = new LinkedList<CyclicalRoutingTask>();
+		this.previouslySentTasks = new LinkedList<CyclicalRoutingTask>();
+		this.currentlyExecutingTasks = new LinkedList<CyclicalRoutingTask>();
 	}
 	
+	/**
+	 * Adds the CyclicalTask request to the queue to be approved.
+	 * @param request the request which will be approved later
+	 */
+	public void addRequestForTask(CyclicalTask request)
+	{
+		newlyReceivedTasks.add(new CyclicalRoutingTask(request));
+	}
+	
+	/**
+	 * Sets all of the connecting edges to the HeadNode
+	 * @param connectedNodes the coreNodes which this CyclicalHeadNodeConnectsTo
+	 */
 	public void setEdges(CoreNode[] connectedNodes)
 	{
 		edges = new CoreNodeIOPort[connectedNodes.length];
@@ -52,7 +73,7 @@ public class BasicHeadNode extends CoreNode
 		// simulate cycle for all edges
 		for(int i = 0; i < currentlyExecutingTasks.size(); i++)
 		{
-			BasicRoutingTask task = currentlyExecutingTasks.get(i);
+			CyclicalRoutingTask task = currentlyExecutingTasks.get(i);
 			task.simulateCycle();
 			if(task.finished)
 			{
@@ -65,7 +86,7 @@ public class BasicHeadNode extends CoreNode
 		{
 			if(attemptToAdd(previouslySentTasks.get(i)))
 			{
-				BasicRoutingTask newTask = previouslySentTasks.remove(i);
+				CyclicalRoutingTask newTask = previouslySentTasks.remove(i);
 				newTask.setTimeLeftForTask(determineTimeLeft(newTask));
 					CoreNodeIOPort taskEdge = 
 							edges[newTask.getSourceNodeNumber()];
@@ -74,24 +95,23 @@ public class BasicHeadNode extends CoreNode
 			}
 		}
 		previouslySentTasks.addAll(newlyReceivedTasks);
-		newlyReceivedTasks = new LinkedList<BasicRoutingTask>();
+		newlyReceivedTasks = new LinkedList<CyclicalRoutingTask>();
 	}
 
-	private void approveTask(CoreNodeIOPort taskEdge, BasicDirection direction)
+	private void approveTask(CoreNodeIOPort taskEdge, CyclicalDirection direction)
 	{
-		BasicNode sourceNode = (BasicNode) taskEdge.getLink();
+		CyclicalNode sourceNode = (CyclicalNode) taskEdge.getLink();
 		sourceNode.approveWaitingTask(direction);
 		taskEdge.teardownConnection();
 	}
 
-	private int determineTimeLeft(BasicRoutingTask task)
+	private int determineTimeLeft(CyclicalRoutingTask task)
 	{
 		int timeLeft = task.getFlitsToSend() * underlyingArchitecture.getBitsPerFlit();
 		timeLeft += underlyingArchitecture.getTeardownTime();
 		return timeLeft;
 	}
-
-	private boolean attemptToAdd(BasicRoutingTask possibleTask) 
+	private boolean attemptToAdd(CyclicalRoutingTask possibleTask) 
 	{
 		ModulusRange clockwiseRangeToAdd = new ModulusRange(possibleTask.getSourceNodeNumber(),
 				possibleTask.getDestinationNodeNumber(), true);
@@ -103,7 +123,7 @@ public class BasicHeadNode extends CoreNode
 		
 		//check if a clockwise or counterclockwise path is available against currently
 		//executingTask paths
-		for(BasicRoutingTask runningTask:currentlyExecutingTasks)
+		for(CyclicalRoutingTask runningTask:currentlyExecutingTasks)
 		{
 			ModulusRange comparisonRange = new ModulusRange(runningTask);
 					
@@ -129,12 +149,12 @@ public class BasicHeadNode extends CoreNode
 		if(cCWRangeConflicts)
 		{
 			//set clockwise
-			possibleTask.setDirection(BasicDirection.CLOCKWISE);
+			possibleTask.setDirection(CyclicalDirection.CLOCKWISE);
 		} 
 		else if(cWRangeConflicts)
 		{
 			//set counterclockwise
-			possibleTask.setDirection(BasicDirection.COUNTERCLOCKWISE);
+			possibleTask.setDirection(CyclicalDirection.COUNTERCLOCKWISE);
 		}
 		
 		//if both paths are available take the one with the smaller distance between the source and
@@ -144,11 +164,11 @@ public class BasicHeadNode extends CoreNode
 			int cWDistance = clockwiseRangeToAdd.getLast() - clockwiseRangeToAdd.getFirst();
 			if(edges.length - cWDistance >= cWDistance)
 			{
-				 possibleTask.setDirection(BasicDirection.CLOCKWISE); //set clockwise
+				 possibleTask.setDirection(CyclicalDirection.CLOCKWISE); //set clockwise
 			} 
 			else 
 			{
-				possibleTask.setDirection(BasicDirection.COUNTERCLOCKWISE); //set counterclockwise
+				possibleTask.setDirection(CyclicalDirection.COUNTERCLOCKWISE); //set counterclockwise
 			}
 		}
 		else
@@ -156,37 +176,58 @@ public class BasicHeadNode extends CoreNode
 			int cCWDistance = clockwiseRangeToAdd.getFirst() - clockwiseRangeToAdd.getLast();
 			if(edges.length - cCWDistance > cCWDistance)
 			{
-				 possibleTask.setDirection(BasicDirection.COUNTERCLOCKWISE); //setClockwise
+				 possibleTask.setDirection(CyclicalDirection.COUNTERCLOCKWISE); //setClockwise
 			} 
 			else 
 			{
-				possibleTask.setDirection(BasicDirection.CLOCKWISE); //set counterclockwise
+				possibleTask.setDirection(CyclicalDirection.CLOCKWISE); //set counterclockwise
 			}
 		}
 		return true;
 	}
 	
+	/**
+	 * A way of modeling the ongoing connections such that the {@link CyclicalHeadNode} knows which 
+	 * nodes are being utilized at the same time
+	 * @author timfoil
+	 */
 	public static class ModulusRange
 	{
 		private int first;
 		private int last;
 		private boolean clockwise;
 
+		/**
+		 * 
+		 * @param 	range A modulusRange object which the constructed Range will inherit its first 
+		 * 			and last integers.
+		 * @param 	clockwise <code>true</code> if the range travels clockwise from the source 
+		 * 			to destination; false otherwise. 
+		 */
 		public ModulusRange(ModulusRange range, boolean clockwise)
 		{
 			this.first = range.first;
 			this.last = range.last;
 			this.clockwise = clockwise;
 		}
-		
+		/**
+		 * 
+		 * @param 	first the source of the range
+		 * @param 	last the destination of the range
+		 * @param 	clockwise <code>true</code> if the range travels clockwise from the source 
+		 * 			to destination; false otherwise.
+		 */
 		public ModulusRange(int first, int last, boolean clockwise)
 		{
 			this.first = first;
 			this.last = last;
 			this.clockwise = clockwise;
 		}
-		
-		public ModulusRange(BasicRoutingTask range)
+		/**
+		 * Constructor for a modulus range
+		 * @param range The task to create a modulusRangeFrom 
+		 */
+		public ModulusRange(CyclicalRoutingTask range)
 		{
 			//creates a clockwise Range
 			int source = range.getSourceNodeNumber();
@@ -209,6 +250,15 @@ public class BasicHeadNode extends CoreNode
 			}
 		}
 		
+		/**
+		 * Compares two modulus ranges to each other using a shared modulus.
+		 * 
+		 * @param 	secondRange the secondRange to compare this one to, to see if they conflict in 
+		 * 			range
+		 * @param 	modulus The number that the range loops around at.
+		 * @return 	<code>true</code>
+		 * 			<code>false</code>
+		 */
 		public boolean modulusRangesDoConflict(ModulusRange secondRange, int modulus)
 		{
 			return clockwiseRangesConflict(
@@ -292,7 +342,11 @@ public class BasicHeadNode extends CoreNode
 			return last;
 		}
 	}
-
+	/**
+	 *  Returns true if all tasks in the architecture have been finished
+	 * @return 	<code>true</code> if all tasks in the overlying architecture have been completed;
+	 * 			<code>false</code> otherwise.
+	 */
 	public boolean allTasksFinished()
 	{
 		return currentlyExecutingTasks.isEmpty() && 

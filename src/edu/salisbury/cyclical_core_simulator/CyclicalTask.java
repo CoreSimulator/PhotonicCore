@@ -1,26 +1,31 @@
-package edu.salisbury.basic_core_simulator;
+package edu.salisbury.cyclical_core_simulator;
 
-import edu.salisbury.core_simulator.BasicArchitecture;
 import edu.salisbury.core_simulator.CoreTask;
 
-
-public class BasicTask extends CoreTask
+/**
+ * A task that describes a message that needs to be passed from a source to destination node in a 
+ * cyclical architecture. Contains information about the source; destination; and direction of the 
+ * dataflow, the status of the task, and the amount of cycles the task has spent in each status. 
+ * 
+ * @author timfoil
+ */
+public class CyclicalTask extends CoreTask
 {
 	/**
-	 * Describes the different states a BasicTask could currently be in.
+	 * Describes the different states a CyclicalTask could currently be in.
 	 * @author timfoil
 	 *
 	 */
-	public enum BasicTaskStatus
+	public enum CyclicalTaskStatus
 	{
 		NEW, REQUESTING, APPROVED, DENIED, SENDING, TEARDOWN, COMPLETE
 	}
 	
-	private BasicDirection direction = BasicDirection.UNDETERMINED;
+	private CyclicalDirection direction = CyclicalDirection.UNDETERMINED;
 
 	
-	private BasicNode sourceNodeRef;
-	private BasicArchitecture architecture;
+	private CyclicalNode sourceNodeRef;
+	private CyclicalArchitecture architecture;
 	
 	private int destinationNodeNum;
 	private int flitSize;
@@ -38,27 +43,29 @@ public class BasicTask extends CoreTask
 	/**Cycle number this task was created on*/
 	private int taskCreationTime;
 	
-	public BasicTaskStatus status;
+	/**The current status of this task.*/
+	public CyclicalTaskStatus status;
 	
-	//TODO javadoc
 	/**
+	 * Constructor for a CyclicalTask.
 	 * 
-	 * @param sourceNodeRef
-	 * @param destinationNodeNum
-	 * @param flitSize
-	 * @param taskCreationTime
-	 * @param architecture
+	 * @param 	sourceNodeRef reference to the sourceNode of the task
+	 * @param 	destinationNodeNum The designated nodeNumber of the destinationNode
+	 * @param 	flitSize The number of flitsToSend typically either 1 or 5
+	 * @param 	taskCreationTime cycle number the task was created on
+	 * @param 	architecture the overlying architecture of the connected nodes, which
+	 * 			should include the source and destination nodes.
 	 */
-	public BasicTask(BasicNode sourceNodeRef, int destinationNodeNum, 
-			int flitSize, int taskCreationTime, BasicArchitecture architecture) 
+	public CyclicalTask(CyclicalNode sourceNodeRef, int destinationNodeNum, 
+			int flitSize, int taskCreationTime, CyclicalArchitecture architecture) 
 	{
 		this.architecture = architecture;
 		this.sourceNodeRef = sourceNodeRef;
 		this.destinationNodeNum = destinationNodeNum;
-		this.status = BasicTaskStatus.NEW;
+		this.status = CyclicalTaskStatus.NEW;
 		this.flitSize = flitSize;
 		this.taskCreationTime = taskCreationTime;
-	}//end BasicTask constructor
+	}//end CyclicalTask constructor
 
 	@Override
 	public void incrementTotalTaskTime()
@@ -88,8 +95,8 @@ public class BasicTask extends CoreTask
 				completeTaskTime++;
 				break;
 			default:
-				throw new RuntimeException("Basic Task's state must be defined " +
-						"with a BasicTaskStatus enum.");
+				throw new RuntimeException("Cyclical Task's state must be defined " +
+						"with a CyclicalTaskStatus enum.");
 		}
 	}
 
@@ -121,8 +128,8 @@ public class BasicTask extends CoreTask
 				completeTaskTime += increment;
 				break;
 			default:
-				throw new RuntimeException("Basic Task's state must be defined " +
-						"with a BasicTaskStatus enum.");
+				throw new RuntimeException("Cyclical Task's state must be defined " +
+						"with a CyclicalTaskStatus enum.");
 		}
 	}
 	
@@ -138,8 +145,8 @@ public class BasicTask extends CoreTask
 				incrementTotalTaskTime();//increment
 				break;
 			case APPROVED:
-				status = BasicTaskStatus.SENDING;//Change to sending
-				((BasicNode) sourceNodeRef).setupConnectionToDestNode(this);//Create port tunnel
+				status = CyclicalTaskStatus.SENDING;//Change to sending
+				((CyclicalNode) sourceNodeRef).setupConnectionToDestNode(this);//Create port tunnel
 				
 				incrementTotalTaskTime();//increment
 				
@@ -147,7 +154,7 @@ public class BasicTask extends CoreTask
 				if(sendData()) //Send data
 				{
 					//finished, change to teardown
-					status = BasicTaskStatus.TEARDOWN;
+					status = CyclicalTaskStatus.TEARDOWN;
 				}
 				break;
 			case DENIED:
@@ -157,20 +164,20 @@ public class BasicTask extends CoreTask
 				if(sendData()) //Send data
 				{
 					//finished, change to teardown
-					status = BasicTaskStatus.TEARDOWN;
+					status = CyclicalTaskStatus.TEARDOWN;
 				}
 				break;
 			case TEARDOWN:
 				incrementTotalTaskTime();//increment teardown
-				((BasicNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
-				status = BasicTaskStatus.COMPLETE;//change to complete
+				((CyclicalNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
+				status = CyclicalTaskStatus.COMPLETE;//change to complete
 				break;
 			case COMPLETE:
 				throw new RuntimeException("This task is already complete, " +
 						"this should not be run");
 			default:
-				throw new RuntimeException("Basic Task's state must be defined " +
-						"with a BasicTaskStatus enum.");
+				throw new RuntimeException("Cyclical Task's state must be defined " +
+						"with a CyclicalTaskStatus enum.");
 		}
 		
 	}
@@ -234,12 +241,11 @@ public class BasicTask extends CoreTask
 	/**
 	 * @return the status
 	 */
-	public BasicTaskStatus getStatus()
+	public CyclicalTaskStatus getStatus()
 	{
 		return status;
 	}
 
-	
 	/**
 	 * @return the sourceNodeNum
 	 */
@@ -292,7 +298,7 @@ public class BasicTask extends CoreTask
 	/**
 	 * @return the direction
 	 */
-	public BasicDirection getDirection()
+	public CyclicalDirection getDirection()
 	{
 		return direction;
 	}
@@ -300,7 +306,7 @@ public class BasicTask extends CoreTask
 	/**
 	 * @param direction the direction to set
 	 */
-	public void setDirection(BasicDirection direction)
+	public void setDirection(CyclicalDirection direction)
 	{
 		this.direction = direction;
 	}
@@ -310,8 +316,8 @@ public class BasicTask extends CoreTask
 	{
 		StringBuilder taskAnalysis = new StringBuilder();
 		taskAnalysis.append("Task created at: ").append(taskCreationTime);
-		taskAnalysis.append(" Task finished at: ").append(taskCreationTime + taskTime);
-		taskAnalysis.append(" Task duration Time: ").append(taskTime);
+		taskAnalysis.append(" Task finished at: ").append(taskCreationTime + getTotalTaskTime());
+		taskAnalysis.append(" Task duration Time: ").append(getTotalTaskTime());
 		taskAnalysis.append(" Task direction: ").append(direction);
 		taskAnalysis.append(" Task source: ").append(sourceNodeRef.getNodeNumber());
 		taskAnalysis.append(" Task destination: ").append(destinationNodeNum);

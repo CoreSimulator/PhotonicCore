@@ -1,9 +1,9 @@
-package edu.salisbury.basic_core_simulator;
+package edu.salisbury.cyclical_core_simulator;
 
 import edu.salisbury.core_simulator.CoreTask;
 
 /**
- * Tasks for {@link BasicHeadNode BasicHeadNodes}.
+ * Tasks for {@link CyclicalHeadNode BasicHeadNodes}.
  * 
  * After the HeadNode decides how to route a task, BasicRoutingTask also 
  * serves as a sort of memory for the HeadNode to let it know which
@@ -11,10 +11,11 @@ import edu.salisbury.core_simulator.CoreTask;
  * @author timfoil
  *
  */
-public class BasicRoutingTask extends CoreTask
+public class CyclicalRoutingTask extends CoreTask
 {
 	
-	/** initially set to -1, then set to the number of that the task 
+	/** 
+	 * Initially set to -1, then set to the number of that the task 
 	 * is supposed to be handled in, will countdown after every tick
 	 */
 	 
@@ -24,9 +25,13 @@ public class BasicRoutingTask extends CoreTask
 	private int flitsToSend;
 	private int sourceNodeNumber;
 	private int destinationNodeNumber;
-	private BasicDirection direction = BasicDirection.UNDETERMINED;
+	private CyclicalDirection direction = CyclicalDirection.UNDETERMINED;
 	
-	public BasicRoutingTask(BasicTask request)
+	/**
+	 * Constructor for a routingTask.
+	 * @param request to be represented by the created routingTask.
+	 */
+	public CyclicalRoutingTask(CyclicalTask request)
 	{
 		sourceNodeNumber = request.getSourceNodeNum();
 		destinationNodeNumber = request.getDestinationNodeNum();
@@ -46,14 +51,6 @@ public class BasicRoutingTask extends CoreTask
 		timeLeftForTask--;
 		if(timeLeftForTask == 0) 
 		{
-			//add option for debug-mode
-//			if(true)
-//			{
-//				System.out.println("RoutingTask, creationCycle: " + creationTime + 
-//						" deletionCycle: " + (CoreSimOverseer.cycles+1) + 
-//						" Source->Dest:Direction " + this.sourceNode + "->" + this.destinationNode +
-//						":" + direction+ "\n");
-//			}
 			finished = true;
 		}
 	}
@@ -77,7 +74,7 @@ public class BasicRoutingTask extends CoreTask
 	/**
 	 * @return the direction
 	 */
-	public BasicDirection getDirection()
+	public CyclicalDirection getDirection()
 	{
 		return direction;
 	}
@@ -85,7 +82,7 @@ public class BasicRoutingTask extends CoreTask
 	/**
 	 * @param direction the direction to set
 	 */
-	public void setDirection(BasicDirection direction)
+	public void setDirection(CyclicalDirection direction)
 	{
 		this.direction = direction;
 	}

@@ -1,13 +1,29 @@
 package edu.salisbury.core_simulator;
 
+/**
+ * A basic abstract building block for a simulator class. Lays down some of the standards that
+ * a subclassed simulator are expected to follow.
+ * @author timfoil
+ *
+ */
 public abstract class CoreSimOverseer
 {	
 	/*The current cycle that Simulator is on*/
 	private int cycles = 0; 
 	private int logIndex = 0;
 	
+	/**The architecture that this simulator overseer uses to simulate tasks*/
+	protected CoreArchitecture simulation;
+	
+	/**
+	 * Gives a task that needs to be simulated to the underlying architecture to handle.
+	 * @param entry An logEntry that describes a task that needs to be handled.
+	 */
 	protected abstract void delegateTaskToNode(LogEntry entry);
 	
+	/**
+	 * Simulates this simulator's architecture for a single cycle 
+	 */
 	protected abstract void simulateCycle();
 	
 	public void simulateWithLog(CoreLog log)

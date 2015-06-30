@@ -1,6 +1,5 @@
 package edu.salisbury.core_simulator;
 
-
 public abstract class MRRSwitch {
 	public enum State {ON, OFF}
 	public enum Status {FREE, BUSY}

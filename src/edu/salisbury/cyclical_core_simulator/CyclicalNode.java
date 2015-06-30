@@ -1,4 +1,4 @@
-package edu.salisbury.basic_core_simulator;
+package edu.salisbury.cyclical_core_simulator;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -7,60 +7,104 @@ import edu.salisbury.core_simulator.CoreNode;
 import edu.salisbury.core_simulator.CoreNodeIOPort;
 import edu.salisbury.core_simulator.CoreTask;
 
-
-public class BasicNode extends CoreNode
+/**
+ * A cyclical node is a non-head node which passes messages to other nodes in Cyclical architecture.
+ * 
+ * @author timfoil
+ * 
+ */
+public class CyclicalNode extends CoreNode
 {
+	/**
+	 * A queue of tasks for each of which this node is the source of the message to be sent. The 
+	 * first task is the currently executing task while the others are waiting to be executed.
+	 */
 	public LinkedList<CoreTask> tasks = new LinkedList<CoreTask>();
 	
 	private int nodeNumber;
 	
-	public BasicNode(BasicHeadNode overseerNode, int nodeNumber)
+	/**
+	 * Constructor for cyclical node
+	 * @param overseerNode the headNode
+	 * @param nodeNumber the designated nodeNumber for this node
+	 */
+	public CyclicalNode(CyclicalHeadNode overseerNode, int nodeNumber)
 	{
 		edges = new CoreNodeIOPort[3];
 		setOverseerEdge(overseerNode); 
 		this.nodeNumber = nodeNumber;
 	}
 	
+	/**
+	 * Adds a task to this specific node. This simulates a message with this node as the source 
+	 * and some other node as the destination.
+	 * 
+	 * @param task The task being added to this node.
+	 */
 	public void addTask(CoreTask task)
 	{
 		tasks.addLast(task);
 		if(tasks.size() == 1)
 		{
-			BasicTask basicTask = (BasicTask)task;
-			basicTask.status = BasicTask.BasicTaskStatus.REQUESTING;
+			CyclicalTask basicTask = (CyclicalTask)task;
+			basicTask.status = CyclicalTask.CyclicalTaskStatus.REQUESTING;
 			requestTaskClearanceFromHead(basicTask);
 		}
 	}
 	
-	public void setClockwiseEdge(BasicNode neighbor)
+	/**
+	 * Sets the link containing the clockwise neighbor of this node.
+	 * @param neighbor The clockwise neighbor of this node
+	 */
+	public void setClockwiseEdge(CyclicalNode neighbor)
 	{
 		edges[2] = new CoreNodeIOPort(neighbor);
 	}
 	
-	public void setCounterClockwiseEdge(BasicNode neighbor)
+	/**
+	 * Sets the link containing the counterClockwise neighbor of this node.
+	 * @param neighbor The counterClockwise neighbor of this node
+	 */
+	public void setCounterClockwiseEdge(CyclicalNode neighbor)
 	{
 		edges[1] = new CoreNodeIOPort(neighbor);
 	}
 	
+	/**
+	 * Gets the node connected by the clockwise edge, if the edge has been set already.
+	 * @return The node connected by the clockwise edge
+	 */
 	public CoreNodeIOPort getClockwiseEdge()
 	{
 		if(edges == null) return null;
 		return edges[2];
 	}
 	
+	/**
+	 * Gets the node connected by the counter-clockwiseEdge, if the edge has been set already.
+	 * @return The node connected by the counter-clockwise edge
+	 */
 	public CoreNodeIOPort getCounterClockwiseEdge()
 	{
 		if(edges == null) return null;
 		return edges[1];
 	}
 	
+	/**
+	 * Gets the headnode which is connected through an edge.
+	 * @return
+	 */
 	public CoreNodeIOPort getOverseerEdge()
 	{
 		if(edges == null) return null;
 		return edges[0];
 	}
 	
-	public void setOverseerEdge(BasicHeadNode overseerNode)
+	/**
+	 * Sets the headNode's edge given the headNode 
+	 * @param overseerNode the HeadNode
+	 */
+	public void setOverseerEdge(CyclicalHeadNode overseerNode)
 	{
 		edges[0] = new CoreNodeIOPort(overseerNode);
 	}
@@ -76,12 +120,12 @@ public class BasicNode extends CoreNode
 		//simulate cycle for first task
 		if(!tasks.isEmpty())
 		{
-			BasicTask nextTask = (BasicTask) tasks.peek(); //TODO move this section block to
+			CyclicalTask nextTask = (CyclicalTask) tasks.peek(); 
 			
 			//check the first to see if it needs to start requesting
-			if(nextTask.status == BasicTask.BasicTaskStatus.NEW)
+			if(nextTask.status == CyclicalTask.CyclicalTaskStatus.NEW)
 			{
-				nextTask.status = BasicTask.BasicTaskStatus.REQUESTING;
+				nextTask.status = CyclicalTask.CyclicalTaskStatus.REQUESTING;
 				//request clearance from head
 				requestTaskClearanceFromHead(nextTask);
 			}
@@ -92,21 +136,27 @@ public class BasicNode extends CoreNode
 			{
 				taskIterator.next().simulateCycle();
 			}
-			if(((BasicTask) tasks.peek()).getStatus() == BasicTask.BasicTaskStatus.COMPLETE)
+			if(((CyclicalTask) tasks.peek()).getStatus() == CyclicalTask.CyclicalTaskStatus.COMPLETE)
 			{
 				System.out.println(tasks.pop());
 			}
 		}
 	}
 	
-	public void approveWaitingTask(BasicDirection direction)
+	/**
+	 * If a task is waiting for clearence from the headnode, allow the headNode to approve it and 
+	 * begin.
+	 * @param direction
+	 */
+	public void approveWaitingTask(CyclicalDirection direction)
 	{
 		//determine if a task is waiting
 		if(tasks != null && tasks.size() > 0 && 
-				((BasicTask) tasks.peek()).getStatus() == BasicTask.BasicTaskStatus.REQUESTING)
+				((CyclicalTask) tasks.peek()).getStatus() == 
+				CyclicalTask.CyclicalTaskStatus.REQUESTING)
 		{
-			 BasicTask approvedTask = (BasicTask) tasks.peek();
-			 approvedTask.status = BasicTask.BasicTaskStatus.APPROVED;
+			 CyclicalTask approvedTask = (CyclicalTask) tasks.peek();
+			 approvedTask.status = CyclicalTask.CyclicalTaskStatus.APPROVED;
 			 approvedTask.setDirection(direction);
 			 teardownHeadConnection();
 		} else 
@@ -115,14 +165,21 @@ public class BasicNode extends CoreNode
 			throw new RuntimeException("No task is waiting to be approved");
 		}
 	}
-	
-	public BasicHeadNode getOverseerNode()
+	/**
+	 * Get the headnode if the OverseerLink has been set
+	 * @return the headNode
+	 */
+	public CyclicalHeadNode getOverseerNode()
 	{
 		if(edges == null) return null;
-		return (BasicHeadNode) edges[0].getLink();
+		return (CyclicalHeadNode) edges[0].getLink();
 	}
 
-	public void requestTaskClearanceFromHead(BasicTask taskRequest)
+	/**
+	 * Request clearance for the topmost task from the headNode
+	 * @param taskRequest
+	 */
+	public void requestTaskClearanceFromHead(CyclicalTask taskRequest)
 	{
 		if(tasks == null || tasks.isEmpty() || tasks.peek() == null)
 			throw new RuntimeException("No task exists. Clearance cannot be obtained");
@@ -139,17 +196,21 @@ public class BasicNode extends CoreNode
 		getOverseerEdge().teardownConnection();
 	}
 	
-	public void teardownConnectionToDestNode(BasicTask toCeaseComm)
+	/**
+	 * Destroy the Connection from this node (the sourceNode) to the destination node.
+	 * @param toCeaseComm the finished task whose connection is being destroyed
+	 */
+	public void teardownConnectionToDestNode(CyclicalTask toCeaseComm)
 	{
 		if(toCeaseComm.getSourceNodeNum() == nodeNumber)
 		{
 			switch(toCeaseComm.getDirection())
 			{
 				case CLOCKWISE:
-					teardownPortConnectionWithDirection(BasicDirection.CLOCKWISE);
+					teardownPortConnectionWithDirection(CyclicalDirection.CLOCKWISE);
 					break;
 				case COUNTERCLOCKWISE:
-					teardownPortConnectionWithDirection(BasicDirection.COUNTERCLOCKWISE);
+					teardownPortConnectionWithDirection(CyclicalDirection.COUNTERCLOCKWISE);
 					break;
 				default:
 					throw new RuntimeException("Task direction should either be clockwise or" +
@@ -161,10 +222,10 @@ public class BasicNode extends CoreNode
 			switch(toCeaseComm.getDirection())
 			{
 				case CLOCKWISE:
-					teardownPortConnectionWithDirection(BasicDirection.COUNTERCLOCKWISE);
+					teardownPortConnectionWithDirection(CyclicalDirection.COUNTERCLOCKWISE);
 					break;
 				case COUNTERCLOCKWISE:					
-					teardownPortConnectionWithDirection(BasicDirection.CLOCKWISE);
+					teardownPortConnectionWithDirection(CyclicalDirection.CLOCKWISE);
 					break;
 				default:
 					throw new RuntimeException("Task direction should either be clockwise or" +
@@ -172,22 +233,26 @@ public class BasicNode extends CoreNode
 			}
 		} else 
 		{
-			teardownPortConnectionWithDirection(BasicDirection.COUNTERCLOCKWISE);
-			teardownPortConnectionWithDirection(BasicDirection.CLOCKWISE);
+			teardownPortConnectionWithDirection(CyclicalDirection.COUNTERCLOCKWISE);
+			teardownPortConnectionWithDirection(CyclicalDirection.CLOCKWISE);
 		}
 	}
 	
-	public void setupConnectionToDestNode(BasicTask toStartComm)
+	/**
+	 * Opens a connection from this node to the destination node as described in the given task.
+	 * @param toStartComm The task which describes the connection to build
+	 */
+	public void setupConnectionToDestNode(CyclicalTask toStartComm)
 	{
 		if(toStartComm.getSourceNodeNum() == nodeNumber)
 		{
 			switch(toStartComm.getDirection())
 			{
 				case CLOCKWISE:
-					setupConnectionWithDirection(BasicDirection.CLOCKWISE);
+					setupConnectionWithDirection(CyclicalDirection.CLOCKWISE);
 					break;
 				case COUNTERCLOCKWISE:
-					setupConnectionWithDirection(BasicDirection.COUNTERCLOCKWISE);
+					setupConnectionWithDirection(CyclicalDirection.COUNTERCLOCKWISE);
 					break;
 				default:
 					throw new RuntimeException("Task direction should either be clockwise or" +
@@ -199,10 +264,10 @@ public class BasicNode extends CoreNode
 			switch(toStartComm.getDirection())
 			{
 				case CLOCKWISE:
-					setupConnectionWithDirection(BasicDirection.COUNTERCLOCKWISE);
+					setupConnectionWithDirection(CyclicalDirection.COUNTERCLOCKWISE);
 					break;
 				case COUNTERCLOCKWISE:					
-					setupConnectionWithDirection(BasicDirection.CLOCKWISE);
+					setupConnectionWithDirection(CyclicalDirection.CLOCKWISE);
 					break;
 				default:
 					throw new RuntimeException("Task direction should either be clockwise or" +
@@ -210,12 +275,12 @@ public class BasicNode extends CoreNode
 			}
 		} else 
 		{
-			setupConnectionWithDirection(BasicDirection.COUNTERCLOCKWISE);
-			setupConnectionWithDirection(BasicDirection.CLOCKWISE);
+			setupConnectionWithDirection(CyclicalDirection.COUNTERCLOCKWISE);
+			setupConnectionWithDirection(CyclicalDirection.CLOCKWISE);
 		}
 	}
 	
-	private void teardownPortConnectionWithDirection(BasicDirection direction)
+	private void teardownPortConnectionWithDirection(CyclicalDirection direction)
 	{
 		switch(direction)
 		{
@@ -231,7 +296,7 @@ public class BasicNode extends CoreNode
 		}
 	}
 	
-	private void setupConnectionWithDirection(BasicDirection direction)
+	private void setupConnectionWithDirection(CyclicalDirection direction)
 	{
 		switch(direction)
 		{
@@ -248,7 +313,7 @@ public class BasicNode extends CoreNode
 	}
 
 	/**
-	 * @return the nodeNumber
+	 * @return the nodeNumber that this node is designated with
 	 */
 	public int getNodeNumber()
 	{

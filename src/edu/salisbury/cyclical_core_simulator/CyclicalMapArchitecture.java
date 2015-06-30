@@ -1,21 +1,53 @@
-package edu.salisbury.basic_core_simulator;
+package edu.salisbury.cyclical_core_simulator;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 
-import edu.salisbury.core_simulator.BasicArchitecture;
 import edu.salisbury.core_simulator.Coordinate;
 
-public class BasicMapArchitecture extends BasicArchitecture
+/**
+ * Cyclical Map architecture is a cyclical architecture which allows you to individually specify 
+ * what nodes and nodeNumbers correspond to which coordinates. 
+ * 
+ * <p>
+ * The Cyclical map is implemented using a Coordinate to Integer map. Nodes form links with nodes
+ * with NodeNumber values 1 larger (for the clockwise direction) and 1 less (for the 
+ * counterclockwise direction). Nodes with NodeNumbers at 0 and map.size() - 1 will connect with 
+ * each other forming a cyclical structure. The nodeNumbers specified must contain 0 to the 
+ * numberToCoordMapping.size() such that no nodeNumbers which the cyclical architecture is being 
+ * mapped to can be skipped or repeated.
+ * </p>
+ * 
+ * @author timfoil
+ *
+ */
+public class CyclicalMapArchitecture extends CyclicalArchitecture
 {
 	private HashMap<Coordinate, Integer> coordsToNumberMapping;
 	private HashMap<Integer, Coordinate> numberToCoordsMapping;
 	
 	private HashMap<Integer, Integer> switchingMap;
 	
-	public BasicMapArchitecture(int bitsPerFlit,
+	/**
+	 * Constructor for CyclicalMap architecture. 
+	 * 
+	 * <p> In addition to a coordsToNumberMapping, the 
+	 * constructor also takes a switching map. This map will keep track of which nodes are 
+	 * effectively swapped in the architecture, this map must be bijective. Each coordinate specified 
+	 * must exist both as a key and a value once and only once, coordinates not specified are 
+	 * automatically assumed to map to themselves.
+	 * </p>
+	 * 
+	 * @param 	bitsPerFlit number of bits that exist in a single flit
+	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
+	 * 			nodes
+	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
+	 * @param 	switchingMap The map which keeps track of which nodes are 
+	 * 			effectively swapped in the architecture
+	 */
+	public CyclicalMapArchitecture(int bitsPerFlit,
 			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping, 
 			HashMap<Coordinate, Coordinate> switchingMap)
 	{
@@ -23,8 +55,15 @@ public class BasicMapArchitecture extends BasicArchitecture
 		this.coordsToNumberMapping = coordsToNumberMapping;
 		init(switchingMap);
 	}
-	
-	public BasicMapArchitecture(int bitsPerFlit,
+	/**
+	 * Constructor for CyclicalMap architecture. 
+	 * 
+	 * @param 	bitsPerFlit number of bits that exist in a single flit
+	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
+	 * 			nodes
+	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
+	 */
+	public CyclicalMapArchitecture(int bitsPerFlit,
 			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping)
 	{
 		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime);
@@ -69,18 +108,18 @@ public class BasicMapArchitecture extends BasicArchitecture
 			switchCoordsSwapMapToIntegerSwap(coordSwitchingMap);
 		}
 		
-		basicNodeList[0] = new BasicNode(headNode, 0);
+		cyclicalNodeList[0] = new CyclicalNode(headNode, 0);
 		
-		for(int i = 1; i < basicNodeList.length; i++)
+		for(int i = 1; i < cyclicalNodeList.length; i++)
 		{
-			basicNodeList[i] = new BasicNode(headNode, i);
+			cyclicalNodeList[i] = new CyclicalNode(headNode, i);
 			
-			basicNodeList[i].setCounterClockwiseEdge(basicNodeList[i-1]);
-			basicNodeList[i-1].setClockwiseEdge(basicNodeList[i]);
+			cyclicalNodeList[i].setCounterClockwiseEdge(cyclicalNodeList[i-1]);
+			cyclicalNodeList[i-1].setClockwiseEdge(cyclicalNodeList[i]);
 		}
-		basicNodeList[basicNodeList.length - 1].setClockwiseEdge(basicNodeList[0]);
-		basicNodeList[0].setCounterClockwiseEdge(basicNodeList[basicNodeList.length - 1]);
-		headNode.setEdges(basicNodeList);
+		cyclicalNodeList[cyclicalNodeList.length - 1].setClockwiseEdge(cyclicalNodeList[0]);
+		cyclicalNodeList[0].setCounterClockwiseEdge(cyclicalNodeList[cyclicalNodeList.length - 1]);
+		headNode.setEdges(cyclicalNodeList);
 	}
 	
 	/* Changes a coordinate to coordinate swappingMap to a Integer to Integer map */
@@ -162,9 +201,9 @@ public class BasicMapArchitecture extends BasicArchitecture
 	
 	/*Takes an unswitched coordinate to a switched node*/
 	@Override
-	public BasicNode coordinatesToNode(Coordinate coord)
+	public CyclicalNode coordinatesToNode(Coordinate coord)
 	{
-		return basicNodeList[coordinatesToNumber(coord)]; 
+		return cyclicalNodeList[coordinatesToNumber(coord)]; 
 	}
 	
 	/**
@@ -188,10 +227,21 @@ public class BasicMapArchitecture extends BasicArchitecture
 	 * @return The node corresponding to the switched nodeNumber
 	 */
 	@Override
-	public BasicNode numberToNode(int nodeNumber)
+	public CyclicalNode numberToNode(int nodeNumber)
 	{
 		checkForValidNodeNumber(nodeNumber);
-		return basicNodeList[nodeNumber];
+		return cyclicalNodeList[nodeNumber];
+	}
+	
+	/**
+	 * Converts an unswiched number to the node corresponding to the switched number.
+	 * 
+	 * @param nodeNumber an unSwitched number for a Node
+	 * @return The node corresponding to the switched nodeNumber
+	 */
+	public CyclicalNode unswitchedNumberToNode(int nodeNumber)
+	{
+		return numberToNode(unswitchedNumberToSwitchedNumber(nodeNumber));
 	}
 
 	/* Ensure the coordinates given are valid */

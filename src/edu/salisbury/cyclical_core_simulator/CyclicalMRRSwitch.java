@@ -1,9 +1,9 @@
-package edu.salisbury.basic_core_simulator;
+package edu.salisbury.cyclical_core_simulator;
 
 import edu.salisbury.core_simulator.CoreNode;
 import edu.salisbury.core_simulator.MRRSwitch;
 
-public class BasicMRRSwitch extends MRRSwitch {
+public class CyclicalMRRSwitch extends MRRSwitch {
 	
 //	public MRRSwitch(CoreNode[] pathNodes) {
 //	links = pathNodes;
@@ -16,7 +16,7 @@ public class BasicMRRSwitch extends MRRSwitch {
 //		links = updateConnectedLinks();
 //	}
 
-	public BasicMRRSwitch(CoreNode topLeftNode, CoreNode topRightNode,
+	public CyclicalMRRSwitch(CoreNode topLeftNode, CoreNode topRightNode,
 			CoreNode bottomRightNode, CoreNode bottomLeftNode) {
 		topLeftLink = topLeftNode;
 		topRightLink = topRightNode;
@@ -27,7 +27,8 @@ public class BasicMRRSwitch extends MRRSwitch {
 	
 	public CoreNode getDestinationNode(CoreNode sourceNode) {
 		if (state == State.ON) {
-			if (sourceNode == topLeftLink) {
+			if (sourceNode == topLeftLink) 
+			{
 				return topRightLink;
 			} else if (sourceNode == topRightLink) {
 				return topLeftLink;
@@ -46,8 +47,8 @@ public class BasicMRRSwitch extends MRRSwitch {
 			} else if (sourceNode == bottomLeftLink) {
 				return topRightLink;
 			}
-		} else throw new RuntimeException("This source node does not connect to this switch.");
-		return null; //sourceNode does not connect to this switch
+		}  
+		throw new RuntimeException("This source node does not connect to this switch.");
 	}
 	
 	//IF USING FIRST/SECOND CONSTRUCTOR, THEN NEED TO UPDATE WHICH CORE IS AT WHICH LINK

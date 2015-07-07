@@ -1,6 +1,7 @@
 package edu.salisbury.cyclical_core_simulator;
 
 import edu.salisbury.core_simulator.CoreTask;
+import edu.salisbury.core_simulator.MainGUI;
 
 /**
  * A task that describes a message that needs to be passed from a source to destination node in a 
@@ -315,17 +316,17 @@ public class CyclicalTask extends CoreTask
 	public String toString()
 	{
 		StringBuilder taskAnalysis = new StringBuilder();
-		taskAnalysis.append("Task created at: ").append(taskCreationTime);
-		taskAnalysis.append(" Task finished at: ").append(taskCreationTime + getTotalTaskTime());
-		taskAnalysis.append(" Task duration Time: ").append(getTotalTaskTime());
+		//taskAnalysis.append("Task created at: ").append(taskCreationTime);
+		//taskAnalysis.append(" Task finished at: ").append(taskCreationTime + getTotalTaskTime());
+		//taskAnalysis.append(" Task duration Time: ").append(getTotalTaskTime());
 		taskAnalysis.append(" Task direction: ").append(direction);
 		taskAnalysis.append(" Task source: ").append(sourceNodeRef.getNodeNumber());
 		taskAnalysis.append(" Task destination: ").append(destinationNodeNum);
-		taskAnalysis.append(" Flit size: ").append(this.flitSize);
+		//taskAnalysis.append(" Flit size: ").append(this.flitSize);
 		//the following time variables should add up to the taskTime variable
 		
 		//TODO add a variable to lock/unlock this analysis
-		if(true)
+		/**if(true)
 		{
 			taskAnalysis.append("\nTime analysis, new: ").append(newTaskTime);
 			taskAnalysis.append(" requesting: ").append(requestingTaskTime);
@@ -334,8 +335,8 @@ public class CyclicalTask extends CoreTask
 			//taskAnalysis.append(" denied: ").append(deniedTaskTime);
 			//taskAnalysis.append(" complete: ").append(completeTaskTime);
 			taskAnalysis.append(" teardown: ").append(teardownTaskTime);
-		}
-		
+		}*/
+		MainGUI.printToConsole(taskAnalysis.toString());
 		return taskAnalysis.toString();
 	}
 

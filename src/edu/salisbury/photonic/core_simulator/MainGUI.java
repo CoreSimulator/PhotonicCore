@@ -276,6 +276,8 @@ public class MainGUI {
 				}
 				printToConsole("Total requesting time = " + totalRequestingTime + " | Total tasks = " + totalTasks + 
 						" | Total latency = " + (totalRequestingTime - (2*totalTasks)));
+				totalRequestingTime = 0;
+				totalTasks = 0;
 			}
 		});
 		btnSimulate.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));

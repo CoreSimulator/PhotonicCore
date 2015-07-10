@@ -23,6 +23,8 @@ public class MainGUI {
 	public static int totalTasks = 0;
 	
 	protected Shell shellRONoC;
+	protected Display display;
+	protected ProgressBar progressBar;
 	private String simulatorTopology = "Ring";
 	private int simulatorFlitPacketSize = 64; 
 	private int simulatorTearDownTime = 1;
@@ -49,7 +51,7 @@ public class MainGUI {
 	 * Open the window.
 	 */
 	public void open() {
-		Display display = Display.getDefault();
+		display = Display.getDefault();
 		createContents();
 		shellRONoC.open();
 		shellRONoC.layout();
@@ -255,6 +257,10 @@ public class MainGUI {
 	}
 	
 	private void createSimulatorButton() {
+		progressBar = new ProgressBar(shellRONoC, SWT.SMOOTH);
+		progressBar.setBounds(10, 566, 803, 17);
+		progressBar.setMaximum(60000);
+		
 		Button btnSimulate = new Button(shellRONoC, SWT.NONE);
 		btnSimulate.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -263,16 +269,19 @@ public class MainGUI {
 				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime);
 				Thread simulatorThread = new Thread(simulator);
 				simulatorThread.start();
+				while (totalTasks <= progressBar.getMaximum()) {
+					try {Thread.sleep(100); } 
+					catch (Throwable th) {}
+					progressBar.setSelection(totalTasks);
+				}
+				printToConsole("Total requesting time = " + totalRequestingTime + " | Total tasks = " + totalTasks + 
+						" | Total latency = " + (totalRequestingTime - (2*totalTasks)));
 			}
 		});
 		btnSimulate.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		btnSimulate.setBounds(819, 562, 75, 25);
 		btnSimulate.setText("Simulate");
-		
-		ProgressBar progressBar = new ProgressBar(shellRONoC, SWT.NONE);
-		progressBar.setBounds(10, 566, 803, 17);
 		//end simulator button
-		
 	}
 	
 }//end class

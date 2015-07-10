@@ -270,12 +270,12 @@ public class MainGUI {
 				Thread simulatorThread = new Thread(simulator);
 				simulatorThread.start();
 				while (totalTasks <= progressBar.getMaximum()) {
-					try {Thread.sleep(100); } 
-					catch (Throwable th) {}
 					progressBar.setSelection(totalTasks);
 				}
 				printToConsole("Total requesting time = " + totalRequestingTime + " | Total tasks = " + totalTasks + 
 						" | Total latency = " + (totalRequestingTime - (2*totalTasks)));
+				totalRequestingTime = 0;
+				totalTasks = 0;
 			}
 		});
 		btnSimulate.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));

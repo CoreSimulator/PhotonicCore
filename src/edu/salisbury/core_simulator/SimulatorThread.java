@@ -48,12 +48,6 @@ public class SimulatorThread implements Runnable{
 				test1.simulateWithLog(basicLog);
 				break;
 		}//end switch
-		String message = "Total requesting time = " + MainGUI.totalRequestingTime + " | Total tasks = " + MainGUI.totalTasks + " | Total latency = " + (MainGUI.totalRequestingTime - (2*MainGUI.totalTasks) +
-				" | Log Size = " + basicLog.logSize());
-		//MainGUI.printToConsole(message);
-		System.out.println(message);
-		MainGUI.totalTasks = 0;
-		MainGUI.totalRequestingTime = 0;
 	}
 	
 }

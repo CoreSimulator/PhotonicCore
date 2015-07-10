@@ -92,10 +92,11 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 				switchingMap);
 	}
 
-	@Override
-	protected void delegateTaskToNode(LogEntry entry)
+	
+	
+	protected void delegateTaskToNode(LogEntry entry, int taskIndex) 
 	{
-		((CyclicalArchitecture) simulation).simulateTask(entry);
+		((CyclicalArchitecture) simulation).simulateTask(entry, taskIndex);
 	}
 
 	@Override

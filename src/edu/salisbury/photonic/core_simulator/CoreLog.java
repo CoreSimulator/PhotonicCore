@@ -90,6 +90,33 @@ public class CoreLog
 	}
 	
 	/**
+	 * Takes a log and returns a string in a format that can be read by LogReader.
+	 * 
+	 * @return a string in a format that can be read by LogReader
+	 */
+	public String toLogFormat()
+	{
+		//Edge cases for if log doesn't exist or doesn't have any entries
+		if(log == null) return null;
+		else if(log.size() == 0) return "";
+		
+		StringBuilder builder = new StringBuilder();
+		for(LogEntry entry : log)
+		{
+			
+			builder.append(entry.timeStamp()).append(" ");
+			builder.append(entry.sourceX()).append(" ");
+			builder.append(entry.sourceY()).append(" ");
+			builder.append(entry.destX()).append(" ");
+			builder.append(entry.destY()).append(" ");
+			builder.append(entry.packetSize()).append("\n");
+		}
+		
+		//remove the last "/n" from the string
+		return builder.delete(builder.length()-1, builder.length()).toString();
+	}
+	
+	/**
 	 * Performs the specified LogAnalyser test on this CoreLog.
 	 * 
 	 * @param test to run on this Log.

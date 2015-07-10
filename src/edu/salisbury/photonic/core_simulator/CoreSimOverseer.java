@@ -1,5 +1,6 @@
 package edu.salisbury.photonic.core_simulator;
 
+
 /**
  * A basic abstract building block for a simulator class. Lays down some of the standards that
  * a subclassed simulator are expected to follow.
@@ -17,9 +18,11 @@ public abstract class CoreSimOverseer
 	
 	/**
 	 * Gives a task that needs to be simulated to the underlying architecture to handle.
-	 * @param entry An logEntry that describes a task that needs to be handled.
+	 * @param 	entry An logEntry that describes a task that needs to be handled.
+	 * @param 	taskId An identifier for a specific task, in most cases the CoreLog index number 
+	 * 			will be appropriate.
 	 */
-	protected abstract void delegateTaskToNode(LogEntry entry);
+	protected abstract void delegateTaskToNode(LogEntry entry, int taskId);
 	
 	/**
 	 * Simulates this simulator's architecture for a single cycle 
@@ -35,7 +38,8 @@ public abstract class CoreSimOverseer
 			//delegate tasks to cores
 			while( logIndex < log.logSize() && log.getEntry(logIndex).timeStamp() == cycles)
 			{
-				delegateTaskToNode(log.getEntry(logIndex++));
+				delegateTaskToNode(log.getEntry(logIndex), logIndex);
+				logIndex++;
 			}
 			//run a cycle
 			simulateCycle();

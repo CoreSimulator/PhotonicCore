@@ -86,11 +86,13 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	/**
 	 * Simulates the creation of a task described by the given {@link LogEntry}.
 	 * 
-	 * @param entry an entry that describes a task to be simulated
+	 * @param 	entry an entry that describes a task to be simulated
+	 * @param 	taskId an integer that identifies the task described by the logEntry,
+	 * 			typically the index of the logEntry is appropriate.
 	 */
-	public void simulateTask(LogEntry entry)
+	public void simulateTask(LogEntry entry, int taskId)
 	{
-		CyclicalTask taskToAssign = new CyclicalTask(coordinatesToNode(entry.sourceNode()), 
+		CyclicalTask taskToAssign = new CyclicalTask(taskId ,coordinatesToNode(entry.sourceNode()),
 				coordinatesToNumber(entry.destNode()), entry.packetSize(), entry.timeStamp(), this);
 		
 		numberToNode(taskToAssign.getSourceNodeNum()).addTask(taskToAssign);

@@ -319,5 +319,10 @@ public class CyclicalNode extends CoreNode
 	{
 		return nodeNumber;
 	}
+	
+	public boolean isFinished()
+	{
+		return tasks.isEmpty();
+	}
 }
 

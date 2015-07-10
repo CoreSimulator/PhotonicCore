@@ -23,7 +23,7 @@ import edu.salisbury.photonic.core_simulator.Coordinate;
  * @author timfoil
  *
  */
-public class CyclicalMapArchitecture extends CyclicalArchitecture
+public class CyclicalMappedArchitecture extends CyclicalArchitecture
 {
 	private HashMap<Coordinate, Integer> coordsToNumberMapping;
 	private HashMap<Integer, Coordinate> numberToCoordsMapping;
@@ -47,7 +47,7 @@ public class CyclicalMapArchitecture extends CyclicalArchitecture
 	 * @param 	switchingMap The map which keeps track of which nodes are 
 	 * 			effectively swapped in the architecture
 	 */
-	public CyclicalMapArchitecture(int bitsPerFlit,
+	public CyclicalMappedArchitecture(int bitsPerFlit,
 			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping, 
 			HashMap<Coordinate, Coordinate> switchingMap)
 	{
@@ -63,7 +63,7 @@ public class CyclicalMapArchitecture extends CyclicalArchitecture
 	 * 			nodes
 	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
 	 */
-	public CyclicalMapArchitecture(int bitsPerFlit,
+	public CyclicalMappedArchitecture(int bitsPerFlit,
 			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping)
 	{
 		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime);
@@ -153,8 +153,8 @@ public class CyclicalMapArchitecture extends CyclicalArchitecture
 			}
 			
 			//make sure these are valid coordinates
-			if(!coordsToNumberMapping.containsKey(mapEntry.getKey()) ||
-					!coordsToNumberMapping.containsKey(mapEntry.getValue()))
+			if(coordsToNumberMapping.containsKey(mapEntry.getKey()) &&
+					coordsToNumberMapping.containsKey(mapEntry.getValue()))
 			{
 				switchingMap.put(
 						unSwitchedCoordsToUnswitchedNumber(mapEntry.getKey()), 

@@ -1,6 +1,7 @@
 package edu.salisbury.photonic.cyclical_core_simulator;
 
 import edu.salisbury.photonic.core_simulator.CoreTask;
+import edu.salisbury.photonic.core_simulator.MainGUI;
 
 /**
  * A task that describes a message that needs to be passed from a source to destination node in a 
@@ -40,6 +41,8 @@ public class CyclicalTask extends CoreTask
 	private int completeTaskTime;
 	private int teardownTaskTime;
 	
+	private int taskId; //Typically the log index this task was created at
+	
 	/**Cycle number this task was created on*/
 	private int taskCreationTime;
 	
@@ -56,16 +59,17 @@ public class CyclicalTask extends CoreTask
 	 * @param 	architecture the overlying architecture of the connected nodes, which
 	 * 			should include the source and destination nodes.
 	 */
-	public CyclicalTask(CyclicalNode sourceNodeRef, int destinationNodeNum, 
+	public CyclicalTask(int taskId, CyclicalNode sourceNodeRef, int destinationNodeNum, 
 			int flitSize, int taskCreationTime, CyclicalArchitecture architecture) 
 	{
+		this.taskId = taskId;
 		this.architecture = architecture;
 		this.sourceNodeRef = sourceNodeRef;
 		this.destinationNodeNum = destinationNodeNum;
 		this.status = CyclicalTaskStatus.NEW;
 		this.flitSize = flitSize;
 		this.taskCreationTime = taskCreationTime;
-	}//end CyclicalTask constructor
+	}
 
 	@Override
 	public void incrementTotalTaskTime()
@@ -171,6 +175,8 @@ public class CyclicalTask extends CoreTask
 				incrementTotalTaskTime();//increment teardown
 				((CyclicalNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
 				status = CyclicalTaskStatus.COMPLETE;//change to complete
+				MainGUI.totalRequestingTime += requestingTaskTime;
+				MainGUI.totalTasks ++;
 				break;
 			case COMPLETE:
 				throw new RuntimeException("This task is already complete, " +
@@ -335,7 +341,6 @@ public class CyclicalTask extends CoreTask
 			//taskAnalysis.append(" complete: ").append(completeTaskTime);
 			taskAnalysis.append(" teardown: ").append(teardownTaskTime);
 		}
-		
 		return taskAnalysis.toString();
 	}
 

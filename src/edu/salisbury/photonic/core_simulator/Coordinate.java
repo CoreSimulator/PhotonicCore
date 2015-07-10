@@ -22,8 +22,8 @@ public class Coordinate
 	 */
 	public Coordinate(int x, int y)
 	{
-		coordX = x;
-		coordY = y;
+		this.coordX = x;
+		this.coordY = y;
 	}
 	
 	/**
@@ -31,8 +31,18 @@ public class Coordinate
 	 */
 	public Coordinate()
 	{
-		coordX = 0;
-		coordY = 0;
+		this.coordX = 0;
+		this.coordY = 0;
+	}
+	
+	/**
+	 * Constructor that constructs a copy of the given coordinate object.
+	 * @param toCopy the Coordinate to copy
+	 */
+	public Coordinate(Coordinate toCopy)
+	{
+		this.coordX = toCopy.coordX;
+		this.coordY = toCopy.coordY;
 	}
 	
 	/**

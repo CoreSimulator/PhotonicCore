@@ -1,6 +1,5 @@
 package edu.salisbury.photonic.core_simulator;
 
-import edu.salisbury.photonic.MainClasses.Main;
 
 /**
  * A basic abstract building block for a simulator class. Lays down some of the standards that

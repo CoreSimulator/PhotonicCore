@@ -63,7 +63,8 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
-		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, coordinateSwitchingMap);
+		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
+				coordinateSwitchingMap);
 	}
 	
 	/**
@@ -88,14 +89,14 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
-		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, coordinateSwitchingMap,
-				switchingMap);
+		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
+				coordinateSwitchingMap, switchingMap);
 	}
 
 	@Override
-	protected void delegateTaskToNode(LogEntry entry)
+	public void delegateTaskToNode(LogEntry entry, int taskIndex)
 	{
-		((CyclicalArchitecture) simulation).simulateTask(entry);
+		((CyclicalArchitecture) simulation).simulateTask(entry, taskIndex);
 	}
 
 	@Override

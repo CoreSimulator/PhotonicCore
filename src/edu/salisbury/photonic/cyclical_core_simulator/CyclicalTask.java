@@ -41,6 +41,8 @@ public class CyclicalTask extends CoreTask
 	private int completeTaskTime;
 	private int teardownTaskTime;
 	
+	private int taskId; //Typically the log index this task was created at
+	
 	/**Cycle number this task was created on*/
 	private int taskCreationTime;
 	
@@ -57,16 +59,17 @@ public class CyclicalTask extends CoreTask
 	 * @param 	architecture the overlying architecture of the connected nodes, which
 	 * 			should include the source and destination nodes.
 	 */
-	public CyclicalTask(CyclicalNode sourceNodeRef, int destinationNodeNum, 
+	public CyclicalTask(int taskId, CyclicalNode sourceNodeRef, int destinationNodeNum, 
 			int flitSize, int taskCreationTime, CyclicalArchitecture architecture) 
 	{
+		this.taskId = taskId;
 		this.architecture = architecture;
 		this.sourceNodeRef = sourceNodeRef;
 		this.destinationNodeNum = destinationNodeNum;
 		this.status = CyclicalTaskStatus.NEW;
 		this.flitSize = flitSize;
 		this.taskCreationTime = taskCreationTime;
-	}//end CyclicalTask constructor
+	}
 
 	@Override
 	public void incrementTotalTaskTime()

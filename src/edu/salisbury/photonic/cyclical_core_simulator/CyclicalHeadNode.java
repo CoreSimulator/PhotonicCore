@@ -349,8 +349,22 @@ public class CyclicalHeadNode extends CoreNode
 	 */
 	public boolean allTasksFinished()
 	{
-		return currentlyExecutingTasks.isEmpty() && 
+		if(currentlyExecutingTasks.isEmpty() && 
 				previouslySentTasks.isEmpty() && 
-				newlyReceivedTasks.isEmpty();
+				newlyReceivedTasks.isEmpty())
+		{
+			for(CoreNodeIOPort edge: edges)
+			{
+				if(!((CyclicalNode) edge.getLink()).isFinished())
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

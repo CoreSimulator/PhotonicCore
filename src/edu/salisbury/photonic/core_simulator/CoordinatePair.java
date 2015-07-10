@@ -16,8 +16,8 @@ public class CoordinatePair
 	 */
 	public CoordinatePair()
 	{
-		coord1 = new Coordinate(0,0);
-		coord2 = new Coordinate(0,0);
+		coord1 = new Coordinate(0, 0);
+		coord2 = new Coordinate(0, 0);
 	}
 	
 	/**
@@ -49,14 +49,30 @@ public class CoordinatePair
 	/**
 	 * Constructor for a CoordinatePair, takes two ints to construct the first 
 	 * {@link Coordinate} and one coordinate object for the second coordinate.
-	 * @param coordinate1 first coordinate
-	 * @param x2 x value for the second coordinate
-	 * @param y2 y value for the second coordinate
+	 * 
+	 * @param x1 x value for the first coordinate
+	 * @param y1 y value for the first coordinate
+	 * @param coordinate2 the second coordinate
 	 */
 	public CoordinatePair(int x1, int y1, Coordinate coordinate2)
 	{
-		coord1 = new Coordinate(x1,y1);
+		coord1 = new Coordinate(x1, y1);
 		coord2 = coordinate2;
+	}
+	
+	/**
+	 * Constructor for a CoordinatePair, takes two ints to construct the first 
+	 * {@link Coordinate} and two ints for the second coordinate.
+	 * 
+	 * @param x1 x value for the first coordinate
+	 * @param y1 y value for the first coordinate
+	 * @param x2 x value for the second coordinate
+	 * @param y2 y value for the second coordinate
+	 */
+	public CoordinatePair(int x1, int y1, int x2, int y2)
+	{
+		coord1 = new Coordinate(x1, y1);
+		coord2 = new Coordinate(x2, y2);
 	}
 	
 	/**

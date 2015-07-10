@@ -1,5 +1,4 @@
 package edu.salisbury.core_simulator;
-import java.util.HashMap;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -16,19 +15,20 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import edu.salisbury.cyclical_core_simulator.CyclicalSimOverseer;
 import org.eclipse.swt.widgets.ProgressBar;
 
 
 public class MainGUI {
-
+	public static int totalRequestingTime = 0;
+	public static int totalTasks = 0;
+	
 	protected Shell shellRONoC;
 	private String simulatorTopology = "Ring";
-	private int simulatorNumOfBodyCores = 64; 
+	private int simulatorFlitPacketSize = 64; 
 	private int simulatorTearDownTime = 1;
 	//private int simulatorNumOfSwitches = 0;
-	private Canvas canvasTopologyPreview;
-	private static Label lblConsoleOutput;
+	private Canvas canvasTopologyPreview;;
+	public static Label lblConsoleOutput;
 
 
 	/**
@@ -102,42 +102,42 @@ public class MainGUI {
 		tltmRingTopology.setSelection(true);
 		tltmRingTopology.setText("o Ring Topology");
 		
-		ToolBar toolBarNumOfCore = new ToolBar(grpArchitectureOptions, SWT.BORDER | SWT.FLAT | SWT.VERTICAL);
-		toolBarNumOfCore.setBounds(302, 41, 280, 179);
+		ToolBar toolBarFlitPacketSize = new ToolBar(grpArchitectureOptions, SWT.BORDER | SWT.FLAT | SWT.VERTICAL);
+		toolBarFlitPacketSize.setBounds(302, 41, 280, 179);
 		
-		ToolItem tltm16BC = new ToolItem(toolBarNumOfCore, SWT.RADIO);
-		tltm16BC.addSelectionListener(new SelectionAdapter() {
+		ToolItem tltm16FlitPacket = new ToolItem(toolBarFlitPacketSize, SWT.RADIO);
+		tltm16FlitPacket.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				simulatorNumOfBodyCores = 16;
+				simulatorFlitPacketSize = 16;
 			}
 		});
-		tltm16BC.setText("o 16");
+		tltm16FlitPacket.setText("o 16");
 		
-		ToolItem tltm32BC = new ToolItem(toolBarNumOfCore, SWT.RADIO);
-		tltm32BC.addSelectionListener(new SelectionAdapter() {
+		ToolItem tltm32FlitPacket = new ToolItem(toolBarFlitPacketSize, SWT.RADIO);
+		tltm32FlitPacket.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				simulatorNumOfBodyCores = 32;
+				simulatorFlitPacketSize = 32;
 			}
 		});
-		tltm32BC.setText("o 32");
+		tltm32FlitPacket.setText("o 32");
 		
-		ToolItem tltm64BC = new ToolItem(toolBarNumOfCore, SWT.RADIO);
-		tltm64BC.addSelectionListener(new SelectionAdapter() {
+		ToolItem tltm64FlitPacket = new ToolItem(toolBarFlitPacketSize, SWT.RADIO);
+		tltm64FlitPacket.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				simulatorNumOfBodyCores = 64;
+				simulatorFlitPacketSize = 64;
 			}
 		});
-		tltm64BC.setWidth(40);
-		tltm64BC.setSelection(true);
-		tltm64BC.setText("o 64");
+		tltm64FlitPacket.setWidth(40);
+		tltm64FlitPacket.setSelection(true);
+		tltm64FlitPacket.setText("o 64");
 		
-		Label lblNumOfBodyCores = new Label(grpArchitectureOptions, SWT.NONE);
-		lblNumOfBodyCores.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
-		lblNumOfBodyCores.setBounds(377, 20, 131, 15);
-		lblNumOfBodyCores.setText("Number of Body Cores");
+		Label lblFlitPacketSize = new Label(grpArchitectureOptions, SWT.NONE);
+		lblFlitPacketSize.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblFlitPacketSize.setBounds(377, 20, 131, 15);
+		lblFlitPacketSize.setText("Size of Flit Packet");
 		
 		Label lblTopology = new Label(grpArchitectureOptions, SWT.NONE);
 		lblTopology.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
@@ -208,14 +208,24 @@ public class MainGUI {
 				int y1 = yInit + diameter/2;
 				int x2;
 				int y2 = yInit + diameter + yOffset + diameter/2;
+				int coreID = 1;
+				int coreIDRow2 = 16;
 				//draw left and right vertical link
 				e.gc.drawLine(xInit + diameter/2, y1 + diameter/2, xInit + diameter/2, y1 + diameter/2 + yOffset);
 				e.gc.drawLine(xInit + (diameter + xOffset)*7 + diameter/2, y1 + diameter/2, xInit + (diameter + xOffset)*7 + diameter/2, y1 + diameter/2 + yOffset);
 				//draw body cores and horizontal links
 				for (int i = 0; i < 8; i++) {
 					e.gc.drawOval(xInit + xOffset*i, yInit, diameter, diameter);
+					e.gc.drawText("" + coreID, xInit + diameter/2 + i*xOffset - 1, y1 - 6);
 					e.gc.drawOval(xInit + xOffset*i, yInit + diameter + yOffset, diameter, diameter);
+					if (coreIDRow2 == 9) {
+						e.gc.drawText("" + coreIDRow2, xInit + diameter/2 + i*xOffset - 1, y2 - 6);
+					} else {
+						e.gc.drawText("" + coreIDRow2, xInit + diameter/2 + i*xOffset - 5, y2 - 6);
+					}
 					xInit += diameter;
+					coreID ++;
+					coreIDRow2 --;
 					if (i < 7) {
 						x2 = x1 + xOffset;
 						e.gc.drawLine(x1, y1, x2, y1);
@@ -250,7 +260,9 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				printToConsole("Simulating...");
-				runSimulator();
+				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime);
+				Thread simulatorThread = new Thread(simulator);
+				simulatorThread.start();
 			}
 		});
 		btnSimulate.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
@@ -262,31 +274,5 @@ public class MainGUI {
 		//end simulator button
 		
 	}
-
-	private void runSimulator() {
-		CoreLog basicLog = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
-		
-		HashMap<Coordinate, Integer> switchingMap =  new HashMap<Coordinate, Integer>();
-		for(int i = 0; i < 8; i++)
-		{
-			switchingMap.put(new Coordinate(1,i), i);
-		}
-		for(int i = 7; i >= 0; i--)
-		{
-			switchingMap.put(new Coordinate(2,7-i), 8+i);
-		}
-		
-		//Select the topology to simulate
-		switch(simulatorTopology) {
-			case "Ring":
-				CyclicalSimOverseer test = new CyclicalSimOverseer(simulatorNumOfBodyCores, simulatorTearDownTime, switchingMap);
-				test.simulateWithLog(basicLog);
-				break;
-			default:
-				CyclicalSimOverseer test1 = new CyclicalSimOverseer(simulatorNumOfBodyCores, simulatorTearDownTime, switchingMap);
-				test1.simulateWithLog(basicLog);
-				break;
-		}//end switch
-		
-	}
+	
 }//end class

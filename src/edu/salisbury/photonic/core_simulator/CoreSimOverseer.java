@@ -17,6 +17,14 @@ public abstract class CoreSimOverseer
 	protected CoreArchitecture simulation;
 	
 	/**
+	 * Gives a task that needs to be simulated to the underlying architecture to handle.
+	 * @param 	entry An logEntry that describes a task that needs to be handled.
+	 * @param 	taskId An identifier for a specific task, in most cases the CoreLog index number 
+	 * 			will be appropriate.
+	 */
+	protected abstract void delegateTaskToNode(LogEntry entry, int taskId);
+	
+	/**
 	 * Simulates this simulator's architecture for a single cycle 
 	 */
 	protected abstract void simulateCycle();
@@ -30,7 +38,7 @@ public abstract class CoreSimOverseer
 			//delegate tasks to cores
 			while( logIndex < log.logSize() && log.getEntry(logIndex).timeStamp() == cycles)
 			{
-				delegateTaskToNode(log.getEntry(logIndex), logIndex); //delete this/change back
+				delegateTaskToNode(log.getEntry(logIndex), logIndex);
 				logIndex++;
 			}
 			//run a cycle
@@ -57,11 +65,4 @@ public abstract class CoreSimOverseer
 	 * 			<code>false</code> otherwise
 	 */
 	public abstract boolean allTasksFinished();
-	
-	/**
-	 * Gives a task that needs to be simulated to the underlying architecture to handle.
-	 * @param entry An {@link LogEntry} that describes a task that needs to be handled.
-	 * @param taskId an identifier for the task given, typically the LogEntry index will suffice
-	 */
-	protected abstract void delegateTaskToNode(LogEntry entry, int taskId); 
 }

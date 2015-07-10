@@ -47,7 +47,7 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	}
 	
 	/**
-	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalMapArchitecture} 
+	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalMappedArchitecture} 
 	 * as its underlying {@link CyclicalArchitecture} 
 	 * @param 	numberOfNonHeadNodes The number of nonheadNodes that will be used to create the 
 	 * 			underlying network
@@ -68,7 +68,7 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	}
 	
 	/**
-	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalMapArchitecture} 
+	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalMappedArchitecture} 
 	 * as its underlying {@link CyclicalArchitecture} 
 	 * @param 	numberOfNonHeadNodes The number of nonheadNodes that will be used to create the 
 	 * 			underlying network
@@ -90,11 +90,10 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap,
-				switchingMap);
+				coordinateSwitchingMap, switchingMap);
 	}
 
-	
+	@Override
 	public void delegateTaskToNode(LogEntry entry, int taskIndex)
 	{
 		((CyclicalArchitecture) simulation).simulateTask(entry, taskIndex);

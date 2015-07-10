@@ -153,8 +153,8 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 			}
 			
 			//make sure these are valid coordinates
-			if(!coordsToNumberMapping.containsKey(mapEntry.getKey()) ||
-					!coordsToNumberMapping.containsKey(mapEntry.getValue()))
+			if(coordsToNumberMapping.containsKey(mapEntry.getKey()) &&
+					coordsToNumberMapping.containsKey(mapEntry.getValue()))
 			{
 				switchingMap.put(
 						unSwitchedCoordsToUnswitchedNumber(mapEntry.getKey()), 

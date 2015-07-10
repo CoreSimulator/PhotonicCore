@@ -289,7 +289,6 @@ public class MainGUI {
 		progressBar = new ProgressBar(group, SWT.SMOOTH);
 		progressBar.setLocation(10, 537);
 		progressBar.setSize(794, 17);
-		progressBar.setMaximum(60000);
 		
 		Button btnSimulate = new Button(group, SWT.NONE);
 		btnSimulate.setLocation(810, 534);
@@ -298,10 +297,12 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				printToConsole("Simulating...");
-				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime);
+				CoreLog basicLog = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
+				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime, basicLog);
 				Thread simulatorThread = new Thread(simulator);
 				simulatorThread.start();
-				while (totalTasks <= progressBar.getMaximum()) {
+				progressBar.setMaximum(basicLog.logSize());
+				while (totalTasks <= progressBar.getMaximum() - 1) {
 					try {Thread.sleep(100); } 
 					catch (Throwable th) {}
 					progressBar.setSelection(totalTasks);

@@ -8,15 +8,16 @@ public class SimulatorThread implements Runnable{
 	String topology;
 	int flitPacketSize;
 	int tearDownTime;
+	CoreLog basicLog;
 	
-	public SimulatorThread(String topology, int flitPacketSize, int tearDownTime) {
+	public SimulatorThread(String topology, int flitPacketSize, int tearDownTime, CoreLog basicLog) {
 		this.topology = topology;
 		this.flitPacketSize = flitPacketSize;
 		this.tearDownTime = tearDownTime;
+		this.basicLog = basicLog;
 	}
 	
 	public void run() {
-		CoreLog basicLog = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
 		
 		HashMap<Coordinate, Integer> switchingMap =  new HashMap<Coordinate, Integer>();
 		for(int i = 0; i < 8; i++)
@@ -48,6 +49,7 @@ public class SimulatorThread implements Runnable{
 				test1.simulateWithLog(basicLog);
 				break;
 		}//end switch
+		
 	}
 	
 }

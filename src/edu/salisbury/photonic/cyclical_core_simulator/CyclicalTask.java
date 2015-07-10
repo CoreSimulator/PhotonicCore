@@ -94,6 +94,7 @@ public class CyclicalTask extends CoreTask
 				break;
 			case TEARDOWN:
 				teardownTaskTime++;
+				MainGUI.totalTasks ++;
 				break;
 			case COMPLETE:
 				completeTaskTime++;
@@ -176,7 +177,7 @@ public class CyclicalTask extends CoreTask
 				((CyclicalNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
 				status = CyclicalTaskStatus.COMPLETE;//change to complete
 				MainGUI.totalRequestingTime += requestingTaskTime;
-				MainGUI.totalTasks ++;
+				
 				break;
 			case COMPLETE:
 				throw new RuntimeException("This task is already complete, " +

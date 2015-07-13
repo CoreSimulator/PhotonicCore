@@ -141,7 +141,7 @@ public class MainGUI {
 				simulatorFlitPacketSize = 16;
 			}
 		});
-		tltm16FlitPacket.setText("o 16");
+		tltm16FlitPacket.setText("o 16 bits");
 		
 		ToolItem tltm32FlitPacket = new ToolItem(toolBarFlitPacketSize, SWT.RADIO);
 		tltm32FlitPacket.addSelectionListener(new SelectionAdapter() {
@@ -150,7 +150,7 @@ public class MainGUI {
 				simulatorFlitPacketSize = 32;
 			}
 		});
-		tltm32FlitPacket.setText("o 32");
+		tltm32FlitPacket.setText("o 32 bits");
 		
 		ToolItem tltm64FlitPacket = new ToolItem(toolBarFlitPacketSize, SWT.RADIO);
 		tltm64FlitPacket.addSelectionListener(new SelectionAdapter() {
@@ -161,7 +161,7 @@ public class MainGUI {
 		});
 		tltm64FlitPacket.setWidth(40);
 		tltm64FlitPacket.setSelection(true);
-		tltm64FlitPacket.setText("o 64");
+		tltm64FlitPacket.setText("o 64 bits");
 		
 		Label lblFlitPacketSize = new Label(grpArchitectureOptions, SWT.NONE);
 		lblFlitPacketSize.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));

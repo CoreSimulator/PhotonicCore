@@ -29,14 +29,12 @@ public class SimulatorThread implements Runnable{
 			switchingMap.put(new Coordinate(2,7-i), 8+i);
 		}
 		HashMap<Coordinate, Coordinate> dominantFlowMap = new HashMap<Coordinate, Coordinate>();
-		dominantFlowMap.put(new Coordinate(1,1), new Coordinate(2,6));
-		dominantFlowMap.put(new Coordinate(2,6), new Coordinate(1,1));
-		dominantFlowMap.put(new Coordinate(1,5), new Coordinate(2,5));
-		dominantFlowMap.put(new Coordinate(2,5), new Coordinate(1,5));
-		dominantFlowMap.put(new Coordinate(1,6), new Coordinate(2,7));
-		dominantFlowMap.put(new Coordinate(2,7), new Coordinate(1,6));
-		dominantFlowMap.put(new Coordinate(2,0), new Coordinate(2,4));
-		dominantFlowMap.put(new Coordinate(2,4), new Coordinate(2,0));
+		dominantFlowMap.put(new Coordinate(1,5), new Coordinate(1,2));
+		dominantFlowMap.put(new Coordinate(1,2), new Coordinate(1,5));
+		dominantFlowMap.put(new Coordinate(1,6), new Coordinate(2,5));
+		dominantFlowMap.put(new Coordinate(2,5), new Coordinate(1,6));
+		dominantFlowMap.put(new Coordinate(2,0), new Coordinate(2,2));
+		dominantFlowMap.put(new Coordinate(2,2), new Coordinate(2,0));
 		
 		//Select the topology to simulate
 		switch(topology) {

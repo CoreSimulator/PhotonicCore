@@ -92,6 +92,15 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
 				coordinateSwitchingMap, switchingMap);
 	}
+	
+	public CyclicalSimOverseer(CyclicalMappedArchitecture existing)
+	{
+		if(existing == null) 
+		{
+			throw new NullPointerException();
+		}
+		simulation = existing;
+	}
 
 	@Override
 	public void delegateTaskToNode(LogEntry entry, int taskIndex)

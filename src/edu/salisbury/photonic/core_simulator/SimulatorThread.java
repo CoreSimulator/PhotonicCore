@@ -8,15 +8,16 @@ public class SimulatorThread implements Runnable{
 	String topology;
 	int flitPacketSize;
 	int tearDownTime;
+	CoreLog basicLog;
 	
-	public SimulatorThread(String topology, int flitPacketSize, int tearDownTime) {
+	public SimulatorThread(String topology, int flitPacketSize, int tearDownTime, CoreLog basicLog) {
 		this.topology = topology;
 		this.flitPacketSize = flitPacketSize;
 		this.tearDownTime = tearDownTime;
+		this.basicLog = basicLog;
 	}
 	
 	public void run() {
-		CoreLog basicLog = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
 		
 		HashMap<Coordinate, Integer> switchingMap =  new HashMap<Coordinate, Integer>();
 		for(int i = 0; i < 8; i++)
@@ -28,14 +29,12 @@ public class SimulatorThread implements Runnable{
 			switchingMap.put(new Coordinate(2,7-i), 8+i);
 		}
 		HashMap<Coordinate, Coordinate> dominantFlowMap = new HashMap<Coordinate, Coordinate>();
-		dominantFlowMap.put(new Coordinate(1,1), new Coordinate(2,6));
-		dominantFlowMap.put(new Coordinate(2,6), new Coordinate(1,1));
-		dominantFlowMap.put(new Coordinate(1,5), new Coordinate(2,5));
-		dominantFlowMap.put(new Coordinate(2,5), new Coordinate(1,5));
-		dominantFlowMap.put(new Coordinate(1,6), new Coordinate(2,7));
-		dominantFlowMap.put(new Coordinate(2,7), new Coordinate(1,6));
-		dominantFlowMap.put(new Coordinate(2,0), new Coordinate(2,4));
-		dominantFlowMap.put(new Coordinate(2,4), new Coordinate(2,0));
+		dominantFlowMap.put(new Coordinate(1,5), new Coordinate(1,2));
+		dominantFlowMap.put(new Coordinate(1,2), new Coordinate(1,5));
+		dominantFlowMap.put(new Coordinate(1,6), new Coordinate(2,5));
+		dominantFlowMap.put(new Coordinate(2,5), new Coordinate(1,6));
+		dominantFlowMap.put(new Coordinate(2,0), new Coordinate(2,2));
+		dominantFlowMap.put(new Coordinate(2,2), new Coordinate(2,0));
 		
 		//Select the topology to simulate
 		switch(topology) {
@@ -48,6 +47,7 @@ public class SimulatorThread implements Runnable{
 				test1.simulateWithLog(basicLog);
 				break;
 		}//end switch
+		
 	}
 	
 }

@@ -24,6 +24,17 @@ public class CoreLog
 	}
 	
 	/**
+	 * Constructor for a coreLog. Takes a parameter which serves as an estimate for the
+	 * size of the coreLog.
+	 * 
+	 * @param estimatedSize
+	 */
+	public CoreLog(int estimatedSize)
+	{
+		log = new ArrayList<LogEntry>(estimatedSize);
+	}
+	
+	/**
 	 * Constructor for a CoreLog. The most recent logs are last in the list.
 	 * 
 	 * @param log of LogEntry actions contained sequentially inside an Arraylist container
@@ -114,6 +125,78 @@ public class CoreLog
 		
 		//remove the last "/n" from the string
 		return builder.delete(builder.length()-1, builder.length()).toString();
+	}
+	
+	/**
+	 * Makes a coreLog from the given indices of the current CoreLog.
+	 * 
+	 * @param beginIndex the beginning of the coreLog subArray (inclusive)
+	 * @param endIndex the end of the coreLog subArray (exclusive)
+	 * @return A subLog specified by the given indices
+	 */
+	public CoreLog subLog(int beginIndex, int endIndex)
+	{
+		if(beginIndex < 0 || endIndex < 0)
+		{
+			throw new ArrayIndexOutOfBoundsException("This method requires non-negative indices."); 
+		} 
+		else if(beginIndex > this.logSize() || endIndex > this.logSize())
+		{
+			throw new ArrayIndexOutOfBoundsException("One of the indeces are greater than this" +
+					"log's size."); 
+		} 
+		else if(beginIndex > endIndex)
+		{
+			throw new IllegalArgumentException("This method requires the beginIndex to be smaller" +
+					"than endIndex");
+		}
+		
+		CoreLog subLog = new CoreLog(endIndex - beginIndex);
+		for(int i = beginIndex; i < endIndex; i++)
+		{
+			subLog.addEntry(this.getEntry(i));
+		}
+		
+		return subLog;
+	}
+	
+	/**
+	 * Makes a coreLog from the given indices of the current CoreLog. Adjusts timestamps so that
+	 * the first log entry's timestamp will occur at 0 and every entry thereafter will have their
+	 * entry's timestamps adjusted accordingly.
+	 * 
+	 * @param beginIndex the beginning of the coreLog subArray (inclusive)
+	 * @param endIndex the end of the coreLog subArray (exclusive)
+	 * @return A subLog specified by the given indices
+	 */
+	public CoreLog subLogAdjustTimeStamps(int beginIndex, int endIndex)
+	{
+		if(beginIndex < 0 || endIndex < 0)
+		{
+			throw new ArrayIndexOutOfBoundsException("This method requires non-negative indices."); 
+		} 
+		else if(beginIndex > this.logSize() || endIndex > this.logSize())
+		{
+			throw new ArrayIndexOutOfBoundsException("One of the indeces are greater than this" +
+					"log's size."); 
+		} 
+		else if(beginIndex > endIndex)
+		{
+			throw new IllegalArgumentException("This method requires the beginIndex to be smaller" +
+					"than endIndex");
+		}
+		
+		CoreLog subLog = new CoreLog(endIndex - beginIndex);
+		int specifiedAmount = subLog.getEntry(beginIndex).timeStamp();
+		for(int i = beginIndex; i < endIndex; i++)
+		{
+			LogEntry currentEntry = this.getEntry(i);
+			subLog.addEntry(new LogEntry(currentEntry.timeStamp() - specifiedAmount, 
+					currentEntry.sourceX(), currentEntry.sourceY(), currentEntry.destX(), 
+					currentEntry.destY(), currentEntry.packetSize()));
+		}
+		
+		return subLog;
 	}
 	
 	/**

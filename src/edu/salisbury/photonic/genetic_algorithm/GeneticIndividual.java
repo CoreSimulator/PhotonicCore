@@ -1,6 +1,6 @@
 package edu.salisbury.photonic.genetic_algorithm;
 
-public class GeneticIndividual
+public abstract class GeneticIndividual
 {
-
+	public abstract int evaluateFitness();
 }

@@ -1,5 +1,6 @@
 package edu.salisbury.photonic.cyclical_core_simulator;
 
+import edu.salisbury.photonic.MainClasses.Main;
 import edu.salisbury.photonic.core_simulator.CoreTask;
 import edu.salisbury.photonic.core_simulator.MainGUI;
 
@@ -69,6 +70,7 @@ public class CyclicalTask extends CoreTask
 		this.status = CyclicalTaskStatus.NEW;
 		this.flitSize = flitSize;
 		this.taskCreationTime = taskCreationTime;
+		
 	}
 
 	@Override
@@ -94,6 +96,7 @@ public class CyclicalTask extends CoreTask
 				break;
 			case TEARDOWN:
 				teardownTaskTime++;
+				Main.tester[taskId] = true; //TODO
 				break;
 			case COMPLETE:
 				completeTaskTime++;

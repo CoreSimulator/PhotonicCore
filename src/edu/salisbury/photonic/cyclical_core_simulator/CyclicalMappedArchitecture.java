@@ -46,12 +46,13 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
 	 * @param 	switchingMap The map which keeps track of which nodes are 
 	 * 			effectively swapped in the architecture
+	 * @param 	cyclicalMRRSwitchList The list of MRR switches
 	 */
 	public CyclicalMappedArchitecture(int bitsPerFlit,
 			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping, 
-			HashMap<Coordinate, Coordinate> switchingMap)
+			HashMap<Coordinate, Coordinate> switchingMap, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
-		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime);
+		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime, mrrSwitchesTopLeftNodeNumbers);
 		this.coordsToNumberMapping = coordsToNumberMapping;
 		init(switchingMap);
 	}
@@ -64,9 +65,9 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
 	 */
 	public CyclicalMappedArchitecture(int bitsPerFlit,
-			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping)
+			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
-		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime);
+		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime, mrrSwitchesTopLeftNodeNumbers);
 		this.coordsToNumberMapping = coordsToNumberMapping;
 		init(null);
 	}
@@ -108,6 +109,9 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 			switchCoordsSwapMapToIntegerSwap(coordSwitchingMap);
 		}
 		
+		if (mrrSwitchesTopLeftNodeNumbers[0] != -1) {
+			setUpMRRSwitchLinks();
+		}
 		cyclicalNodeList[0] = new CyclicalNode(headNode, 0);
 		
 		for(int i = 1; i < cyclicalNodeList.length; i++)
@@ -262,6 +266,36 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 		if(nodeNumber >= coordsToNumberMapping.size()|| nodeNumber < 0)
 		{
 			throw new IllegalArgumentException("Invalid nodeNumber.");
+		}
+	}
+	
+	/**
+	 * Applies the top left node number to a designated switch
+	 * @param topLeftNodeNumber node number for the top left node
+	 * @return the designated MRR Switch
+	 */
+	@Override
+	public void setUpMRRSwitchLinks() {
+		for (int i = 0; i < mrrSwitchesTopLeftNodeNumbers.length; i ++){
+			int topLeftNodeNumber = unswitchedNumberToSwitchedNumber(mrrSwitchesTopLeftNodeNumbers[i]);
+			
+			checkForValidTopLeftNodeNumber(topLeftNodeNumber);
+			
+			CyclicalNode topLeftNode = numberToNode(topLeftNodeNumber);
+			CyclicalNode topRightNode = numberToNode(topLeftNodeNumber+1);
+			CyclicalNode bottomRightNode = numberToNode((coordsToNumberMapping.size()/2 - topLeftNodeNumber)*2);
+			CyclicalNode bottomLeftNode = numberToNode((coordsToNumberMapping.size()/2 - topLeftNodeNumber)*2 + 1);
+			
+			cyclicalMRRSwitchList[i] = new CyclicalMRRSwitch(topLeftNode, topRightNode, bottomRightNode, bottomLeftNode, i);
+		}
+		
+	}
+	
+	/* Ensure the number given is valid for a top left node */
+	@Override
+	public void checkForValidTopLeftNodeNumber(int topLeftNodeNumber) {
+		if (topLeftNodeNumber >= coordsToNumberMapping.size()/2 - 1) {
+			throw new IllegalArgumentException("Invalid topLeftNodeNumber.");
 		}
 	}
 }

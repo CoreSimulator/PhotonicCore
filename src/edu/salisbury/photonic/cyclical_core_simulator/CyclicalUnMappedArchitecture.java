@@ -18,6 +18,8 @@ import edu.salisbury.photonic.core_simulator.Coordinate;
  */
 public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 {
+	int numberOfCoreNodes;
+	
 	/**
 	 * Constructor for a CyclicalUnMappedArchitecture
 	 * @param 	numberOfCoreNodes Number of nodes in the overlying architecture (non including the 
@@ -25,10 +27,15 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 	 * @param 	bitsPerFlit The number of bits that exist per flit in this simulation.
 	 * @param 	teardownTime Number of cycles it takes to teardown a connection between links in 
 	 * 			this simulation
+	 * @param 	numberOfMRRSwitches number of MRR switches
 	 */
-	public CyclicalUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime)
+	public CyclicalUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
-		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime, mrrSwitchesTopLeftNodeNumbers);
+		this.numberOfCoreNodes = numberOfCoreNodes;
+		if (mrrSwitchesTopLeftNodeNumbers[0] != -1) {
+			setUpMRRSwitchLinks();
+		}
 		initArchitecture();
 	}
 	
@@ -104,4 +111,28 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 					"must be between 0 and getNumberOfCoreNodes()-1 inclusive.");
 		}
 	}
+	
+	@Override
+	public void setUpMRRSwitchLinks() {
+		for (int i = 0; i < mrrSwitchesTopLeftNodeNumbers.length; i ++){
+			int topLeftNodeNumber = mrrSwitchesTopLeftNodeNumbers[i];
+			
+			checkForValidTopLeftNodeNumber(topLeftNodeNumber);
+			
+			CyclicalNode topLeftNode = numberToNode(topLeftNodeNumber);
+			CyclicalNode topRightNode = numberToNode(topLeftNodeNumber+1);
+			CyclicalNode bottomRightNode = numberToNode((numberOfCoreNodes/2 - topLeftNodeNumber)*2);
+			CyclicalNode bottomLeftNode = numberToNode((numberOfCoreNodes/2 - topLeftNodeNumber)*2 + 1);
+			
+			cyclicalMRRSwitchList[i] = new CyclicalMRRSwitch(topLeftNode, topRightNode, bottomRightNode, bottomLeftNode, i);
+		}
+	}
+
+	@Override
+	public void checkForValidTopLeftNodeNumber(int topLeftNodeNumber) {
+		if (topLeftNodeNumber >= numberOfCoreNodes/2 - 1) {
+			throw new IllegalArgumentException("Invalid topLeftNodeNumber.");
+		}
+	}
+	
 }

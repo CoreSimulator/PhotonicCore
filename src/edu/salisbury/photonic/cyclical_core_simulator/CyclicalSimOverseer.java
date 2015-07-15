@@ -21,14 +21,15 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	 * as its underlying {@link CyclicalArchitecture}
 	 * @param numberOfNonHeadNodes The number of nonheadNodes that will be used to create the 
 	 * underlying network
+	 * @param numberOfMRRSwitches The number of MRR switches
 	 */
-	public CyclicalSimOverseer(int numberOfNonHeadNodes)
+	public CyclicalSimOverseer(int numberOfNonHeadNodes, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
 		if(numberOfNonHeadNodes < 0)
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
-		simulation = new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, 64, 1);
+		simulation = new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, 64, 1, mrrSwitchesTopLeftNodeNumbers);
 	}
 	
 	/**
@@ -36,14 +37,14 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	 * as its underlying {@link CyclicalArchitecture}
 	 *
 	 */
-	public CyclicalSimOverseer(int numberOfNonHeadNodes, int bitsPerFlit, int teardownTime)
+	public CyclicalSimOverseer(int numberOfNonHeadNodes, int bitsPerFlit, int teardownTime, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
 		if(bitsPerFlit < 0 || teardownTime < 0 || numberOfNonHeadNodes < 0)
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = 
-				new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, bitsPerFlit, teardownTime);
+				new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, bitsPerFlit, teardownTime, mrrSwitchesTopLeftNodeNumbers);
 	}
 	
 	/**
@@ -55,16 +56,17 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	 * @param	teardownTime The amount of time it takes to teardown connections
 	 * @param	coordinateSwitchingMap A map which maps coordinates to a specific number for each
 	 * 			node. Numbers should begin at 0 and end at map.length()-1
+	 * @param 	mrrSwitchMap Designates a top left node to a MRR switch
 	 */
 	public CyclicalSimOverseer(int bitsPerFlit, int teardownTime, 
-			HashMap<Coordinate, Integer> coordinateSwitchingMap)
+			HashMap<Coordinate, Integer> coordinateSwitchingMap, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
 		if(bitsPerFlit < 0 || teardownTime < 0)
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap);
+				coordinateSwitchingMap, mrrSwitchesTopLeftNodeNumbers);
 	}
 	
 	/**
@@ -80,17 +82,18 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	 * 			Each coordinate should exist as a key in the coordinateSwitchingMap and each key and
 	 *  		value specified should appear once and only once in both the key and value sections 
 	 * 			of the map. In addition this map should be bijective.
+	 * @param	mrrSwitchMap Designates a top left node to a MRR switch
 	 */
 	public CyclicalSimOverseer(int bitsPerFlit, int teardownTime, 
 			HashMap<Coordinate, Integer> coordinateSwitchingMap, 
-			HashMap<Coordinate, Coordinate> switchingMap)
+			HashMap<Coordinate, Coordinate> switchingMap, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
 		if(bitsPerFlit < 0 || teardownTime < 0)
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap, switchingMap);
+				coordinateSwitchingMap, switchingMap, mrrSwitchesTopLeftNodeNumbers);
 	}
 
 	@Override

@@ -21,6 +21,8 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	 * nodeNumbers.
 	 */
 	protected CyclicalNode[] cyclicalNodeList;
+	protected int[] mrrSwitchesTopLeftNodeNumbers;
+	protected CyclicalMRRSwitch[] cyclicalMRRSwitchList;
 	
 	/**
 	 * Constructor for a cyclical architecture.
@@ -29,13 +31,15 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	 * @param 	bitsPerFlit number of bits that exist per flit
 	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
 	 * 			nodes
+	 * @param 	numberOfMRRSwitches the number of MRR switches that exist in this architecture.
 	 */
 	public CyclicalArchitecture(int numberOfCoreNodes, int bitsPerFlit,
-			int teardownTime)
+			int teardownTime, int[] mrrSwitchesTopLeftNodeNumbers)
 	{
-		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
 		
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
 		cyclicalNodeList = new CyclicalNode[getNumberOfCoreNodes()];
+		this.mrrSwitchesTopLeftNodeNumbers = mrrSwitchesTopLeftNodeNumbers;
 		headNode = new CyclicalHeadNode(this);
 			//BasicArchitecture and uncomment this
 	}
@@ -84,6 +88,17 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	protected abstract void checkForValidNodeNumber(int nodeNumber);
 	
 	/**
+	 * Sets up the links (nodes) that will be connected to this MRR switch
+	 */
+	public abstract void setUpMRRSwitchLinks();
+	
+	/**
+	 * Validates that the top left node number is valid
+	 * @param topLeftNodeNumber The top left node number of the designated switch
+	 */
+	public abstract void checkForValidTopLeftNodeNumber(int topLeftNodeNumber);
+	
+	/**
 	 * Simulates the creation of a task described by the given {@link LogEntry}.
 	 * 
 	 * @param 	entry an entry that describes a task to be simulated
@@ -104,6 +119,14 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	public int numberOfCoreNodes()
 	{
 		return cyclicalNodeList.length;
+	}
+	
+	/**
+	 * @return The number of MRR switches in the architecture
+	 */
+	public int numberOfMRRSwitches()
+	{
+		return mrrSwitchesTopLeftNodeNumbers.length;
 	}
 	
 	/**

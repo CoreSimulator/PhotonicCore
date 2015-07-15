@@ -11,7 +11,7 @@ import edu.salisbury.photonic.core_simulator.Coordinate;
  * dashes represent links and decimals can be ignored.</p>
  * 
  * <p>(1, 0) - (1, 1) - (1, 2) - (1, 3) - (1, 4)</p>
- * <p>| . . . . . . . . . . . . . . . . . . . . . . . . . . . |</p>
+ * <p>| . . . . . . . . . . . . . . . . . . . |</p>
  * <p>(2, 0) - (2, 1) - (2, 2) - (2, 3) - (2, 4)</p>
  * @author timfoil
  *
@@ -28,7 +28,23 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 	 */
 	public CyclicalUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime)
 	{
-		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime, false);
+		initArchitecture();
+	}
+	
+	/**
+	 * Constructor for a CyclicalUnMappedArchitecture
+	 * @param 	numberOfCoreNodes Number of nodes in the overlying architecture (non including the 
+	 * 			headNode)
+	 * @param 	bitsPerFlit The number of bits that exist per flit in this simulation.
+	 * @param 	teardownTime Number of cycles it takes to teardown a connection between links in 
+	 * 			this simulation
+	 * @param 	printTaskInfo prints task info if true does not otherwise
+	 */
+	public CyclicalUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime, 
+			boolean printTaskInfo)
+	{
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime, printTaskInfo);
 		initArchitecture();
 	}
 	
@@ -36,11 +52,11 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 	 * Setup the edges as BasicNodeIOPorts */
 	private void initArchitecture()
 	{
-		cyclicalNodeList[0] = new CyclicalNode(headNode, 0);
+		cyclicalNodeList[0] = new CyclicalNode(headNode, 0, printTaskInfo);
 		
 		for(int i = 1; i < cyclicalNodeList.length; i++)
 		{
-			cyclicalNodeList[i] = new CyclicalNode(headNode, i);
+			cyclicalNodeList[i] = new CyclicalNode(headNode, i, printTaskInfo);
 			
 			cyclicalNodeList[i].setCounterClockwiseEdge(cyclicalNodeList[i-1]);
 			cyclicalNodeList[i-1].setClockwiseEdge(cyclicalNodeList[i]);

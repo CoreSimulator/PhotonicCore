@@ -64,7 +64,29 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap);
+				coordinateSwitchingMap, false);
+	}
+	
+	/**
+	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalMappedArchitecture} 
+	 * as its underlying {@link CyclicalArchitecture} 
+	 * @param 	numberOfNonHeadNodes The number of nonheadNodes that will be used to create the 
+	 * 			underlying network
+	 * @param	bitsPerFlit The number of bits in each flit of information
+	 * @param	teardownTime The amount of time it takes to teardown connections
+	 * @param	coordinateSwitchingMap A map which maps coordinates to a specific number for each
+	 * 			node. Numbers should begin at 0 and end at map.length()-1
+	 * @param	taskInfo prints debug info about tasks if set to true
+	 */
+	public CyclicalSimOverseer(int bitsPerFlit, int teardownTime, 
+			HashMap<Coordinate, Integer> coordinateSwitchingMap, boolean taskInfo)
+	{
+		if(bitsPerFlit < 0 || teardownTime < 0)
+		{
+			throw new IllegalArgumentException("Arguments must be non-negative.");
+		}
+		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
+				coordinateSwitchingMap, taskInfo);
 	}
 	
 	/**
@@ -90,7 +112,34 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap, switchingMap);
+				coordinateSwitchingMap, switchingMap, false);
+	}
+	
+	/**
+	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalMappedArchitecture} 
+	 * as its underlying {@link CyclicalArchitecture} 
+	 * @param 	numberOfNonHeadNodes The number of nonheadNodes that will be used to create the 
+	 * 			underlying network
+	 * @param	bitsPerFlit The number of bits in each flit of information
+	 * @param	teardownTime The amount of time it takes to teardown connections
+	 * @param	coordinateSwitchingMap A map which maps coordinates to a specific number for each
+	 * 			node. Numbers should begin at 0 and end at map.length()-1
+	 * @param	switchingMap used to switch nodes at coordinate positions to different positions. 
+	 * 			Each coordinate should exist as a key in the coordinateSwitchingMap and each key and
+	 *  		value specified should appear once and only once in both the key and value sections 
+	 * 			of the map. In addition this map should be bijective.
+	 * @param	taskInfo prints debug info about tasks if set to true
+	 */
+	public CyclicalSimOverseer(int bitsPerFlit, int teardownTime, 
+			HashMap<Coordinate, Integer> coordinateSwitchingMap, 
+			HashMap<Coordinate, Coordinate> switchingMap, boolean taskInfo)
+	{
+		if(bitsPerFlit < 0 || teardownTime < 0)
+		{
+			throw new IllegalArgumentException("Arguments must be non-negative.");
+		}
+		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
+				coordinateSwitchingMap, switchingMap, taskInfo);
 	}
 	
 	public CyclicalSimOverseer(CyclicalMappedArchitecture existing)

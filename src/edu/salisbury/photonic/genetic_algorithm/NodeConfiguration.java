@@ -30,10 +30,15 @@ public class NodeConfiguration extends GeneticIndividual
 	
 	public NodeConfiguration(NodeConfiguration mostSuccessful, 
 			NodeConfiguration secondMostSuccesful, int bitsPerFlit, int tearDownTime, 
-			HashMap <Coordinate, Integer> coordsToNumberMapping)
+			HashMap <Coordinate, Integer> coordsToNumberMapping, CoreLog log)
 	{
+		if(log == null)
+		{
+			throw new NullPointerException("Log should not be null");
+		}
+		this.log = log;
 		configuration = new CyclicalMappedArchitecture( 
-				bitsPerFlit, tearDownTime, coordsToNumberMapping); 
+				bitsPerFlit, tearDownTime, coordsToNumberMapping, false); 
 		
 		GenePool pool = new GenePool(mostSuccessful.getConfiguration().getSwitchingMapCopy(), 
 				mostSuccessful.getConfiguration().getNumberOfCoreNodes());
@@ -70,6 +75,11 @@ public class NodeConfiguration extends GeneticIndividual
 			numberOfPoolBuckets = size;
 			organizedPool = new ArrayList<LinkedList<Coordinate>>(numberOfPoolBuckets);
 			
+			for(int i = 0; i < numberOfPoolBuckets; i++)
+			{
+				organizedPool.add(i, null);
+			}
+			
 			for(int i = 0; i < switchingMaps.size(); i++)
 			{
 				addMapToPool(switchingMaps.get(i));
@@ -84,6 +94,10 @@ public class NodeConfiguration extends GeneticIndividual
 			}
 			numberOfPoolBuckets = size;
 			organizedPool = new ArrayList<LinkedList<Coordinate>>(numberOfPoolBuckets);
+			for(int i = 0; i < numberOfPoolBuckets; i++)
+			{
+				organizedPool.add(i, null);
+			}
 			addMapToPool(switchingMap);
 		}
 
@@ -102,26 +116,29 @@ public class NodeConfiguration extends GeneticIndividual
 						"genepool size.");
 			}
 			
-			for(int i = 0; i < numberOfPoolBuckets; i++)
+			for(int i = 0; i < numberOfPoolBuckets - 1; i++)
 			{
-				Integer value = switchingMap.get(i);
-				if(value == null)
+				Integer lowerNode = switchingMap.get(i);
+				lowerNode = (lowerNode == null) ? i : lowerNode;
+				Integer higherNode = switchingMap.get(i + 1);
+				higherNode = (higherNode == null) ? i : higherNode;
+				
+				Coordinate toAdd = new Coordinate(lowerNode,higherNode);
+				Coordinate reverse = new Coordinate(higherNode, lowerNode);
+				if(pool.add(toAdd))
 				{
-					Coordinate toAdd = new Coordinate(i,i);
-					if(pool.add(toAdd))
-					{
-						addToOrganizedPool(toAdd);
-					}
-				} 
-				else
+					addToOrganizedPool(toAdd);
+				}
+				if(pool.add(reverse))
 				{
-					Coordinate toAdd = new Coordinate(i, value);
-					if(pool.add(toAdd))
-					{
-						addToOrganizedPool(toAdd);
-					}
+					addToOrganizedPool(reverse);
 				}
 			}
+			
+			Integer lowerNode = switchingMap.get(numberOfPoolBuckets - 1);
+			lowerNode = (lowerNode == null) ? numberOfPoolBuckets - 1 : lowerNode;
+			Integer higherNode = switchingMap.get(0);
+			higherNode = (higherNode == null) ? 0 : higherNode;
 		}
 		
 		private void addDefaultValues()
@@ -201,8 +218,8 @@ public class NodeConfiguration extends GeneticIndividual
 					}
 				} 
 				while(!mapMaker.stillExists(pickedCoord.getY()));
-				
 				mapMaker.put(prevY, 1, pickedCoord);
+				prevY = pickedCoord.getY();
 			}
 			
 			mapMaker.put(prevY, 1, new Coordinate(prevY, firstPick));
@@ -217,11 +234,10 @@ public class NodeConfiguration extends GeneticIndividual
 				throw new IndexOutOfBoundsException();
 			}
 			
-			if(toPop.get(index) == null)
+			if(toPop.get(index) == null || toPop.get(index).isEmpty())
 			{
 				return null;
 			}
-			
 			return toPop.get(index).remove(new Random().nextInt(toPop.get(index).size()));
 		}
 

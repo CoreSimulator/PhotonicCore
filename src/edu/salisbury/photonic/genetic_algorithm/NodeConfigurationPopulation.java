@@ -52,15 +52,17 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		{
 			throw new IllegalArgumentException("mutationsPerPop needs to be at least 1.");
 		}
+		this.populationSize = populationSize;
 		this.mutationsPerPop = mutationsPerPop;
 		this.bitsPerFlit = bitsPerFlit;
 		this.teardownTime = teardownTime;
 		this.log = log;
 		this.coordsToNumberMapping = coordsToNumberMapping;
-		currentPop = new ArrayList<GeneticIndividual>(coordsToNumberMapping.size());
-		for(int i = 0; i < currentPop.size(); i++)
+		currentPop = new ArrayList<GeneticIndividual>(populationSize);
+		
+		for(int i = 0; i < populationSize; i++)
 		{
-			currentPop.set(i, generateIndividual());
+			currentPop.add(i, generateIndividual());
 		}
 	}
 	
@@ -72,7 +74,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		//0 always goes to 0 in NodeConfiguration
 		generatedHashMap.put(0, 0);
 		
-		List<Integer> intVals = new LinkedList<Integer>();
+		LinkedList<Integer> intVals = new LinkedList<Integer>();
 		
 		for(int i = 1; i < coordsToNumberMapping.size(); i++)
 		{
@@ -82,8 +84,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		Random randGen = new Random();
 		for(int i = 1; i < coordsToNumberMapping.size(); i++)
 		{
-			int indexToRemove = intVals.get(randGen.nextInt(intVals.size()));
-			generatedHashMap.put(i, intVals.remove(indexToRemove));
+			generatedHashMap.put(i, intVals.remove(randGen.nextInt(intVals.size())));
 		}
 		
 		while(previousCreations.contains(generatedHashMap))
@@ -93,7 +94,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		previousCreations.add(generatedHashMap);
 		
 		CyclicalMappedArchitecture generatedArchitecture = new CyclicalMappedArchitecture(
-				bitsPerFlit, teardownTime, coordsToNumberMapping);
+				bitsPerFlit, teardownTime, coordsToNumberMapping, false);
 		generatedArchitecture.checkAndSetIntegerSwapMap(generatedHashMap);
 		
 		return new NodeConfiguration(generatedArchitecture, log);
@@ -114,20 +115,22 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		{
 			secondIndex = randGen.nextInt(toChange.size() - 1) + 1;
 		}
-		toChange.put(firstIndex, toChange.get(firstIndex));
-		toChange.put(secondIndex, toChange.get(secondIndex));
+		Integer firstValue = toChange.get(firstIndex);
+		toChange.put(firstIndex, toChange.get(secondIndex));
+		toChange.put(secondIndex, firstValue);
 	}
 	
 	@Override
 	public int[] evaluation(List<GeneticIndividual> population)
 	{
 		//in our case, the lower the fitness levels the better
-		int[] fitnesslevels = new int[population.size()];
-		for(int i = 0; i < population.size(); i++)
+		int[] fitnessLevels = new int[populationSize];
+		for(int i = 0; i < populationSize; i++)
 		{
-			fitnesslevels[i] = population.get(i).evaluateFitness();
+			System.out.println("Evaluating: " + i);
+			fitnessLevels[i] = population.get(i).evaluateFitness();
 		}
-		return fitnesslevels;
+		return fitnessLevels;
 	}
 	
 	@Override
@@ -154,32 +157,38 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 			}
 		}
 		
-		List<GeneticIndividual> fittestIndividuals = new ArrayList<GeneticIndividual>(2); 
+		ArrayList<GeneticIndividual> fittestIndividuals = new ArrayList<GeneticIndividual>(2); 
 		
-		fittestIndividuals.set(0, currentPop.get(fittestIndex));
+		fittestIndividuals.add(0, currentPop.get(fittestIndex));
 		fittestIndividuals.add(1, currentPop.get(secondFittestIndex));
+		System.out.println(1 + ": " + fitness[fittestIndex]);
+		System.out.println(2 + ": " + fitness[secondFittestIndex]);
 		return fittestIndividuals;
 	}
 
 	@Override
 	public List<GeneticIndividual> crossover(List<GeneticIndividual> selected)
 	{
-		List<GeneticIndividual> newPop = new ArrayList<GeneticIndividual>();
+		List<GeneticIndividual> newPop = new ArrayList<GeneticIndividual>(populationSize);
 		NodeConfiguration fittest = (NodeConfiguration) selected.get(0);
 		NodeConfiguration secondFittest = (NodeConfiguration) selected.get(1);
 		
-		for(int i = 0; i < newPop.size(); i++)
+		for(int i = 0; i < populationSize; i++)
 		{
 			NodeConfiguration toAdd = new NodeConfiguration(fittest, secondFittest, bitsPerFlit, 
-					teardownTime, coordsToNumberMapping);
+					teardownTime, coordsToNumberMapping, log);
 			
 			HashMap<Integer,Integer> possibleSwitchingMap = toAdd.getSwitchingMapRef();
+			
+			//System.out.println("Stuck");
 			while(previousCreations.contains(possibleSwitchingMap))
 			{
+				System.out.println(possibleSwitchingMap.hashCode());
 				swap(possibleSwitchingMap);
 			}
 			previousCreations.add(possibleSwitchingMap);
-			newPop.set(i, toAdd);
+			//System.out.println("unstuck");
+			newPop.add(i, toAdd);
 		}
 		return newPop;
 	}
@@ -211,15 +220,9 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		for(int i = 0; i < numberOfGenerationsToRunFor; i++)
 		{
 			System.out.println("Evaluating and picking fittest...");
-			List<GeneticIndividual> selectionList = selection(evaluation(currentPop));
+			int[] fitList = evaluation(currentPop);
+			List<GeneticIndividual> selectionList = selection(fitList);
 			
-			System.out.println("Fittest individuals of generation "+ generationNumber + " (Lower " +
-					"scores are better): ");
-			
-			for(int j = 0; j < selectionList.size(); j++)
-			{
-				System.out.println( (j+1) + ": " + selectionList.get(j));
-			}
 			
 			System.out.println("Generating next generation of configurations via crossover...");
 			List<GeneticIndividual> crossoverList = crossover(selectionList);

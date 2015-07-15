@@ -22,17 +22,32 @@ public class CyclicalNode extends CoreNode
 	public LinkedList<CoreTask> tasks = new LinkedList<CoreTask>();
 	
 	private int nodeNumber;
+	private boolean printTaskInfo = false;
+	
+//	/**
+//	 * Constructor for cyclical node
+//	 * @param overseerNode the headNode
+//	 * @param nodeNumber the designated nodeNumber for this node
+//	 */
+//	public CyclicalNode(CyclicalHeadNode overseerNode, int nodeNumber)
+//	{
+//		edges = new CoreNodeIOPort[3];
+//		setOverseerEdge(overseerNode); 
+//		this.nodeNumber = nodeNumber;
+//	}
 	
 	/**
 	 * Constructor for cyclical node
 	 * @param overseerNode the headNode
 	 * @param nodeNumber the designated nodeNumber for this node
+	 * @param printTaskInfo print info when a task is finished
 	 */
-	public CyclicalNode(CyclicalHeadNode overseerNode, int nodeNumber)
+	public CyclicalNode(CyclicalHeadNode overseerNode, int nodeNumber, boolean printTaskInfo)
 	{
 		edges = new CoreNodeIOPort[3];
 		setOverseerEdge(overseerNode); 
 		this.nodeNumber = nodeNumber;
+		this.printTaskInfo = printTaskInfo;
 	}
 	
 	/**
@@ -138,7 +153,14 @@ public class CyclicalNode extends CoreNode
 			}
 			if(((CyclicalTask) tasks.peek()).getStatus() == CyclicalTask.CyclicalTaskStatus.COMPLETE)
 			{
-				System.out.println(tasks.pop());
+				if(printTaskInfo)
+				{
+					System.out.println(tasks.pop());
+				}
+				else
+				{
+					tasks.pop();
+				}
 			}
 		}
 	}

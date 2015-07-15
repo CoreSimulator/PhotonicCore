@@ -22,6 +22,8 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	 */
 	protected CyclicalNode[] cyclicalNodeList;
 	
+	public boolean printTaskInfo = false;
+	
 	/**
 	 * Constructor for a cyclical architecture.
 	 * 
@@ -29,18 +31,35 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	 * @param 	bitsPerFlit number of bits that exist per flit
 	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
 	 * 			nodes
+	 * @param 	printTaskInfo prints task info if true does not otherwise
 	 */
 	public CyclicalArchitecture(int numberOfCoreNodes, int bitsPerFlit,
-			int teardownTime)
+			int teardownTime, boolean printTaskInfo)
 	{
 		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
 		
 		cyclicalNodeList = new CyclicalNode[getNumberOfCoreNodes()];
 		headNode = new CyclicalHeadNode(this);
-			//BasicArchitecture and uncomment this
+		this.printTaskInfo = printTaskInfo;
 	}
 	
-	//replace with mapping function
+//	/**
+//	 * Constructor for a cyclical architecture.
+//	 * 
+//	 * @param 	numberOfCoreNodes the number of non-headNodes that exist in this architecture.
+//	 * @param 	bitsPerFlit number of bits that exist per flit
+//	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
+//	 * 			nodes
+//	 */
+//	public CyclicalArchitecture(int numberOfCoreNodes, int bitsPerFlit,
+//			int teardownTime)
+//	{
+//		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
+//		
+//		cyclicalNodeList = new CyclicalNode[getNumberOfCoreNodes()];
+//		headNode = new CyclicalHeadNode(this);
+//	}
+	
 	/**
 	 * Converts a nodeNumber to its corresponding Coordinate
 	 * @param nodeNumber to be converted to a Coordinate

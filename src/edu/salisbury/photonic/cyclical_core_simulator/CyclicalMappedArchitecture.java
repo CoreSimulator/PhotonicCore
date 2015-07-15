@@ -46,12 +46,13 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
 	 * @param 	switchingMap The map which keeps track of which nodes are 
 	 * 			effectively swapped in the architecture
+	 * @param	printTaskInfo prints info about tasks if set to true does not otherwise
 	 */
 	public CyclicalMappedArchitecture(int bitsPerFlit,
 			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping, 
-			HashMap<Coordinate, Coordinate> coordinateSwitchingMap)
+			HashMap<Coordinate, Coordinate> coordinateSwitchingMap, boolean printTaskInfo)
 	{
-		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime);
+		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime, printTaskInfo);
 		this.coordsToNumberMapping = coordsToNumberMapping;
 		init();
 		//also generate the number to coordsMapping
@@ -69,11 +70,12 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
 	 * 			nodes
 	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
+	 * @param	printTaskInfo prints info about tasks if set to true does not otherwise
 	 */
-	public CyclicalMappedArchitecture(int bitsPerFlit,
-			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping)
+	public CyclicalMappedArchitecture(int bitsPerFlit, int teardownTime, 
+			HashMap<Coordinate, Integer> coordsToNumberMapping, boolean printTaskInfo)
 	{
-		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime);
+		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime, printTaskInfo);
 		this.coordsToNumberMapping = coordsToNumberMapping;
 		init();
 	}
@@ -113,11 +115,11 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	
 	private void setupNodes()
 	{
-		cyclicalNodeList[0] = new CyclicalNode(headNode, 0);
+		cyclicalNodeList[0] = new CyclicalNode(headNode, 0, printTaskInfo);
 		
 		for(int i = 1; i < cyclicalNodeList.length; i++)
 		{
-			cyclicalNodeList[i] = new CyclicalNode(headNode, i);
+			cyclicalNodeList[i] = new CyclicalNode(headNode, i, printTaskInfo);
 			
 			cyclicalNodeList[i].setCounterClockwiseEdge(cyclicalNodeList[i-1]);
 			cyclicalNodeList[i-1].setClockwiseEdge(cyclicalNodeList[i]);

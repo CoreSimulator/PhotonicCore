@@ -272,7 +272,6 @@ public class MainGUI {
 		grpConsoleOutput.setLocation(10, 489);
 		grpConsoleOutput.setSize(875, 32);
 		grpConsoleOutput.setText("Console Output");
-		
 		lblConsoleOutput = new Label(grpConsoleOutput, SWT.NONE);
 		lblConsoleOutput.setFont(SWTResourceManager.getFont("Segoe UI", 8, SWT.BOLD));
 		lblConsoleOutput.setBounds(102, 10, 763, 15);

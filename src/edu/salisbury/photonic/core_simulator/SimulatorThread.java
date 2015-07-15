@@ -36,14 +36,16 @@ public class SimulatorThread implements Runnable{
 		dominantFlowMap.put(new Coordinate(2,0), new Coordinate(2,2));
 		dominantFlowMap.put(new Coordinate(2,2), new Coordinate(2,0));
 		
+		int[] mrrSwitchesTopLeftNodeNumber = {-1};
+		
 		//Select the topology to simulate
 		switch(topology) {
 			case "Ring":
-				CyclicalSimOverseer test = new CyclicalSimOverseer(flitPacketSize, tearDownTime, switchingMap, dominantFlowMap);
+				CyclicalSimOverseer test = new CyclicalSimOverseer(flitPacketSize, tearDownTime, switchingMap, dominantFlowMap, mrrSwitchesTopLeftNodeNumber);
 				test.simulateWithLog(basicLog);
 				break;
 			default:
-				CyclicalSimOverseer test1 = new CyclicalSimOverseer(flitPacketSize, tearDownTime, switchingMap);
+				CyclicalSimOverseer test1 = new CyclicalSimOverseer(flitPacketSize, tearDownTime, switchingMap, mrrSwitchesTopLeftNodeNumber);
 				test1.simulateWithLog(basicLog);
 				break;
 		}//end switch

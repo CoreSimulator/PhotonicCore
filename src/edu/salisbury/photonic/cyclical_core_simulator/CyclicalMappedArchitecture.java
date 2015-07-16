@@ -30,6 +30,27 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	
 	private HashMap<Integer, Integer> switchingMap;
 	
+	
+	
+	
+	/**
+	 * Constructor for CyclicalMap architecture. 
+	 * 
+	 * @param 	bitsPerFlit number of bits that exist in a single flit
+	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
+	 * 			nodes
+	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
+	 * @param	printTaskInfo prints info about tasks if set to true does not otherwise
+	 */
+	public CyclicalMappedArchitecture(int bitsPerFlit, int teardownTime, 
+			HashMap<Coordinate, Integer> coordsToNumberMapping)
+	{
+		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime);
+		
+		this.coordsToNumberMapping = coordsToNumberMapping;
+		init();
+	}
+	
 	/**
 	 * Constructor for CyclicalMap architecture. 
 	 * 
@@ -46,13 +67,17 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
 	 * @param 	switchingMap The map which keeps track of which nodes are 
 	 * 			effectively swapped in the architecture
+	 * @param 	mrrSwitchesTopLeftNodeNumbers The list of the node number of the topleft nodes of 
+	 * 			the MRR switches
 	 * @param	printTaskInfo prints info about tasks if set to true does not otherwise
 	 */
 	public CyclicalMappedArchitecture(int bitsPerFlit,
 			int teardownTime, HashMap<Coordinate, Integer> coordsToNumberMapping, 
-			HashMap<Coordinate, Coordinate> coordinateSwitchingMap, boolean printTaskInfo)
+			HashMap<Coordinate, Coordinate> coordinateSwitchingMap, 
+			int[] mrrSwitchesTopLeftNodeNumbers, boolean printTaskInfo)
 	{
-		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime, printTaskInfo);
+		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime,
+				mrrSwitchesTopLeftNodeNumbers, printTaskInfo);
 		this.coordsToNumberMapping = coordsToNumberMapping;
 		init();
 		//also generate the number to coordsMapping
@@ -60,24 +85,6 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 		{
 			switchCoordsSwapMapToIntegerSwap(coordinateSwitchingMap);
 		}
-	}
-	
-	
-	/**
-	 * Constructor for CyclicalMap architecture. 
-	 * 
-	 * @param 	bitsPerFlit number of bits that exist in a single flit
-	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
-	 * 			nodes
-	 * @param 	coordsToNumberMapping The map that matches coordinates to designated node-Numbers
-	 * @param	printTaskInfo prints info about tasks if set to true does not otherwise
-	 */
-	public CyclicalMappedArchitecture(int bitsPerFlit, int teardownTime, 
-			HashMap<Coordinate, Integer> coordsToNumberMapping, boolean printTaskInfo)
-	{
-		super(coordsToNumberMapping.size(), bitsPerFlit, teardownTime, printTaskInfo);
-		this.coordsToNumberMapping = coordsToNumberMapping;
-		init();
 	}
 	
 	/*initalize the basicMapArchitecture with the given map*/
@@ -116,6 +123,11 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	private void setupNodes()
 	{
 		cyclicalNodeList[0] = new CyclicalNode(headNode, 0, printTaskInfo);
+		
+		if (mrrSwitchesTopLeftNodeNumbers[0] != -1 || mrrSwitchesTopLeftNodeNumbers == null) 
+		{ //TODO check what this means
+			setUpMRRSwitchLinks();
+		}
 		
 		for(int i = 1; i < cyclicalNodeList.length; i++)
 		{
@@ -295,7 +307,7 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	{
 		return numberToNode(unswitchedNumberToSwitchedNumber(nodeNumber));
 	}
-
+	//
 	/* Ensure the coordinates given are valid */
 	@Override
 	protected void checkForValidCoordinates(Coordinate coord)
@@ -314,6 +326,35 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 		if(nodeNumber >= coordsToNumberMapping.size() || nodeNumber < 0)
 		{
 			throw new IllegalArgumentException("Invalid nodeNumber.");
+		}
+	}
+	
+	
+	/**
+	 * Applies the top left node number to a designated switch
+	 * @param topLeftNodeNumber node number for the top left node
+	 * @return the designated MRR Switch
+	 */
+	@Override
+	public void setUpMRRSwitchLinks() 
+	{
+		for (int i = 0; i < mrrSwitchesTopLeftNodeNumbers.length; i ++){
+			int topLeftNodeNumber = 
+					unswitchedNumberToSwitchedNumber(mrrSwitchesTopLeftNodeNumbers[i]);
+			
+			checkForValidTopLeftNodeNumber(topLeftNodeNumber);
+			
+			CyclicalNode topLeftNode = numberToNode(topLeftNodeNumber);
+			CyclicalNode topRightNode = numberToNode(topLeftNodeNumber+1);
+			
+			CyclicalNode bottomRightNode =
+					numberToNode((coordsToNumberMapping.size()/2 - topLeftNodeNumber)*2);
+			
+			CyclicalNode bottomLeftNode = 
+					numberToNode((coordsToNumberMapping.size()/2 - topLeftNodeNumber)*2 + 1);
+			
+			cyclicalMRRSwitchList[i] = new CyclicalMRRSwitch(
+					topLeftNode, topRightNode, bottomRightNode, bottomLeftNode, i);
 		}
 	}
 	
@@ -348,5 +389,13 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	public HashMap<Integer, Integer> getSwitchingMapRef()
 	{
 		return switchingMap;
+	}
+	
+	/* Ensure the number given is valid for a top left node */
+	@Override
+	public void checkForValidTopLeftNodeNumber(int topLeftNodeNumber) {
+		if (topLeftNodeNumber >= coordsToNumberMapping.size()/2 - 1) {
+			throw new IllegalArgumentException("Invalid topLeftNodeNumber.");
+		}
 	}
 }

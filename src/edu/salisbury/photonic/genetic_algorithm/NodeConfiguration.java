@@ -38,7 +38,7 @@ public class NodeConfiguration extends GeneticIndividual
 		}
 		this.log = log;
 		configuration = new CyclicalMappedArchitecture( 
-				bitsPerFlit, tearDownTime, coordsToNumberMapping, false); 
+				bitsPerFlit, tearDownTime, coordsToNumberMapping); 
 		
 		GenePool pool = new GenePool(mostSuccessful.getConfiguration().getSwitchingMapCopy(), 
 				mostSuccessful.getConfiguration().getNumberOfCoreNodes());

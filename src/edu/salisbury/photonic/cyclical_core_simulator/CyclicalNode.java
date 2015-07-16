@@ -24,17 +24,6 @@ public class CyclicalNode extends CoreNode
 	private int nodeNumber;
 	private boolean printTaskInfo = false;
 	
-//	/**
-//	 * Constructor for cyclical node
-//	 * @param overseerNode the headNode
-//	 * @param nodeNumber the designated nodeNumber for this node
-//	 */
-//	public CyclicalNode(CyclicalHeadNode overseerNode, int nodeNumber)
-//	{
-//		edges = new CoreNodeIOPort[3];
-//		setOverseerEdge(overseerNode); 
-//		this.nodeNumber = nodeNumber;
-//	}
 	
 	/**
 	 * Constructor for cyclical node

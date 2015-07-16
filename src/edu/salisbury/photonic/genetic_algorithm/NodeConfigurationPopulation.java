@@ -20,7 +20,8 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 	private int bitsPerFlit;
 	private int teardownTime;
 	private int mutationsPerPop;
-	private int generationNumber = 0;
+	private int generationNumber = 0; //TODO add generationNumber
+	
 	private HashSet<HashMap<Integer, Integer>> previousCreations = 
 			new HashSet<HashMap<Integer, Integer>>(3000); //TODO Consider adding a different number
 	
@@ -94,7 +95,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		previousCreations.add(generatedHashMap);
 		
 		CyclicalMappedArchitecture generatedArchitecture = new CyclicalMappedArchitecture(
-				bitsPerFlit, teardownTime, coordsToNumberMapping, false);
+				bitsPerFlit, teardownTime, coordsToNumberMapping);
 		generatedArchitecture.checkAndSetIntegerSwapMap(generatedHashMap);
 		
 		return new NodeConfiguration(generatedArchitecture, log);

@@ -15,7 +15,6 @@ import edu.salisbury.photonic.core_simulator.LogEntry;
 public class CyclicalSimOverseer extends CoreSimOverseer
 {	
 	
-	
 	/**
 	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalUnMappedArchitecture} 
 	 * as its underlying {@link CyclicalArchitecture}
@@ -42,8 +41,24 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
-		simulation = 
-				new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, bitsPerFlit, teardownTime);
+		simulation = new CyclicalUnMappedArchitecture(
+				numberOfNonHeadNodes, bitsPerFlit, teardownTime);
+	}
+	
+	/**
+	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalUnMappedArchitecture} 
+	 * as its underlying {@link CyclicalArchitecture}
+	 *
+	 */
+	public CyclicalSimOverseer(int numberOfNonHeadNodes, int bitsPerFlit, int teardownTime, 
+		int[] mrrSwitchesTopLeftNodeNumbers, boolean printDebugInfo)
+	{
+		if(bitsPerFlit < 0 || teardownTime < 0 || numberOfNonHeadNodes < 0)
+		{
+			throw new IllegalArgumentException("Arguments must be non-negative.");
+		}
+		simulation = new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, bitsPerFlit, 
+				teardownTime, mrrSwitchesTopLeftNodeNumbers ,printDebugInfo);
 	}
 	
 	/**
@@ -64,7 +79,7 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap, false);
+				coordinateSwitchingMap);
 	}
 	
 	/**
@@ -76,17 +91,19 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	 * @param	teardownTime The amount of time it takes to teardown connections
 	 * @param	coordinateSwitchingMap A map which maps coordinates to a specific number for each
 	 * 			node. Numbers should begin at 0 and end at map.length()-1
+	 * @param 	mrrSwitchesTopLeftNodeNumbers Designates a top left node to a MRR switch
 	 * @param	taskInfo prints debug info about tasks if set to true
 	 */
 	public CyclicalSimOverseer(int bitsPerFlit, int teardownTime, 
-			HashMap<Coordinate, Integer> coordinateSwitchingMap, boolean taskInfo)
+			HashMap<Coordinate, Integer> coordinateSwitchingMap, 
+			int[] mrrSwitchesTopLeftNodeNumbers, boolean taskInfo)
 	{
 		if(bitsPerFlit < 0 || teardownTime < 0)
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap, taskInfo);
+				coordinateSwitchingMap, null, mrrSwitchesTopLeftNodeNumbers, taskInfo);
 	}
 	
 	/**
@@ -112,7 +129,7 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap, switchingMap, false);
+				coordinateSwitchingMap, switchingMap, null, false);
 	}
 	
 	/**
@@ -132,14 +149,15 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	 */
 	public CyclicalSimOverseer(int bitsPerFlit, int teardownTime, 
 			HashMap<Coordinate, Integer> coordinateSwitchingMap, 
-			HashMap<Coordinate, Coordinate> switchingMap, boolean taskInfo)
+			HashMap<Coordinate, Coordinate> switchingMap, int[] mrrSwitchesTopLeftNodeNumbers, 
+			boolean taskInfo)
 	{
 		if(bitsPerFlit < 0 || teardownTime < 0)
 		{
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalMappedArchitecture(bitsPerFlit, teardownTime, 
-				coordinateSwitchingMap, switchingMap, taskInfo);
+				coordinateSwitchingMap, switchingMap, mrrSwitchesTopLeftNodeNumbers, taskInfo);
 	}
 	
 	public CyclicalSimOverseer(CyclicalMappedArchitecture existing)

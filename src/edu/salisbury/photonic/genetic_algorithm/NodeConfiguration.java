@@ -147,9 +147,8 @@ public class NodeConfiguration extends GeneticIndividual
 		{
 			if(switchingMap == null)
 			{
-				//if switchingMap is null that means the default values must be added
-				//Since no switching has occured
-				addDefaultValues();
+				switchingMap = 
+						new HashMap<Integer, Integer>(0); //Construct an empty dummy HashMap
 			}
 			
 			if(switchingMap.size() > numberOfPoolBuckets)
@@ -158,15 +157,17 @@ public class NodeConfiguration extends GeneticIndividual
 						"genepool size.");
 			}
 			
+			//take a look at this method
 			for(int i = 0; i < numberOfPoolBuckets - 1; i++)
 			{
-				Integer lowerNode = switchingMap.get(i);
-				lowerNode = (lowerNode == null) ? i : lowerNode;
-				Integer higherNode = switchingMap.get(i + 1);
-				higherNode = (higherNode == null) ? i : higherNode;
+				Integer lowerNodePosition = switchingMap.get(i);
+				lowerNodePosition = (lowerNodePosition == null) ? i : lowerNodePosition;
+				Integer higherNodePosition = switchingMap.get(i + 1);
+				//TODO Changed from i to i+1 should make a difference, check though.
+				higherNodePosition = (higherNodePosition == null) ? i + 1 : higherNodePosition;
 				
-				Coordinate toAdd = new Coordinate(lowerNode,higherNode);
-				Coordinate reverse = new Coordinate(higherNode, lowerNode);
+				Coordinate toAdd = new Coordinate(lowerNodePosition,higherNodePosition);
+				Coordinate reverse = new Coordinate(higherNodePosition, lowerNodePosition);
 				if(pool.add(toAdd))
 				{
 					addToOrganizedPool(toAdd);
@@ -181,18 +182,6 @@ public class NodeConfiguration extends GeneticIndividual
 			lowerNode = (lowerNode == null) ? numberOfPoolBuckets - 1 : lowerNode;
 			Integer higherNode = switchingMap.get(0);
 			higherNode = (higherNode == null) ? 0 : higherNode;
-		}
-		
-		private void addDefaultValues()
-		{
-			for(int i = 0; i < numberOfPoolBuckets; i++)
-			{
-				Coordinate toAdd = new Coordinate(i,i);
-				if(pool.add(toAdd))
-				{
-					addToOrganizedPool(toAdd);
-				}
-			}
 		}
 		
 		private void addToOrganizedPool(Coordinate toAdd)

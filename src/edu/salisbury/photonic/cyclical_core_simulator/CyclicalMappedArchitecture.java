@@ -124,8 +124,8 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	{
 		cyclicalNodeList[0] = new CyclicalNode(headNode, 0, printTaskInfo);
 		
-		if (mrrSwitchesTopLeftNodeNumbers[0] != -1 || mrrSwitchesTopLeftNodeNumbers == null) 
-		{ //TODO check what this means
+		if (mrrSwitchesTopLeftNodeNumbers != null) 
+		{ 
 			setUpMRRSwitchLinks();
 		}
 		

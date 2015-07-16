@@ -24,6 +24,9 @@ public class CyclicalHeadNode extends CoreNode
 	/**Tasks that are being currently executing in the overlying architecture*/
 	public LinkedList<CyclicalRoutingTask> currentlyExecutingTasks;
 	
+	/**List containing all of the active mrrSwitches**/
+	CyclicalMRRSwitch[] mrrSwitchList;
+	
 	/**
 	 * Constructor for the CyclicalHeadNode.
 	 * @param architecture The overlying architecture of which the headNode is presiding over

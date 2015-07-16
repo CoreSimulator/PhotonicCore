@@ -5,24 +5,20 @@ import edu.salisbury.photonic.core_simulator.MRRSwitch;
 
 public class CyclicalMRRSwitch extends MRRSwitch {
 	
-//	public MRRSwitch(CoreNode[] pathNodes) {
-//	links = pathNodes;
-//	updatePositionalLinks();
-//  }
+	public CyclicalMRRSwitch(CyclicalNode topLeftNode, int mrrSwitchNumber) {
+		topLeftLink = topLeftNode;
+		this.mrrSwitchNumber = mrrSwitchNumber;
+		links = updateConnectedLinks();
+	}
 	
-//	public BasicMRRSwitch(CoreNode topLeftNode) {
-//		topLeftLink = topLeftNode;
-//		updatePositionalLinks();
-//		links = updateConnectedLinks();
-//	}
-
-	public CyclicalMRRSwitch(CoreNode topLeftNode, CoreNode topRightNode,
-			CoreNode bottomRightNode, CoreNode bottomLeftNode) {
+	public CyclicalMRRSwitch(CyclicalNode topLeftNode, CyclicalNode topRightNode,
+			CyclicalNode bottomRightNode, CyclicalNode bottomLeftNode, int mrrSwitchNumber) {
 		topLeftLink = topLeftNode;
 		topRightLink = topRightNode;
 		bottomRightLink = bottomRightNode;
 		bottomLeftLink = bottomLeftNode;
 		links = updateConnectedLinks();
+		this.mrrSwitchNumber = mrrSwitchNumber;
 	}
 	
 	public CoreNode getDestinationNode(CoreNode sourceNode) {
@@ -51,11 +47,20 @@ public class CyclicalMRRSwitch extends MRRSwitch {
 		throw new RuntimeException("This source node does not connect to this switch.");
 	}
 	
-	//IF USING FIRST/SECOND CONSTRUCTOR, THEN NEED TO UPDATE WHICH CORE IS AT WHICH LINK
-//	private void updatePositionalLinks() {
-//		topRightLink = CoreNode[topLeftLink.BasicNode.nodeNumber + 1];
-//		bottomLeftLink = CoreNode[topLeftLink.BasicNode.nodeNumber + 1]; 
-//		bottomRightLink = CorrNode[numOfNodes - topLeftLink.BasicNode.nodeNumber];
-//		bottomLeftLink = CoreNode[numOfNodes - topLeftLink.BasicNode.nodeNumber + 1];
-//	}
+	public int getMRRSwitchNumber() {
+		return mrrSwitchNumber;
+	}
+	
+	public void setTopRightLink(CyclicalNode topRightNode) {
+		topRightLink = topRightNode;
+	}
+	
+	public void setBottomRightLink(CyclicalNode bottomRightNode) {
+		bottomRightLink = bottomRightNode;
+	}
+	
+	public void setBottomLeftLink(CyclicalNode bottomLeftNode) {
+		bottomLeftLink = bottomLeftNode;
+	}
+	
 }

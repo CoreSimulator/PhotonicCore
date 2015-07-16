@@ -3,10 +3,11 @@ package edu.salisbury.photonic.core_simulator;
 public abstract class MRRSwitch {
 	public enum State {ON, OFF}
 	public enum Status {FREE, BUSY}
-	public CoreNode topLeftLink;
-	public CoreNode topRightLink;
-	public CoreNode bottomRightLink;
-	public CoreNode bottomLeftLink;
+	public CoreNode topLeftLink = null;
+	public CoreNode topRightLink = null;
+	public CoreNode bottomRightLink = null;
+	public CoreNode bottomLeftLink = null;
+	public int mrrSwitchNumber;
 	public State state = State.ON;
 	public Status status = Status.FREE;
 	public CoreNode[] links = new CoreNode[4];

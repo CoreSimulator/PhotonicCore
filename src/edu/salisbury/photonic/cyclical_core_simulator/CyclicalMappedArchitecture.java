@@ -347,6 +347,6 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	 */
 	public HashMap<Integer, Integer> getSwitchingMapRef()
 	{
-	return switchingMap;
+		return switchingMap;
 	}
 }

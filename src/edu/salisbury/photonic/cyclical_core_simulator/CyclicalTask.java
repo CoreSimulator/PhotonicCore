@@ -261,6 +261,9 @@ public class CyclicalTask extends CoreTask
 		return sourceNodeRef.getNodeNumber();
 	}
 	
+	public CyclicalNode getSourceNode() {
+		return sourceNodeRef;
+	}
 
 	/**
 	 * @return the destinationNodeNum

@@ -25,6 +25,7 @@ public class CyclicalRoutingTask extends CoreTask
 	private int flitsToSend;
 	private int sourceNodeNumber;
 	private int destinationNodeNumber;
+	private CyclicalNode sourceNodeRef;
 	private CyclicalDirection direction = CyclicalDirection.UNDETERMINED;
 	
 	/**
@@ -35,6 +36,7 @@ public class CyclicalRoutingTask extends CoreTask
 	{
 		sourceNodeNumber = request.getSourceNodeNum();
 		destinationNodeNumber = request.getDestinationNodeNum();
+		sourceNodeRef = request.getSourceNode();
 		flitsToSend = request.getFlitSize();
 	}
 	
@@ -61,6 +63,10 @@ public class CyclicalRoutingTask extends CoreTask
 	public int getSourceNodeNumber()
 	{
 		return sourceNodeNumber;
+	}
+	
+	public CyclicalNode getSourceNode() {
+		return sourceNodeRef;
 	}
 
 	/**

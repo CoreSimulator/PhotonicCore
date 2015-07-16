@@ -38,9 +38,10 @@ public class CyclicalHeadNode extends CoreNode
 		this.newlyReceivedTasks = new LinkedList<CyclicalRoutingTask>();
 		this.previouslySentTasks = new LinkedList<CyclicalRoutingTask>();
 		this.currentlyExecutingTasks = new LinkedList<CyclicalRoutingTask>();
+		
 		this.mrrSwitchList = underlyingArchitecture.cyclicalMRRSwitchList;
 	}
-	//
+	
 	/**
 	 * Adds the CyclicalTask request to the queue to be approved.
 	 * @param request the request which will be approved later

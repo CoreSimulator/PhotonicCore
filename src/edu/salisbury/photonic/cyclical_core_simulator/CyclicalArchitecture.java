@@ -23,7 +23,10 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	protected CyclicalNode[] cyclicalNodeList;
 	protected int[] mrrSwitchesTopLeftNodeNumbers;
 	protected CyclicalMRRSwitch[] cyclicalMRRSwitchList;
-	//
+	
+	public boolean printTaskInfo = false;
+	
+	
 	/**
 	 * Constructor for a cyclical architecture.
 	 * 
@@ -31,20 +34,39 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	 * @param 	bitsPerFlit number of bits that exist per flit
 	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
 	 * 			nodes
-	 * @param 	numberOfMRRSwitches the number of MRR switches that exist in this architecture.
 	 */
 	public CyclicalArchitecture(int numberOfCoreNodes, int bitsPerFlit,
-			int teardownTime, int[] mrrSwitchesTopLeftNodeNumbers)
+			int teardownTime)
 	{
-		
 		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
+		this.mrrSwitchesTopLeftNodeNumbers = null;
+		this.cyclicalMRRSwitchList = null;
+		
 		cyclicalNodeList = new CyclicalNode[getNumberOfCoreNodes()];
-		this.mrrSwitchesTopLeftNodeNumbers = mrrSwitchesTopLeftNodeNumbers;
 		headNode = new CyclicalHeadNode(this);
-			//BasicArchitecture and uncomment this
 	}
 	
-	//replace with mapping function
+	/**
+	 * Constructor for a cyclical architecture.
+	 * 
+	 * @param 	numberOfCoreNodes the number of non-headNodes that exist in this architecture.
+	 * @param 	bitsPerFlit number of bits that exist per flit
+	 * @param 	teardownTime amount of time it takes to destroy a connection between communicating 
+	 * 			nodes
+	 * @param 	printTaskInfo prints task info if true does not otherwise
+	 */
+	public CyclicalArchitecture(int numberOfCoreNodes, int bitsPerFlit,
+			int teardownTime, int[] mrrSwitchesTopLeftNodeNumbers, boolean printTaskInfo)
+	{
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
+		
+		this.mrrSwitchesTopLeftNodeNumbers = mrrSwitchesTopLeftNodeNumbers;
+		
+		cyclicalNodeList = new CyclicalNode[getNumberOfCoreNodes()];
+		headNode = new CyclicalHeadNode(this);
+		this.printTaskInfo = printTaskInfo;
+	}
+	
 	/**
 	 * Converts a nodeNumber to its corresponding Coordinate
 	 * @param nodeNumber to be converted to a Coordinate
@@ -126,7 +148,14 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	 */
 	public int numberOfMRRSwitches()
 	{
-		return mrrSwitchesTopLeftNodeNumbers.length;
+		if(this.mrrSwitchesTopLeftNodeNumbers != null)
+		{
+			return mrrSwitchesTopLeftNodeNumbers.length;
+		} 
+		else
+		{
+			return 0;
+		}
 	}
 	
 	/**

@@ -29,7 +29,7 @@ public abstract class CoreSimOverseer
 	 */
 	protected abstract void simulateCycle();
 	
-	public void simulateWithLog(CoreLog log)
+	public int simulateWithLog(CoreLog log)
 	{
 		//continue simulating until no more log entries to create tasks
 		//from and no more tasks to complete
@@ -45,6 +45,7 @@ public abstract class CoreSimOverseer
 			simulateCycle();
 			cycles++;
 		}
+		return cycles;
 	}
 	
 	/**

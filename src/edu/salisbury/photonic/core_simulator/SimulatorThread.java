@@ -41,11 +41,15 @@ public class SimulatorThread implements Runnable{
 		//Select the topology to simulate
 		switch(topology) {
 			case "Ring":
-				CyclicalSimOverseer test = new CyclicalSimOverseer(flitPacketSize, tearDownTime, switchingMap, dominantFlowMap, mrrSwitchesTopLeftNodeNumber);
+				CyclicalSimOverseer test = new CyclicalSimOverseer(flitPacketSize, tearDownTime, 
+						switchingMap, dominantFlowMap, mrrSwitchesTopLeftNodeNumber, true);
 				test.simulateWithLog(basicLog);
 				break;
 			default:
-				CyclicalSimOverseer test1 = new CyclicalSimOverseer(flitPacketSize, tearDownTime, switchingMap, mrrSwitchesTopLeftNodeNumber);
+				CyclicalSimOverseer test1 = new CyclicalSimOverseer(
+						flitPacketSize, tearDownTime, switchingMap, null, 
+						mrrSwitchesTopLeftNodeNumber, true);
+				
 				test1.simulateWithLog(basicLog);
 				break;
 		}//end switch

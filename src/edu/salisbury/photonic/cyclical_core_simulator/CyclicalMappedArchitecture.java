@@ -247,7 +247,7 @@ public class CyclicalMappedArchitecture extends CyclicalArchitecture
 	{
 		return numberToNode(unswitchedNumberToSwitchedNumber(nodeNumber));
 	}
-
+	//
 	/* Ensure the coordinates given are valid */
 	@Override
 	protected void checkForValidCoordinates(Coordinate coord)

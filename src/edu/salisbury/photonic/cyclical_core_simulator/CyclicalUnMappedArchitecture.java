@@ -19,7 +19,7 @@ import edu.salisbury.photonic.core_simulator.Coordinate;
 public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 {
 	int numberOfCoreNodes;
-	
+	//
 	/**
 	 * Constructor for a CyclicalUnMappedArchitecture
 	 * @param 	numberOfCoreNodes Number of nodes in the overlying architecture (non including the 

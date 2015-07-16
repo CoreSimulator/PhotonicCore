@@ -23,7 +23,7 @@ public abstract class CyclicalArchitecture extends CoreArchitecture
 	protected CyclicalNode[] cyclicalNodeList;
 	protected int[] mrrSwitchesTopLeftNodeNumbers;
 	protected CyclicalMRRSwitch[] cyclicalMRRSwitchList;
-	
+	//
 	/**
 	 * Constructor for a cyclical architecture.
 	 * 

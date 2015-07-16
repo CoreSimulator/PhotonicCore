@@ -15,7 +15,7 @@ import edu.salisbury.photonic.core_simulator.LogEntry;
 public class CyclicalSimOverseer extends CoreSimOverseer
 {	
 	
-	
+	//
 	/**
 	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalUnMappedArchitecture} 
 	 * as its underlying {@link CyclicalArchitecture}

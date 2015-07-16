@@ -35,7 +35,7 @@ public class SimulatorThread implements Runnable{
 		dominantFlowMap.put(new Coordinate(2,5), new Coordinate(1,6));
 		dominantFlowMap.put(new Coordinate(2,0), new Coordinate(2,2));
 		dominantFlowMap.put(new Coordinate(2,2), new Coordinate(2,0));
-		
+		//
 		int[] mrrSwitchesTopLeftNodeNumber = {-1};
 		
 		//Select the topology to simulate

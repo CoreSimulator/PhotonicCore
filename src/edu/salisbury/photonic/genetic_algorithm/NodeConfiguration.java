@@ -12,11 +12,23 @@ import edu.salisbury.photonic.cyclical_core_simulator.CyclicalSimOverseer;
 import edu.salisbury.photonic.core_simulator.Coordinate;
 import edu.salisbury.photonic.core_simulator.CoreLog;
 
+/**
+ * A specific mapping of nodes which is modeled as an individual which could be part of a larger 
+ * population.
+ * @author timfoil
+ *
+ */
 public class NodeConfiguration extends GeneticIndividual
 {
 	private CyclicalMappedArchitecture configuration;
 	private CoreLog log;
 	
+	/**
+	 * Creates a nodeconfiguration based on a previous nodeconfiguration
+	 * @param 	architecture An already constructed CyclicalMappedArchitecture architecture that 
+	 * 			already has a specific switching map (can be null).
+	 * @param log
+	 */
 	public NodeConfiguration(CyclicalMappedArchitecture architecture, CoreLog log)
 	{
 		if(architecture == null || log == null)
@@ -27,7 +39,16 @@ public class NodeConfiguration extends GeneticIndividual
 		configuration = architecture;
 		this.log = log;
 	}
-	
+	/**
+	 * Create a node configuration with a specific mapping given 2 parent node configurations
+	 * 
+	 * @param mostSuccessful most successful parent individual
+	 * @param secondMostSuccesful second most succesful parent indivudal
+	 * @param bitsPerFlit number of bits that are in a flit (16, 32, 64)
+	 * @param tearDownTime Time it takes to tear down a connection
+	 * @param coordsToNumberMapping The mapping used for the coordinate to integer values.
+	 * @param log The log used to test this NodeConfiguration
+	 */
 	public NodeConfiguration(NodeConfiguration mostSuccessful, 
 			NodeConfiguration secondMostSuccesful, int bitsPerFlit, int tearDownTime, 
 			HashMap <Coordinate, Integer> coordsToNumberMapping, CoreLog log)
@@ -47,6 +68,15 @@ public class NodeConfiguration extends GeneticIndividual
 		configuration.checkAndSetIntegerSwapMap(pool.generateSwitchingMap());
 	}
 	
+	
+	//TODO One generation of a population could share 1 genepool instead of creating the same new 
+	//genePool every time a nodeConfiguration individual is created
+	
+	/**
+	 * A class used to breakdown given Switching maps into a pool of genes.
+	 * After creating a pool unique NodeConfigurations can be constructed from the pool.
+	 * @author timfoil
+	 */
 	private static class GenePool
 	{
 		private HashSet<Coordinate> pool = new HashSet<Coordinate>();
@@ -86,6 +116,12 @@ public class NodeConfiguration extends GeneticIndividual
 			}
 		}
 		
+		/**
+		 * Creates a genepool from a single switchingMap with the given size number of nodes.
+		 * @param 	switchingMap An architecture which is broken down into genes to construct this
+		 * 			genepool.
+		 * @param 	size Number of (non-head) nodes in the architecture
+		 */
 		public GenePool(HashMap<Integer, Integer> switchingMap, int size)
 		{
 			if(size < 0)
@@ -101,6 +137,12 @@ public class NodeConfiguration extends GeneticIndividual
 			addMapToPool(switchingMap);
 		}
 
+		/**
+		 * Break down single switchingMap into genes and add it to the genes to the pool if they do
+		 * not already exist.
+		 * 
+		 * @param switchingMaps switchingMap
+		 */
 		public void addMapToPool(HashMap<Integer, Integer> switchingMap)
 		{
 			if(switchingMap == null)
@@ -169,6 +211,10 @@ public class NodeConfiguration extends GeneticIndividual
 			organizedPool.get(x).add(toAdd);
 		}
 		
+		/**
+		 * Generates a switchingMap from all the genes that exist in this pool.
+		 * @return switchingMap obtained from the genes that exist in this pool
+		 */
 		public HashMap<Integer, Integer> generateSwitchingMap()
 		{
 			ArrayList<LinkedList<Coordinate>> clonedList = 
@@ -245,7 +291,10 @@ public class NodeConfiguration extends GeneticIndividual
 
 
 		/**
-		 * Helper class for generating switching HashMaps
+		 * Helper class for generating switching HashMaps. Used to determine what links have been 
+		 * added already and which nodes still need links added to them. Used exclusively in the
+		 * generateSwitchingMap() method of GenePool.
+		 * 
 		 * @author timfoil
 		 *
 		 */
@@ -270,11 +319,20 @@ public class NodeConfiguration extends GeneticIndividual
 				}
 			}
 			
+			/**
+			 * Determines if the given number has been picked already or not yet 
+			 * @param toExamine
+			 * @return true if the number has already been picked false otherwise
+			 */
 			public boolean stillExists(int toExamine)
 			{
 				return notPicked.contains(toExamine);
 			}
 
+			/**
+			 * Picks a random integer from the pool that has not been picked yet
+			 * @return A random integer that has yet to be picked from the pool
+			 */
 			public int pickRandFromWhatsLeft()
 			{
 				if(notPicked.isEmpty())
@@ -294,6 +352,17 @@ public class NodeConfiguration extends GeneticIndividual
 				throw new RuntimeException("Error: A random number was not picked");
 			}
 			
+			/**
+			 * Puts a link into place at the given index. Poolindex should equal the linkToPlace's X
+			 * coordinate and linkNumberIndex should equal either 0 or 1 depending on if this is the
+			 * first or second link to be added to the given position. Also adds the reverse 
+			 * coordinate automatically at the poolindex given by linkToPlace's Y coordinate.
+			 * 
+			 * @param 	poolIndex should equal the linkToPlace's x coordinate
+			 * @param 	linkNumberIndex Either 0 or 1 depending on if this is the first or second link
+			 * 			to be added to this position
+			 * @param 	linkToPlace The link that will be added at this position
+			 */
 			public void put(int poolIndex, int linkNumberIndex, Coordinate linkToPlace)
 			{
 				if(linkToPlace == null)
@@ -359,6 +428,12 @@ public class NodeConfiguration extends GeneticIndividual
 				}
 			}
 
+			/**
+			 * Once two link genes are placed at every index a switchingMap can be formed.
+			 * Call this method when all the genes have been put in place to return the hashMap
+			 * formed by the genes.
+			 * @return The hashMap formed by the genes that have been picked
+			 */
 			public HashMap<Integer, Integer> generateHashMap()
 			{
 				if(!notPicked.isEmpty())
@@ -410,6 +485,9 @@ public class NodeConfiguration extends GeneticIndividual
 		return configuration;
 	}
 
+	/**
+	 * @return a reference of the switchingMap from the NodeConfiguration's architecture
+	 */
 	public HashMap<Integer, Integer> getSwitchingMapRef()
 	{
 		return configuration.getSwitchingMapRef();

@@ -26,7 +26,7 @@ public class MainTest {
 					switchingMap.put(new Coordinate(2,7-i), 8+i);
 				}
 		int[] mrrSwitchesTopLeftNodeNumbers = null;
-		CyclicalSimOverseer test = new CyclicalSimOverseer(64, 1, switchingMap, mrrSwitchesTopLeftNodeNumbers);
+		CyclicalSimOverseer test = new CyclicalSimOverseer(64, 1, switchingMap);
 		test.simulateWithLog(basicLog);
 		
 		System.out.println(totalRequestingTime - 2*86836);

@@ -1,5 +1,6 @@
 package edu.salisbury.photonic.cyclical_core_simulator;
 
+import edu.salisbury.photonic.MainClasses.Main;
 import edu.salisbury.photonic.core_simulator.CoreTask;
 import edu.salisbury.photonic.core_simulator.MainGUI;
 
@@ -69,6 +70,7 @@ public class CyclicalTask extends CoreTask
 		this.status = CyclicalTaskStatus.NEW;
 		this.flitSize = flitSize;
 		this.taskCreationTime = taskCreationTime;
+		
 	}
 
 	@Override
@@ -94,7 +96,7 @@ public class CyclicalTask extends CoreTask
 				break;
 			case TEARDOWN:
 				teardownTaskTime++;
-				MainGUI.totalTasks ++;
+				MainGUI.totalTasks++;
 				break;
 			case COMPLETE:
 				completeTaskTime++;
@@ -177,7 +179,6 @@ public class CyclicalTask extends CoreTask
 				((CyclicalNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
 				status = CyclicalTaskStatus.COMPLETE;//change to complete
 				MainGUI.totalRequestingTime += requestingTaskTime;
-				
 				break;
 			case COMPLETE:
 				throw new RuntimeException("This task is already complete, " +
@@ -261,6 +262,9 @@ public class CyclicalTask extends CoreTask
 		return sourceNodeRef.getNodeNumber();
 	}
 	
+	public CyclicalNode getSourceNode() {
+		return sourceNodeRef;
+	}
 
 	/**
 	 * @return the destinationNodeNum

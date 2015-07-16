@@ -18,7 +18,7 @@ import edu.salisbury.photonic.core_simulator.Coordinate;
  */
 public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 {
-	int numberOfCoreNodes;
+	
 	
 	/**
 	 * Constructor for a CyclicalUnMappedArchitecture
@@ -27,13 +27,33 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 	 * @param 	bitsPerFlit The number of bits that exist per flit in this simulation.
 	 * @param 	teardownTime Number of cycles it takes to teardown a connection between links in 
 	 * 			this simulation
-	 * @param 	numberOfMRRSwitches number of MRR switches
+	 * @param 	mrrSwitchesTopLeftNodeNumbers The list of the node number of the topleft nodes of 
+	 * 			the MRR switches
 	 */
-	public CyclicalUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime, int[] mrrSwitchesTopLeftNodeNumbers)
+	public CyclicalUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime)
 	{
-		super(numberOfCoreNodes, bitsPerFlit, teardownTime, mrrSwitchesTopLeftNodeNumbers);
-		this.numberOfCoreNodes = numberOfCoreNodes;
-		if (mrrSwitchesTopLeftNodeNumbers[0] != -1) {
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime);
+		initArchitecture();
+	}
+	
+	/**
+	 * Constructor for a CyclicalUnMappedArchitecture
+	 * @param 	numberOfCoreNodes Number of nodes in the overlying architecture (non including the 
+	 * 			headNode)
+	 * @param 	bitsPerFlit The number of bits that exist per flit in this simulation.
+	 * @param 	teardownTime Number of cycles it takes to teardown a connection between links in 
+	 * 			this simulation
+	 * @param 	mrrSwitchesTopLeftNodeNumbers The list of the node number of the topleft nodes of 
+	 * 			the MRR switches
+	 * @param	printTaskInfo prints info about tasks if set to true does not otherwise
+	 */
+	public CyclicalUnMappedArchitecture(int numberOfCoreNodes, int bitsPerFlit, int teardownTime, 
+			int[] mrrSwitchesTopLeftNodeNumbers, boolean printTaskInfo)
+	{
+		super(numberOfCoreNodes, bitsPerFlit, teardownTime, mrrSwitchesTopLeftNodeNumbers, 
+				printTaskInfo);
+		if (mrrSwitchesTopLeftNodeNumbers == null) 
+		{
 			setUpMRRSwitchLinks();
 		}
 		initArchitecture();
@@ -43,11 +63,11 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 	 * Setup the edges as BasicNodeIOPorts */
 	private void initArchitecture()
 	{
-		cyclicalNodeList[0] = new CyclicalNode(headNode, 0);
+		cyclicalNodeList[0] = new CyclicalNode(headNode, 0, printTaskInfo);
 		
 		for(int i = 1; i < cyclicalNodeList.length; i++)
 		{
-			cyclicalNodeList[i] = new CyclicalNode(headNode, i);
+			cyclicalNodeList[i] = new CyclicalNode(headNode, i, printTaskInfo);
 			
 			cyclicalNodeList[i].setCounterClockwiseEdge(cyclicalNodeList[i-1]);
 			cyclicalNodeList[i-1].setClockwiseEdge(cyclicalNodeList[i]);
@@ -113,24 +133,33 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 	}
 	
 	@Override
-	public void setUpMRRSwitchLinks() {
-		for (int i = 0; i < mrrSwitchesTopLeftNodeNumbers.length; i ++){
+	public void setUpMRRSwitchLinks() 
+	{
+		for (int i = 0; i < mrrSwitchesTopLeftNodeNumbers.length; i ++)
+		{
 			int topLeftNodeNumber = mrrSwitchesTopLeftNodeNumbers[i];
 			
 			checkForValidTopLeftNodeNumber(topLeftNodeNumber);
 			
 			CyclicalNode topLeftNode = numberToNode(topLeftNodeNumber);
 			CyclicalNode topRightNode = numberToNode(topLeftNodeNumber+1);
-			CyclicalNode bottomRightNode = numberToNode((numberOfCoreNodes/2 - topLeftNodeNumber)*2);
-			CyclicalNode bottomLeftNode = numberToNode((numberOfCoreNodes/2 - topLeftNodeNumber)*2 + 1);
 			
-			cyclicalMRRSwitchList[i] = new CyclicalMRRSwitch(topLeftNode, topRightNode, bottomRightNode, bottomLeftNode, i);
+			CyclicalNode bottomRightNode = numberToNode((numberOfCoreNodes()/2 - 
+					topLeftNodeNumber)*2);
+			
+			CyclicalNode bottomLeftNode = numberToNode((numberOfCoreNodes()/2 -
+					topLeftNodeNumber)*2 + 1);
+			
+			cyclicalMRRSwitchList[i] = new CyclicalMRRSwitch(
+					topLeftNode, topRightNode, bottomRightNode, bottomLeftNode, i);
 		}
 	}
 
 	@Override
-	public void checkForValidTopLeftNodeNumber(int topLeftNodeNumber) {
-		if (topLeftNodeNumber >= numberOfCoreNodes/2 - 1) {
+	public void checkForValidTopLeftNodeNumber(int topLeftNodeNumber) 
+	{
+		if (topLeftNodeNumber >= numberOfCoreNodes()/2 - 1) 
+		{
 			throw new IllegalArgumentException("Invalid topLeftNodeNumber.");
 		}
 	}

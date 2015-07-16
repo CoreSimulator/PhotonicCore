@@ -1,6 +1,5 @@
 package edu.salisbury.photonic.cyclical_core_simulator;
 
-import edu.salisbury.photonic.core_simulator.CoreNode;
 import edu.salisbury.photonic.core_simulator.MRRSwitch;
 
 public class CyclicalMRRSwitch extends MRRSwitch {
@@ -21,27 +20,27 @@ public class CyclicalMRRSwitch extends MRRSwitch {
 		this.mrrSwitchNumber = mrrSwitchNumber;
 	}
 	
-	public CoreNode getDestinationNode(CoreNode sourceNode) {
+	public CyclicalNode getDestinationNode(CyclicalNode sourceNode) {
 		if (state == State.ON) {
 			if (sourceNode == topLeftLink) 
 			{
-				return topRightLink;
+				return (CyclicalNode) topRightLink;
 			} else if (sourceNode == topRightLink) {
-				return topLeftLink;
+				return (CyclicalNode) topLeftLink;
 			} else if (sourceNode == bottomRightLink) {
-				return bottomLeftLink;
+				return (CyclicalNode) bottomLeftLink;
 			} else if (sourceNode == bottomLeftLink) {
-				return bottomRightLink;
+				return (CyclicalNode) bottomRightLink;
 			}
 		} else if(state == State.OFF){//status = SwitchStatus.OFF
 			if (sourceNode == topLeftLink) {
-				return bottomRightLink;
+				return (CyclicalNode) bottomRightLink;
 			} else if (sourceNode == topRightLink) {
-				return bottomLeftLink;
+				return (CyclicalNode) bottomLeftLink;
 			} else if (sourceNode == bottomRightLink) {
-				return topLeftLink;
+				return (CyclicalNode) topLeftLink;
 			} else if (sourceNode == bottomLeftLink) {
-				return topRightLink;
+				return (CyclicalNode) topRightLink;
 			}
 		}  
 		throw new RuntimeException("This source node does not connect to this switch.");
@@ -61,6 +60,10 @@ public class CyclicalMRRSwitch extends MRRSwitch {
 	
 	public void setBottomLeftLink(CyclicalNode bottomLeftNode) {
 		bottomLeftLink = bottomLeftNode;
+	}
+	
+	public boolean isThisNodeConnected(CyclicalNode node) {
+		return topRightLink == node || topLeftLink == node || bottomRightLink == node || bottomLeftLink == node;
 	}
 	
 }

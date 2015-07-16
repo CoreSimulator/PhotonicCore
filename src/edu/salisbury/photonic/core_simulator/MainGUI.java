@@ -213,7 +213,7 @@ public class MainGUI {
 		});
 		tltm1CC.setSelection(true);
 		tltm1CC.setText("o 1 Clock Cycle");
-		
+
 		Label lblMrrSwitches = new Label(grpArchitectureOptions, SWT.NONE);
 		lblMrrSwitches.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
 		lblMrrSwitches.setBounds(690, 126, 88, 15);

@@ -12,7 +12,7 @@ public abstract class MRRSwitch {
 	public Status status = Status.FREE;
 	public CoreNode[] links = new CoreNode[4];
 	
-	public abstract CoreNode getDestinationNode(CoreNode sourceNode);
+	//public abstract CoreNode getDestinationNode(CoreNode sourceNode);
 	
 	public CoreNode[] updateConnectedLinks() {
 		//clockwise orientation
@@ -43,6 +43,14 @@ public abstract class MRRSwitch {
 		state = State.OFF;
 	}
 	
+	public void switchState() {
+		if (state == State.ON) {
+			state = State.OFF;
+		} else {
+			state = State.ON;
+		}
+	}
+	
 	public void setStatusFree() {
 		 status = Status.FREE;
 	}
@@ -50,4 +58,5 @@ public abstract class MRRSwitch {
 	public void setStatusBusy() {
 		 status = Status.BUSY;
 	}
+	
 }

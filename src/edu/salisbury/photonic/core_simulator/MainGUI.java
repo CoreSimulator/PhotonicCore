@@ -485,10 +485,12 @@ public class MainGUI {
 	
 	private void createConsoleOutputDA(Group grpDataAnalyzer) {
 		Group grpConsoleOutput_DA = new Group(grpDataAnalyzer, SWT.NONE);
+		grpConsoleOutput_DA.setToolTipText("Use arrow keys to scroll.");
 		grpConsoleOutput_DA.setText("Console Output");
 		grpConsoleOutput_DA.setBounds(452, 10, 430, 549);
 		
 		styledTextConsoleOutput = new StyledText(grpConsoleOutput_DA, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP);
+		styledTextConsoleOutput.setToolTipText("Use arrow keys to scroll.");
 		styledTextConsoleOutput.setBounds(10, 20, 410, 519);
 		//end console output group
 		

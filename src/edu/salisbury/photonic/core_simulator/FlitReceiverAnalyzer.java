@@ -1,6 +1,6 @@
 package edu.salisbury.photonic.core_simulator;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +55,8 @@ public class FlitReceiverAnalyzer extends Analyzer
 			}
 		}
 		
-		ArrayList<Map.Entry<Coordinate, Integer>> sortedList = SortingHelper.SortHashMapByValue(receivedMessages);//analyze receivedMessages
+		List<Map.Entry<Coordinate, Integer>> sortedList = 
+				SortingHelper.SortHashMapByValue(receivedMessages);//analyze receivedMessages
 		return sortMapEntriesByDescendingValue(sortedList);
 	}
 

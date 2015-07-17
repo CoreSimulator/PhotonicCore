@@ -1,21 +1,24 @@
 package edu.salisbury.photonic.core_simulator;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * An abstract class which can be sub-classed to implement {@link String analyze(CoreLog analysis)}.
- * <p>Analyzer objects can be added to {@link CoreLog} objects using {@link CoreLog#addExperiment(Analyzer)}
- * and {@link CoreLog#runExperiments()} to run as experiments. Experiments can also be simply run on a 
- * CoreLog using {@link CoreLog#performAnalysis(Analyzer)}.
+ * <p>Analyzer objects can be added to {@link CoreLog} objects using 
+ * {@link CoreLog#addExperiment(Analyzer)}and {@link CoreLog#runExperiments()} to run as 
+ * experiments. Experiments can also be simply run on a CoreLog using 
+ * {@link CoreLog#performAnalysis(Analyzer)}.
  * @author tptravitz
  *
  */
 public abstract class Analyzer 
 {
 	/** 
-	 * Number of results that are displayed per row in the {@link Analyzer#sortMapEntriesByDescendingValue(ArrayList) 
-	 * &ltK&gt String sortMapEntriesByDescendingValue(ArrayList &ltMap.Entry &ltK, Integer&gt&gt sortedList) } method
+	 * Number of results that are displayed per row in the 
+	 * {@link Analyzer#sortMapEntriesByDescendingValue(ArrayList) &ltK&gt String 
+	 * sortMapEntriesByDescendingValue(ArrayList &ltMap.Entry &ltK, Integer&gt&gt sortedList) } 
+	 * method
 	 */
 	public int resultEntriesPerRow = 2;
 	
@@ -30,13 +33,13 @@ public abstract class Analyzer
 	public abstract String analyze(CoreLog log);
 	
 	/**
-	 * Takes a sorted {@link ArrayList} of {@link Map.Entry} results and formats it into 
+	 * Takes a sorted {@link List} of {@link Map.Entry} results and formats it into 
 	 * a {@code String} that can be used to describe the result of the test.
 	 * 
 	 * @param sortedList of map entries
 	 * @return a formatted {@code string} showing the results of the program
 	 */
-	public <K> String sortMapEntriesByDescendingValue(ArrayList<Map.Entry<K, Integer>> sortedList)
+	public <K> String sortMapEntriesByDescendingValue(List<Map.Entry<K, Integer>> sortedList)
 	{
 		//used to build the result string
 		StringBuilder baseString = new StringBuilder();
@@ -49,13 +52,15 @@ public abstract class Analyzer
 			entriesInRow++;
 			if(entriesInRow < resultEntriesPerRow)
 			{
-				baseString.append(sortedList.size() - i + ".) " + entry.getKey() + ": "+ entry.getValue());
+				baseString.append(sortedList.size() - i + ".) " 
+						+ entry.getKey() + ": "+ entry.getValue());
 				baseString.append(",\t");
 			} 
 			else
 			{
 				entriesInRow = 0;
-				baseString.append(sortedList.size() - i + ".) " + entry.getKey() + ": "+ entry.getValue());
+				baseString.append(sortedList.size() - i + ".) " 
+						+ entry.getKey() + ": "+ entry.getValue());
 				baseString.append(" \n");
 			}
 		}

@@ -1,7 +1,7 @@
 package edu.salisbury.photonic.core_simulator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,7 +70,8 @@ public class CumulativeIOFlitAnalyzer extends Analyzer
 			
 		}
 		
-		ArrayList<Map.Entry<Coordinate, Integer>> sortedList = SortingHelper.SortHashMapByValue(messages);//analyze messages
+		List<Map.Entry<Coordinate, Integer>> sortedList = 
+				SortingHelper.SortHashMapByValue(messages);//analyze messages
 		return sortMapEntriesByDescendingValue(sortedList);
 	}
 

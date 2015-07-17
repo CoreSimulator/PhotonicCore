@@ -1,6 +1,5 @@
 package edu.salisbury.photonic.cyclical_core_simulator;
 
-import edu.salisbury.photonic.MainClasses.Main;
 import edu.salisbury.photonic.core_simulator.CoreTask;
 import edu.salisbury.photonic.core_simulator.MainGUI;
 

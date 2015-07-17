@@ -23,11 +23,7 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 	 */
 	public CyclicalSimOverseer(int numberOfNonHeadNodes)
 	{
-		if(numberOfNonHeadNodes < 0)
-		{
-			throw new IllegalArgumentException("Arguments must be non-negative.");
-		}
-		simulation = new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, 64, 1);
+		this(numberOfNonHeadNodes, 64, 1);
 	}
 	
 	/**
@@ -58,7 +54,7 @@ public class CyclicalSimOverseer extends CoreSimOverseer
 			throw new IllegalArgumentException("Arguments must be non-negative.");
 		}
 		simulation = new CyclicalUnMappedArchitecture(numberOfNonHeadNodes, bitsPerFlit, 
-				teardownTime, mrrSwitchesTopLeftNodeNumbers ,printDebugInfo);
+				teardownTime, mrrSwitchesTopLeftNodeNumbers, printDebugInfo);
 	}
 	
 	/**

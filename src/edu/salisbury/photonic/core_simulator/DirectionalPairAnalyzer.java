@@ -2,6 +2,7 @@ package edu.salisbury.photonic.core_simulator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -68,7 +69,8 @@ public class DirectionalPairAnalyzer extends Analyzer
 			}
 		}
 		
-		ArrayList<Map.Entry<CoordinatePair, Integer>> sortedList = SortingHelper.SortHashMapByValue(sentMessages);//analyze sentMessages
+		List<Map.Entry<CoordinatePair, Integer>> sortedList = 
+				SortingHelper.SortHashMapByValue(sentMessages);//analyze sentMessages
 		return sortMapEntriesByDescendingValue(sortedList);
 	}
 

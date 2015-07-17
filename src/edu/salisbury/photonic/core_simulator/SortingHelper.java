@@ -3,6 +3,7 @@ package edu.salisbury.photonic.core_simulator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,12 +17,13 @@ public class SortingHelper
 {
 	
 	/**
-	 * An implementation of binary insertion sort which sorts ints into an already sorted {@link ArrayList}.
+	 * An implementation of binary insertion sort which sorts ints into an already sorted 
+	 * {@link List}.
 	 * @param sortedList which the integer is to be inserted into
 	 * @param toSort 
 	 * @return the index at which the int was inserted at in the given sortedList
 	 */
-	public static int binaryInsertionSort(ArrayList<Integer> sortedList, int toSort)
+	public static int binaryInsertionSort(List<Integer> sortedList, int toSort)
 	{
 		if(sortedList == null) throw new NullPointerException();
 		
@@ -76,21 +78,21 @@ public class SortingHelper
 
 	/**
 	 * Sorts a {@link HashMap} with any key and an {@link Integer} value sequentially into an 
-	 * {@link ArrayList} of {@link java.util.Map.Entry Map.Entry}s.
+	 * {@link List} of {@link java.util.Map.Entry Map.Entry}s.
 	 * @param <K> Key type for the given HashMap
 	 * @param mapToSort
 	 * @return A sorted ArrayList containing map
 	 */
-	public static <K> ArrayList<Map.Entry<K, Integer>> SortHashMapByValue(HashMap<K, Integer> mapToSort) 
+	public static <K> List<Map.Entry<K, Integer>> SortHashMapByValue(HashMap<K, Integer> mapToSort) 
 	{
 		
 		//Create a list to model where each entry is, use binaryInsertionSortMethod 
 		//to add entries to their correct Index the Hashmap's Integer values are 
 		//represented by the integers at each index
-		ArrayList<Integer> valueList = new ArrayList<>();
+		List<Integer> valueList = new ArrayList<>();
 		
 		//ArrayList which will hold the sorted HashMap
-		ArrayList<Map.Entry<K, Integer>> sortedMapList = new ArrayList<>();
+		List<Map.Entry<K, Integer>> sortedMapList = new ArrayList<>();
 		
 		Set<Map.Entry<K, Integer>> pairs = mapToSort.entrySet();
 		

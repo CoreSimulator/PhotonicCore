@@ -1,7 +1,7 @@
 package edu.salisbury.photonic.cyclical_core_simulator;
 
 import edu.salisbury.photonic.core_simulator.CoreTask;
-import edu.salisbury.photonic.core_simulator.MainGUI;
+import edu.salisbury.photonic.simulation_gui.MainGUI;
 
 /**
  * A task that describes a message that needs to be passed from a source to destination node in a 

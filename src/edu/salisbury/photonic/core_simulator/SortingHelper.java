@@ -20,7 +20,7 @@ public class SortingHelper
 	 * An implementation of binary insertion sort which sorts ints into an already sorted 
 	 * {@link List}.
 	 * @param sortedList which the integer is to be inserted into
-	 * @param toSort 
+	 * @param toSort integer to sort
 	 * @return the index at which the int was inserted at in the given sortedList
 	 */
 	public static int binaryInsertionSort(List<Integer> sortedList, int toSort)
@@ -45,10 +45,15 @@ public class SortingHelper
 				{
 					sortedList.add(mid + 1, toSort);
 					return mid + 1;
-				} else 
+				} 
+				else if(toSort <= sortedList.get(mid))
 				{
 					sortedList.add(mid, toSort);
 					return mid;
+				}
+				else
+				{
+					throw new RuntimeException("Error Binary sort implementation");
 				}
 			} 
 			else if (min < max) 
@@ -66,6 +71,10 @@ public class SortingHelper
 				{
 					max = mid - 1;
 				}
+				else
+				{
+					throw new RuntimeException("Error Binary sort implementation");
+				}
 			} 
 			else if (min > max)
 			{
@@ -73,7 +82,79 @@ public class SortingHelper
 				return min;
 			}
 		}
+	}
+	
+	
+	/**
+	 * An implementation of binary insertion sort which sorts ints in reverse order into an already sorted 
+	 * {@link List}.
+	 * @param sortedList which the integer is to be inserted into
+	 * @param toSort integer to sort
+	 * @return the index at which the int was inserted at in the given sortedList
+	 */
+	public static int ReverseBinaryInsertionSort(List<Integer> sortedList, int toSort)
+	{
+		if(sortedList == null) throw new NullPointerException();
 		
+		if(sortedList.isEmpty()) 
+		{
+			sortedList.add(toSort);
+			return 0;
+		}
+			
+		int min = 0;
+		int max = sortedList.size() - 1;
+		
+		while(true)
+		{
+			int mid = (min + max)/2;
+			if(min == max)
+			{
+				if( toSort > sortedList.get(mid))
+				{
+					sortedList.add(mid, toSort);
+					return mid;
+				} 
+				else if(toSort <= sortedList.get(mid))
+				{
+					sortedList.add(mid + 1, toSort);
+					return mid + 1;
+				}
+				else
+				{
+					throw new RuntimeException("Error in binary sort implementation");
+				}
+			} 
+			else if (min < max) 
+			{
+				if( toSort == sortedList.get(mid))
+				{
+					sortedList.add(mid, toSort);
+					return mid;
+				} 
+				else if(toSort < sortedList.get(mid))
+				{
+					min = mid + 1;
+				}
+				else if(toSort > sortedList.get(mid))
+				{
+					max = mid - 1;
+				}
+				else
+				{
+					throw new RuntimeException("Error Binary sort implementation");
+				}
+			} 
+			else if (min > max)
+			{
+				sortedList.add(min, toSort);
+				return min;
+			}
+			else
+			{
+				throw new RuntimeException("Error Binary sort implementation");
+			}
+		}
 	}
 
 	/**

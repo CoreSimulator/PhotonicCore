@@ -24,8 +24,8 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 	private int numberOfParents;
 	private int numberOfAllTimeFittestKept = 0;
 	
-	//TODO add an Array of the most succesful configurations from all time to always add to the pool
-	private List<GeneticIndividual> allTimeFittest;
+	//TODO add an Array of the most successful configurations from all time to always add to the pool
+	private List<HighScoreEntry> allTimeFittest;
 	private int generationNumber = 0; //TODO add generationNumber
 	
 	
@@ -58,7 +58,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		setLog(log);
 		setCoordsToNumberMapping(coordsToNumberMapping);
 		currentPop = new ArrayList<GeneticIndividual>(populationSize);
-		allTimeFittest = new ArrayList<GeneticIndividual>(numberOfAllTimeFittestKept);
+		allTimeFittest = new ArrayList<HighScoreEntry>(numberOfAllTimeFittestKept);
 		for(int i = 0; i < populationSize; i++)
 		{
 			currentPop.add(i, generateIndividual());
@@ -128,7 +128,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		int[] fitnessLevels = new int[populationSize];
 		for(int i = 0; i < populationSize; i++)
 		{
-			System.out.println("Evaluating: " + i);
+			//System.out.println("Evaluating: " + i);
 			fitnessLevels[i] = population.get(i).evaluateFitness();
 		}
 		return fitnessLevels;
@@ -141,44 +141,75 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		{
 			throw new IllegalArgumentException("Needs to have at least two values");
 		}
-		int fittestIndex = 0;
-		int secondFittestIndex = -1;
 		
-		for(int i = 1; i < fitness.length; i++)
+		List<HighScoreEntry> scoreEntries = new ArrayList<HighScoreEntry>(fitness.length);
+		
+		//construct a sorted List of the scores with their configurations
+		for(int i = 0; i < fitness.length; i++)
 		{
-			if(fitness[i] < fitness[fittestIndex])
-			{
-				secondFittestIndex = fittestIndex;
-				fittestIndex = i;
-						
-			}
-			else if(secondFittestIndex == -1 || fitness[i] < fitness[secondFittestIndex])
-			{
-				secondFittestIndex = i;
-			}
+			HighScoreEntry currentEvaluation = 
+					new HighScoreEntry(fitness[i], (NodeConfiguration) currentPop.get(i));
+			scoreSort(scoreEntries, currentEvaluation);
 		}
 		
-		ArrayList<GeneticIndividual> fittestIndividuals = new ArrayList<GeneticIndividual>(2); 
-		
-		for(int i = 0; i < numberOfParents; i++)
+		//If alltimeFittest has not yet been filled
+		while(allTimeFittest.size() < numberOfAllTimeFittestKept)
 		{
-			fittestIndividuals.add(0, currentPop.get(fittestIndex));
-			fittestIndividuals.add(1, currentPop.get(secondFittestIndex));
+			//remove the score the current generation and place them in the allTimeFittestStore list
+			scoreSort(allTimeFittest, scoreEntries.remove(0)); 
 		}
 		
-		return fittestIndividuals;
+		//If any of the scores in this generation are greater than the least allTimeFittest score
+		while(!scoreEntries.isEmpty() && 
+				scoreEntries.get(0).getScore() < 
+				allTimeFittest.get(allTimeFittest.size() - 1).getScore() )
+		{
+			System.out.println("score is bigger");
+			//remove the least allTime fittest score
+			allTimeFittest.remove(allTimeFittest.size() - 1);
+			
+			//remove the score the current generation and place them in the allTimeFittestStore list
+			scoreSort(allTimeFittest, scoreEntries.remove(0)); 
+		}
+		System.out.println("lowest from highscore: "+ 
+		allTimeFittest.get(allTimeFittest.size() - 1).getScore() + "\t lowest from generation: " +
+				scoreEntries.get(0).getScore());
+		
+		//TODO delete. check to see that allTimeFittest conforms to the one specified
+		if(allTimeFittest.size() != numberOfAllTimeFittestKept) 
+		{
+			throw new RuntimeException("AllTime size is not the same as the one specified");
+			
+		}
+		List<GeneticIndividual> newParents = new ArrayList<GeneticIndividual>(numberOfParents);
+		
+		int j = 1; //TODO delete
+		
+		//TODO begin construct the list to return from the all time best
+		for(int i = 0; i < allTimeFittest.size() && newParents.size() < numberOfParents; i++)
+		{
+			System.out.println(j++ + ": " + allTimeFittest.get(i).getScore()); //TODO delete
+			newParents.add(allTimeFittest.get(i).getPlayer());
+		}
+		
+		//TODO finish construction with the parents from previous generation
+		for(int i = 0; i < scoreEntries.size() && newParents.size() < numberOfParents; i++)
+		{
+			System.out.println(j++ + ": " + scoreEntries.get(i).getScore()); //TODO delete
+			newParents.add(scoreEntries.get(i).getPlayer());
+		}
+		
+		return newParents;
 	}
 
 	@Override
 	public List<GeneticIndividual> crossover(List<GeneticIndividual> selected)
 	{
 		List<GeneticIndividual> newPop = new ArrayList<GeneticIndividual>(populationSize);
-		NodeConfiguration fittest = (NodeConfiguration) selected.get(0);
-		NodeConfiguration secondFittest = (NodeConfiguration) selected.get(1);
 		
 		for(int i = 0; i < populationSize; i++)
 		{
-			NodeConfiguration toAdd = new NodeConfiguration(fittest, secondFittest, bitsPerFlit, 
+			NodeConfiguration toAdd = new NodeConfiguration(selected, bitsPerFlit, 
 					teardownTime, coordsToNumberMapping, log);
 			
 			HashMap<Integer,Integer> possibleSwitchingMap = toAdd.getSwitchingMapRef();
@@ -288,21 +319,23 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 			throw new IllegalArgumentException("Cannot set the number of individuals per " +
 					"population under the number of parents");
 		}
-		
-		if(populationSize > this.populationSize)
+		if(currentPop != null)
 		{
-			while(currentPop.size() < populationSize)
+			if(populationSize > this.populationSize)
 			{
-				currentPop.add(generateIndividual());
+				while(currentPop.size() < populationSize)
+				{
+					currentPop.add(generateIndividual());
+				}
 			}
-		}
-		else if(populationSize < this.populationSize)
-		{
-			while(currentPop.size() > populationSize)
+			else if(populationSize < this.populationSize)
 			{
-				previousCreations.remove(currentPop.remove(currentPop.size() - 1));
+				while(currentPop.size() > populationSize)
+				{
+					previousCreations.remove(currentPop.remove(currentPop.size() - 1));
+				}
+				currentPop = currentPop.subList(0, populationSize);
 			}
-			currentPop = currentPop.subList(0, populationSize);
 		}
 		this.populationSize = populationSize;
 	}
@@ -458,5 +491,102 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 	public int getMutationsPerGeneration()
 	{
 		return mutationsPerGeneration;
+	}
+	
+	
+	private static class HighScoreEntry
+	{
+		private int score;
+		private NodeConfiguration player;
+		
+		public HighScoreEntry(int score, NodeConfiguration player)
+		{
+			setScore(score);
+			setPlayer(player);
+		}
+
+		private void setPlayer(NodeConfiguration player)
+		{
+			if(player == null) throw new NullPointerException("Player cannot be null");
+			this.player = player;
+		}
+
+		private void setScore(int score)
+		{
+			if(score < 0) throw new IllegalArgumentException("In this scoring system the score, " +
+					"cannot be less than 0");
+			this.score = score;
+		}
+		
+		private int getScore()
+		{
+			return score;
+		}
+		
+		private NodeConfiguration getPlayer()
+		{
+			return player;
+		}
+	}
+	
+	public static int scoreSort(List<HighScoreEntry> sortedList, HighScoreEntry toSort)
+	{
+		if(sortedList == null) throw new NullPointerException();
+		
+		if(sortedList.isEmpty()) 
+		{
+			sortedList.add(toSort);
+			return 0;
+		}
+			
+		int min = 0;
+		int max = sortedList.size() - 1;
+		
+		while(true)
+		{
+			int mid = (min + max)/2;
+			if(min == max)
+			{
+				if( toSort.getScore() > sortedList.get(mid).getScore())
+				{
+					sortedList.add(mid + 1, toSort);
+					return mid + 1;
+				} 
+				else if(toSort.getScore() <= sortedList.get(mid).getScore())
+				{
+					sortedList.add(mid, toSort);
+					return mid;
+				}
+				else
+				{
+					throw new RuntimeException("Error Binary sort implementation");
+				}
+			} 
+			else if (min < max) 
+			{
+				if( toSort.getScore() == sortedList.get(mid).getScore())
+				{
+					sortedList.add(mid, toSort);
+					return mid;
+				} 
+				else if(toSort.getScore() > sortedList.get(mid).getScore())
+				{
+					min = mid + 1;
+				}
+				else if(toSort.getScore() < sortedList.get(mid).getScore())
+				{
+					max = mid - 1;
+				}
+				else
+				{
+					throw new RuntimeException("Error Binary sort implementation");
+				}
+			} 
+			else if (min > max)
+			{
+				sortedList.add(min, toSort);
+				return min;
+			}
+		}
 	}
 }

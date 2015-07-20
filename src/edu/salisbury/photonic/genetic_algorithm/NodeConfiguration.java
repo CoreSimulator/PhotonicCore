@@ -22,6 +22,7 @@ public class NodeConfiguration extends GeneticIndividual
 {
 	private CyclicalMappedArchitecture configuration;
 	private CoreLog log;
+	private Integer fitness;
 	
 	/**
 	 * Creates a nodeconfiguration based on a previous nodeconfiguration
@@ -49,9 +50,8 @@ public class NodeConfiguration extends GeneticIndividual
 	 * @param coordsToNumberMapping The mapping used for the coordinate to integer values.
 	 * @param log The log used to test this NodeConfiguration
 	 */
-	public NodeConfiguration(NodeConfiguration mostSuccessful, 
-			NodeConfiguration secondMostSuccesful, int bitsPerFlit, int tearDownTime, 
-			HashMap <Coordinate, Integer> coordsToNumberMapping, CoreLog log)
+	public NodeConfiguration(List <GeneticIndividual> mostSuccessful, int bitsPerFlit, 
+			int tearDownTime, HashMap <Coordinate, Integer> coordsToNumberMapping, CoreLog log)
 	{
 		if(log == null)
 		{
@@ -61,10 +61,17 @@ public class NodeConfiguration extends GeneticIndividual
 		configuration = new CyclicalMappedArchitecture( 
 				bitsPerFlit, tearDownTime, coordsToNumberMapping); 
 		
-		GenePool pool = new GenePool(mostSuccessful.getConfiguration().getSwitchingMapCopy(), 
-				mostSuccessful.getConfiguration().getNumberOfCoreNodes());
-		pool.addMapToPool(secondMostSuccesful.getConfiguration().getSwitchingMapCopy());
+		GenePool pool = 
+				new GenePool(((NodeConfiguration) mostSuccessful.get(0))
+						.getConfiguration().getSwitchingMapCopy(), 
+				((NodeConfiguration) mostSuccessful.get(0))
+				.getConfiguration().getNumberOfCoreNodes());
 		
+		for(int i = 1; i < mostSuccessful.size(); i++)
+		{
+			pool.addMapToPool(((NodeConfiguration) mostSuccessful.get(i))
+					.getConfiguration().getSwitchingMapCopy());
+		}
 		configuration.checkAndSetIntegerSwapMap(pool.generateSwitchingMap());
 	}
 	
@@ -463,8 +470,11 @@ public class NodeConfiguration extends GeneticIndividual
 	public int evaluateFitness()
 	{
 		CyclicalSimOverseer simulation = new CyclicalSimOverseer(configuration);
-		return simulation.simulateWithLog(log);
+		fitness = simulation.simulateWithLog(log);
+		return fitness;
 	}
+	
+	//TODO put a getFitness thing here
 
 	/**
 	 * @return the configuration

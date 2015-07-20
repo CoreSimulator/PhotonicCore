@@ -1,4 +1,4 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.simulation_gui;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -19,6 +19,29 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.CoolBar;
+import org.eclipse.swt.widgets.CoolItem;
+
+import edu.salisbury.photonic.core_simulator.CoreLog;
+import edu.salisbury.photonic.core_simulator.LogReader;
+import edu.salisbury.photonic.core_simulator.NonDirectionalPairAnalyzer;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.custom.TableCursor;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.widgets.ExpandBar;
+import org.eclipse.swt.widgets.ExpandItem;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Menu;
 
 
 public class MainGUI {
@@ -30,7 +53,7 @@ public class MainGUI {
 	protected Shell shellRONoC;
 	protected Display display;
 	
-	//Simulation Variables (= default values)
+	//Simulation Variables (= default value)
 	protected ProgressBar progressBar;
 	protected TabFolder tabFolderMenu;
 	private String simulatorTopology = "Ring";
@@ -40,10 +63,22 @@ public class MainGUI {
 	private Canvas canvasTopologyPreview;;
 	private Label lblConsoleOutput;
 	
-	//Data Analyzer Variables (= default values)
+	//Data Analyzer Variables (= default value)
 	private String fileName = "flow_barnes.log";
 	private int numOfSections = 1;
-	private StyledText styledTextConsoleOutput;
+	protected Spinner spinnerStartingIndex;
+	protected Spinner spinnerEndingIndex;
+	private boolean userSpecifiesSection = false;
+	public static StyledText styledTextConsoleOutput;
+	
+	//Network Configuration Variables (= default value)
+	private ToolBar toolBarPositionTopRow;
+	private ToolBar toolBarPositionBottomRow;
+	private Spinner[] nodePosition = new Spinner[16];
+	private ToolItem[] nodePositionButton = new ToolItem[16];
+	private int[] defaultValues = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	private int[] nodeArrangement = null;
+	
 
 
 	/**
@@ -112,7 +147,6 @@ public class MainGUI {
 		//_______________________________________________//
 		
 		//////////////DATA ANALYZER TAB////////////////////
-		
 		TabItem tbtmDataAnalyzer = new TabItem(tabFolderMenu, SWT.NONE);
 		tbtmDataAnalyzer.setText("Data Analyzer");
 		
@@ -127,8 +161,25 @@ public class MainGUI {
 		
 		//Console Output group... prints out the data to this console
 		createConsoleOutputDA(grpDataAnalyzer);
+		///////////////////////////////////////////////////////////
 		
+		//_______________________________________________________//
 		
+		//////////////Network Configuration TAB////////////////////
+		TabItem tbtmNetworkConfigure = new TabItem(tabFolderMenu, SWT.NONE);
+		tbtmNetworkConfigure.setText("Network Configuration");
+		
+		Group groupNetworkConfigure = new Group(tabFolderMenu, SWT.NONE);
+		tbtmNetworkConfigure.setControl(groupNetworkConfigure);
+		
+		//Node Arranger group... gives the user the option to swap nodes
+		createNodeArranger(groupNetworkConfigure);
+		
+		//MRR Switch Arranger group... gives the user the option to configure switches
+		createMRRSWitchArranger(groupNetworkConfigure);
+		
+		//Network Single Hops group... console that displays the network single hops based upon MRR switches and node arrangement
+		createNetworkSingleHops(groupNetworkConfigure);
 		///////////////////////////////////////////////////
 		
 
@@ -148,7 +199,9 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				simulatorTopology = "Ring";
-				drawRingTopology();
+				if (nodeArrangement == null) { drawRingTopology(defaultValues); }
+				else { drawRingTopology(nodeArrangement); }
+				
 			}
 		});
 		tltmRingTopology.setSelection(true);
@@ -230,10 +283,17 @@ public class MainGUI {
 			}
 		});
 		tltm0Switches.setSelection(true);
-		tltm0Switches.setText("o 0 Switches");
-		//End architecture option group setup
+		tltm0Switches.setText("o No Switches            ");
 		
-	}
+		ToolItem tltmOConfigure = new ToolItem(toolBarMRRSwitches, SWT.RADIO);
+		tltmOConfigure.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+			}
+		});
+		tltmOConfigure.setText("o Configure Switches");
+		
+	}//end architecture options group
 	
 	private void createArchitecturePreview(Group group) {
 		Group grpArchitecturePreview = new Group(group, SWT.NONE);
@@ -243,15 +303,17 @@ public class MainGUI {
 		
 		canvasTopologyPreview = new Canvas(grpArchitecturePreview, SWT.BORDER | SWT.NO_REDRAW_RESIZE);
 		canvasTopologyPreview.setBounds(10, 23, 855, 211);
-		drawRingTopology(); //default preview
-		//end architecture preview group setup
+		drawRingTopology(defaultValues); //default preview
 		
-	}
+	}//end architecture preview group
 	
-	protected void drawRingTopology() {	
+	protected void drawRingTopology(final int[] nodes) {	
+		//TODO for some reason the canvas is not redrawn... fix that!!!
+		//Also this is sloppy looking, make this look better!!
 		canvasTopologyPreview.setFocus();
 		canvasTopologyPreview.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent e) {
+				e.gc.fillRectangle(0, 0, 855, 211);
 				int diameter = 50;
 				int xInit = 10 + 48;
 				int yInit = 23 + 15;
@@ -261,25 +323,24 @@ public class MainGUI {
 				int y1 = yInit + diameter/2;
 				int x2;
 				int y2 = yInit + diameter + yOffset + diameter/2;
-				int coreID = 1;
-				int coreIDRow2 = 16;
+				int j = 15;
 				//draw left and right vertical link
 				e.gc.drawLine(xInit + diameter/2, y1 + diameter/2, xInit + diameter/2, y1 + diameter/2 + yOffset);
 				e.gc.drawLine(xInit + (diameter + xOffset)*7 + diameter/2, y1 + diameter/2, xInit + (diameter + xOffset)*7 + diameter/2, y1 + diameter/2 + yOffset);
 				//draw body cores and horizontal links
 				for (int i = 0; i < 8; i++) {
+					//draw circles (nodes)
 					e.gc.drawOval(xInit + xOffset*i, yInit, diameter, diameter);
-					e.gc.drawText("" + coreID, xInit + diameter/2 + i*xOffset - 1, y1 - 6);
 					e.gc.drawOval(xInit + xOffset*i, yInit + diameter + yOffset, diameter, diameter);
-					if (coreIDRow2 == 9) {
-						e.gc.drawText("" + coreIDRow2, xInit + diameter/2 + i*xOffset - 1, y2 - 6);
-					} else {
-						e.gc.drawText("" + coreIDRow2, xInit + diameter/2 + i*xOffset - 5, y2 - 6);
-					}
+					//draw numbers (nodeIDs)
+					e.gc.drawText("" + nodes[i], xInit + diameter/2 + i*xOffset - 3, y1 - 6);
+					e.gc.drawText("" + nodes[j], xInit + diameter/2 + i*xOffset - 3, y2 - 6);
+					
 					xInit += diameter;
-					coreID ++;
-					coreIDRow2 --;
+					j --;
+					
 					if (i < 7) {
+						//draw links
 						x2 = x1 + xOffset;
 						e.gc.drawLine(x1, y1, x2, y1);
 						e.gc.drawLine(x1, y2, x2, y2);
@@ -288,7 +349,7 @@ public class MainGUI {
 				}				
 			}
 		});
-	}
+	}//end drawRingTopology
 	
 	private void createConsoleOutput(Group group) {
 		Group grpConsoleOutput = new Group(group, SWT.NONE);
@@ -299,9 +360,8 @@ public class MainGUI {
 		lblConsoleOutput.setFont(SWTResourceManager.getFont("Segoe UI", 8, SWT.BOLD));
 		lblConsoleOutput.setBounds(102, 10, 763, 15);
 		lblConsoleOutput.setText("Simulator Cycle");
-		//end console group output setup
 		
-	}
+	}//end console group output setup
 	
 	public void printToConsole(String message) {
 		lblConsoleOutput.setText(message);
@@ -320,7 +380,7 @@ public class MainGUI {
 			public void widgetSelected(SelectionEvent e) {
 				printToConsole("Simulating...");
 				CoreLog basicLog = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
-				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime, basicLog);
+				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime, basicLog, nodeArrangement);
 				Thread simulatorThread = new Thread(simulator);
 				simulatorThread.start();
 				progressBar.setMaximum(basicLog.logSize());
@@ -335,10 +395,14 @@ public class MainGUI {
 				totalTasks = 0;
 			}
 		});
-		btnSimulate.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		btnSimulate.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD | SWT.ITALIC));
 		btnSimulate.setText("Simulate");
-		//end simulator button
-	}
+		
+	}//end simulator button
+	
+	//----------------------------------------------------------------------//
+	/////////////////DATA ANALYZER TAB BELOW THIS LINE////////////////////////
+	//----------------------------------------------------------------------//
 	
 	private void createDominantFlowAnalyzer(Group grpDataAnalyzer) {
 		Group grpDominantFlow = new Group(grpDataAnalyzer, SWT.NONE);
@@ -369,13 +433,16 @@ public class MainGUI {
 		lblSectionsOfLog.setText("Sections of Log");
 		
 		ToolBar toolBarSectionsOfLog = new ToolBar(grpDominantFlow, SWT.BORDER | SWT.FLAT | SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
-		toolBarSectionsOfLog.setBounds(221, 41, 197, 191);
+		toolBarSectionsOfLog.setBounds(221, 41, 197, 97);
 		
 		ToolItem tltmFullSection = new ToolItem(toolBarSectionsOfLog, SWT.RADIO);
 		tltmFullSection.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				numOfSections = 1;
+				userSpecifiesSection = false;
+				spinnerStartingIndex.setEnabled(false);
+				spinnerEndingIndex.setEnabled(false);
 			}
 		});
 		tltmFullSection.setSelection(true);
@@ -387,6 +454,9 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				numOfSections = 2;
+				userSpecifiesSection = false;
+				spinnerStartingIndex.setEnabled(false);
+				spinnerEndingIndex.setEnabled(false);
 			}
 		});
 		tltmHalfSections.setText("o Half Sections    ");
@@ -396,74 +466,88 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				numOfSections = 4;
+				userSpecifiesSection = false;
+				spinnerStartingIndex.setEnabled(false);
+				spinnerEndingIndex.setEnabled(false);
 			}
 		});
 		tltmFourthSections.setText("o Fourth Sections");
 		
+		spinnerStartingIndex = new Spinner(grpDominantFlow, SWT.BORDER);
+		spinnerStartingIndex.setEnabled(false);
+		spinnerStartingIndex.setMinimum(0);
+		CoreLog coreLog = LogReader.readLogIgnoreRepeaters(fileName);
+		spinnerStartingIndex.setMaximum(coreLog.logSize() - 2);
+		spinnerStartingIndex.setBounds(224, 192, 68, 22);
+		spinnerStartingIndex.setToolTipText("[0, " + (coreLog.logSize() - 2) + "]");
+		
+		spinnerEndingIndex = new Spinner(grpDominantFlow, SWT.BORDER);
+		spinnerEndingIndex.setEnabled(false);
+		spinnerEndingIndex.setMinimum(1);
+		spinnerEndingIndex.setMaximum(coreLog.logSize() - 1);
+		spinnerEndingIndex.setBounds(350, 192, 68, 22);
+		spinnerEndingIndex.setToolTipText("[1, " + (coreLog.logSize() - 1) + "]");
+		
+		ToolItem tltmSpecificSection = new ToolItem(toolBarSectionsOfLog, SWT.RADIO);
+		tltmSpecificSection.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				userSpecifiesSection = true;
+				spinnerStartingIndex.setEnabled(true);
+				spinnerEndingIndex.setEnabled(true);
+			}
+		});
+		tltmSpecificSection.setText("o Specific Section");
+		
 		Button btnDominantFlow = new Button(grpDominantFlow, SWT.NONE);
+		btnDominantFlow.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD | SWT.ITALIC));
 		btnDominantFlow.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				analyzeDominantFlow(); //make this a method call once made the class below
+				if (userSpecifiesSection) {
+					int start = spinnerStartingIndex.getSelection();
+					int end = spinnerEndingIndex.getSelection();
+					start = validateStartingIndex(start);
+					end = validateEndingIndex(end);
+					if (start >= end) { printToConsoleDA("The starting index must be smaller than the ending index."); } 
+					else { DataAnalyzer.analyzeDominantFlow(start, end, fileName); }
+				} else {
+					DataAnalyzer.analyzeDominantFlow(numOfSections, fileName);
+				}	
 			}
 		});
 		btnDominantFlow.setBounds(345, 238, 75, 25);
 		btnDominantFlow.setText("Analyze!");
-		//end dominant flow group
 		
-	}
+		Label lblSpecifySection = new Label(grpDominantFlow, SWT.NONE);
+		lblSpecifySection.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblSpecifySection.setBounds(275, 144, 89, 15);
+		lblSpecifySection.setText("Specify Section");
+		
+		Label lblStartingIndex = new Label(grpDominantFlow, SWT.NONE);
+		lblStartingIndex.setBounds(221, 171, 75, 15);
+		lblStartingIndex.setText("Starting Index");
+		
+		Label lblEndingIndex = new Label(grpDominantFlow, SWT.NONE);
+		lblEndingIndex.setBounds(350, 171, 68, 15);
+		lblEndingIndex.setText("Ending Index");
+		
+		
+	}//end dominant flow analyzer group
 	
-	private void analyzeDominantFlow() {
-		//TODO just make this function into a class!
-		CoreLog coreLog = new CoreLog();
-		coreLog = LogReader.readLogIgnoreRepeaters(fileName);
-		NonDirectionalPairAnalyzer dominantFlow = new NonDirectionalPairAnalyzer();
-		String message;
-		switch(numOfSections) {
-			case 1:
-				message = "The dominant flow enumration across the full log: \n";
-				printToConsoleDA(message + dominantFlow.analyze(coreLog));
-				break;
-			case 2:
-				CoreLog firstHalf = new CoreLog();
-				firstHalf = coreLog.subLog(0, coreLog.logSize()/2 - 1);
-				message = "The first half of the barnes log dominant flows: \n";
-				message += dominantFlow.analyze(firstHalf);
-				
-				CoreLog secondHalf = new CoreLog();
-				secondHalf = coreLog.subLog(coreLog.logSize()/2, coreLog.logSize() - 1);
-				message += "\n\nThe second half of the barnes log dominant flows: \n";
-				printToConsoleDA(message + dominantFlow.analyze(secondHalf));
-				break;
-			case 4:
-				CoreLog firstForth = new CoreLog();
-				firstForth = coreLog.subLog(0, coreLog.logSize()/4 - 1);
-				message = "The first forth of the barnes log dominant flows: \n";
-				message += dominantFlow.analyze(firstForth);
-				
-				CoreLog secondForth = new CoreLog();
-				secondForth = coreLog.subLog(coreLog.logSize()/4, coreLog.logSize()/2 - 1);
-				message += "\n\nThe second forth of the barnes log dominant flows: \n";
-				message += dominantFlow.analyze(secondForth);
-				
-				CoreLog thirdForth = new CoreLog();
-				thirdForth = coreLog.subLog(coreLog.logSize()/2, coreLog.logSize()*3/4 - 1);
-				message += "\n\nThe third forth of the barnes log dominant flows: \n";
-				message += dominantFlow.analyze(thirdForth);
-				
-				CoreLog lastForth = new CoreLog();
-				lastForth = coreLog.subLog(coreLog.logSize()*3/4, coreLog.logSize() - 1);
-				message += "\n\nThe last forth of the barnes log dominant flows: \n";
-				printToConsoleDA(message + dominantFlow.analyze(lastForth));
-				break;
-			default:
-				//throw new ...
-		}
-	}
-	
-	public void printToConsoleDA(String message) {
-		styledTextConsoleOutput.setText(message);
-	}
+	private int validateStartingIndex(int start) {
+		if (start < spinnerStartingIndex.getMinimum()) { start = spinnerStartingIndex.getMinimum(); } 
+		else if (start > spinnerStartingIndex.getMaximum()) { start = spinnerStartingIndex.getMaximum(); }
+		spinnerStartingIndex.setSelection(start);
+		return start;
+	}//end validateStartingIndex function
+
+	private int validateEndingIndex(int end) {
+		if (end < spinnerEndingIndex.getMinimum()) { end = spinnerEndingIndex.getMinimum(); } 
+		else if (end > spinnerEndingIndex.getMaximum()) { end = spinnerEndingIndex.getMaximum(); }
+		spinnerEndingIndex.setSelection(end);
+		return end;
+	}//end validateEndingIndex function
 	
 	private void createGeneticAlgorithmAnalyzer(Group grpDataAnalyzer) {
 		Group grpGeneticAlgorithm = new Group(grpDataAnalyzer, SWT.NONE);
@@ -471,6 +555,7 @@ public class MainGUI {
 		grpGeneticAlgorithm.setBounds(11, 288, 430, 270);
 		
 		Button btnGeneticAlgorithm = new Button(grpGeneticAlgorithm, SWT.NONE);
+		btnGeneticAlgorithm.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD | SWT.ITALIC));
 		btnGeneticAlgorithm.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -479,21 +564,446 @@ public class MainGUI {
 		});
 		btnGeneticAlgorithm.setBounds(345, 235, 75, 25);
 		btnGeneticAlgorithm.setText("Algorithize!");
-		//end genetic algorithm group
 		
-	}
+	}//end genetic algorithm group
 	
 	private void createConsoleOutputDA(Group grpDataAnalyzer) {
 		Group grpConsoleOutput_DA = new Group(grpDataAnalyzer, SWT.NONE);
-		grpConsoleOutput_DA.setToolTipText("Use arrow keys to scroll.");
+		grpConsoleOutput_DA.setToolTipText("");
 		grpConsoleOutput_DA.setText("Console Output");
 		grpConsoleOutput_DA.setBounds(452, 10, 430, 549);
 		
-		styledTextConsoleOutput = new StyledText(grpConsoleOutput_DA, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP);
-		styledTextConsoleOutput.setToolTipText("Use arrow keys to scroll.");
+		styledTextConsoleOutput = new StyledText(grpConsoleOutput_DA, SWT.V_SCROLL | SWT.BORDER | SWT.READ_ONLY | SWT.WRAP);
+		styledTextConsoleOutput.setToolTipText("");
 		styledTextConsoleOutput.setBounds(10, 20, 410, 519);
-		//end console output group
+		styledTextConsoleOutput.setAlwaysShowScrollBars(true);
 		
+	}//end console output group
+	
+	public static void printToConsoleDA(String message) {
+		styledTextConsoleOutput.setText(message);
+	}
+	
+	//----------------------------------------------------------------------//
+	///////////////Network Configuration TAB BELOW THIS LINE//////////////////
+	//----------------------------------------------------------------------//
+	
+	private void createNodeArranger(Group groupNetworkConfigure) {
+		Group grpNodeArranger = new Group(groupNetworkConfigure, SWT.NONE);
+		grpNodeArranger.setText("Node Arranger");
+		grpNodeArranger.setBounds(10, 14, 875, 170);
+		
+		Button btnResetNodeArranger = new Button(grpNodeArranger, SWT.NONE);
+		btnResetNodeArranger.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//restore the default values and deselect any selected buttons
+				for (int i = 0; i < nodePosition.length; i ++) {
+					nodePosition[i].setSelection(defaultValues[i]);
+					nodePositionButton[i].setEnabled(true);
+					nodePositionButton[i].setSelection(false);
+				}
+			}
+		});
+		btnResetNodeArranger.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.NORMAL));
+		btnResetNodeArranger.setToolTipText("Resets back to original arrangement");
+		btnResetNodeArranger.setBounds(790, 23, 75, 25);
+		btnResetNodeArranger.setText("Reset");
+		
+		Label lblNodeArrangerHelp = new Label(grpNodeArranger, SWT.WRAP);
+		lblNodeArrangerHelp.setFont(SWTResourceManager.getFont("Segoe UI", 8, SWT.ITALIC));
+		lblNodeArrangerHelp.setBounds(10, 21, 169, 149);
+		lblNodeArrangerHelp.setText("o Click on the position for which you would like to change the node. \r\no Then type in the node ID# that you would like to swap to that position and click 'Swap'.\r\no The node at that position will switch positions with the node that you input.\r\no Each node can only be swapped once. Click 'Submit' to finish.");
+		
+		Button btnSwapNodeArranger = new Button(grpNodeArranger, SWT.NONE);
+		btnSwapNodeArranger.setToolTipText("Click to swap the current node to the current position.");
+		btnSwapNodeArranger.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateNodeArrangement();
+			}
+		});
+		btnSwapNodeArranger.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		btnSwapNodeArranger.setBounds(790, 71, 75, 25);
+		btnSwapNodeArranger.setText("Swap");
+		
+		toolBarPositionTopRow = new ToolBar(grpNodeArranger, SWT.FLAT | SWT.RIGHT);
+		toolBarPositionTopRow.setBounds(217, 21, 528, 27);
+		
+		ToolItem tltmNodePosition0 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[0] = tltmNodePosition0;
+		tltmNodePosition0.setWidth(59);
+		tltmNodePosition0.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(0);
+				nodePosition[0].setEnabled(true);
+			}
+		});
+		tltmNodePosition0.setText("Position 0 ");
+		
+		ToolItem tltmNodePosition1 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[1] = tltmNodePosition1;
+		tltmNodePosition1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(1);
+				nodePosition[1].setEnabled(true);
+			}
+		});
+		tltmNodePosition1.setText("Position 1 ");
+		
+		ToolItem tltmNodePosition2 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[2] = tltmNodePosition2;
+		tltmNodePosition2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(2);
+				nodePosition[2].setEnabled(true);
+			}
+		});
+		tltmNodePosition2.setText("Position 2 ");
+		
+		ToolItem tltmNodePosition3 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[3] = tltmNodePosition3;
+		tltmNodePosition3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(3);
+				nodePosition[3].setEnabled(true);
+			}
+		});
+		tltmNodePosition3.setText("Position 3 ");
+		
+		ToolItem tltmNodePosition4 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[4] = tltmNodePosition4;
+		tltmNodePosition4.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(4);
+				nodePosition[4].setEnabled(true);
+			}
+		});
+		tltmNodePosition4.setText("Position 4 ");
+		
+		ToolItem tltmNodePosition5 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[5] = tltmNodePosition5;
+		tltmNodePosition5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(5);
+				nodePosition[5].setEnabled(true);
+			}
+		});
+		tltmNodePosition5.setText("Position 5 ");
+		
+		ToolItem tltmNodePosition6 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[6] = tltmNodePosition6;
+		tltmNodePosition6.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(6);
+				nodePosition[6].setEnabled(true);
+			}
+		});
+		tltmNodePosition6.setText("Position 6 ");
+		
+		ToolItem tltmNodePosition7 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
+		nodePositionButton[7] = tltmNodePosition7;
+		tltmNodePosition7.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(7);
+				nodePosition[7].setEnabled(true);
+			}
+		});
+		tltmNodePosition7.setText("Position 7 ");
+		
+		toolBarPositionBottomRow = new ToolBar(grpNodeArranger, SWT.FLAT | SWT.RIGHT);
+		toolBarPositionBottomRow.setBounds(211, 119, 540, 27);
+		
+		ToolItem tltmNodePosition15 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[15] = tltmNodePosition15;
+		tltmNodePosition15.setWidth(59);
+		tltmNodePosition15.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(15);
+				nodePosition[15].setEnabled(true);
+			}
+		});
+		tltmNodePosition15.setText("Position 15");
+		
+		ToolItem tltmNodePosition14 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[14] = tltmNodePosition14;
+		tltmNodePosition14.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(14);
+				nodePosition[14].setEnabled(true);
+			}
+		});
+		tltmNodePosition14.setText("Position 14");
+		
+		ToolItem tltmNodePosition13 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[13] = tltmNodePosition13;
+		tltmNodePosition13.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(13);
+				nodePosition[13].setEnabled(true);
+			}
+		});
+		tltmNodePosition13.setText("Position 13");
+		
+		ToolItem tltmNodePosition12 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[12] = tltmNodePosition12;
+		tltmNodePosition12.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(12);
+				nodePosition[12].setEnabled(true);
+			}
+		});
+		tltmNodePosition12.setText("Position 12");
+		
+		ToolItem tltmNodePosition11 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[11] = tltmNodePosition11;
+		tltmNodePosition11.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(11);
+				nodePosition[11].setEnabled(true);
+			}
+		});
+		tltmNodePosition11.setText("Position 11");
+		
+		ToolItem tltmNodePosition10 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[10] = tltmNodePosition10;
+		tltmNodePosition10.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(10);
+				nodePosition[10].setEnabled(true);
+			}
+		});
+		tltmNodePosition10.setText("Position 10");
+		
+		ToolItem tltmNodePosition9 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[9] = tltmNodePosition9;
+		tltmNodePosition9.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(9);
+				nodePosition[9].setEnabled(true);
+			}
+		});
+		tltmNodePosition9.setText("Position 9");
+		
+		ToolItem tltmNodePosition8 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
+		nodePositionButton[8] = tltmNodePosition8;
+		tltmNodePosition8.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setAllTextEnabledToFalse(8);
+				nodePosition[8].setEnabled(true);
+			}
+		});
+		tltmNodePosition8.setText("Position 8");
+		
+		//TODO loop this or something.....
+		Spinner spinnerNodePosition0 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition0.setEnabled(false);
+		spinnerNodePosition0.setMaximum(15);
+		spinnerNodePosition0.setBounds(227, 54, 47, 22);
+		nodePosition[0] = spinnerNodePosition0;
+		
+		Spinner spinnerNodePosition1 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition1.setMaximum(15);
+		spinnerNodePosition1.setSelection(1);
+		spinnerNodePosition1.setEnabled(false);
+		spinnerNodePosition1.setBounds(293, 54, 47, 22);
+		nodePosition[1] = spinnerNodePosition1;
+		
+		Spinner spinnerNodePosition2 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition2.setMaximum(15);
+		spinnerNodePosition2.setSelection(2);
+		spinnerNodePosition2.setEnabled(false);
+		spinnerNodePosition2.setBounds(360, 54, 47, 22);
+		nodePosition[2] = spinnerNodePosition2;
+		
+		Spinner spinnerNodePosition3 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition3.setMaximum(15);
+		spinnerNodePosition3.setSelection(3);
+		spinnerNodePosition3.setEnabled(false);
+		spinnerNodePosition3.setBounds(424, 54, 47, 22);
+		nodePosition[3] = spinnerNodePosition3;
+		
+		Spinner spinnerNodePosition4 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition4.setMaximum(15);
+		spinnerNodePosition4.setSelection(4);
+		spinnerNodePosition4.setEnabled(false);
+		spinnerNodePosition4.setBounds(494, 54, 47, 22);
+		nodePosition[4] = spinnerNodePosition4;
+		
+		Spinner spinnerNodePosition5 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition5.setMaximum(15);
+		spinnerNodePosition5.setSelection(5);
+		spinnerNodePosition5.setEnabled(false);
+		spinnerNodePosition5.setBounds(557, 54, 47, 22);
+		nodePosition[5] = spinnerNodePosition5;
+		
+		Spinner spinnerNodePosition6 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition6.setMaximum(15);
+		spinnerNodePosition6.setSelection(6);
+		spinnerNodePosition6.setEnabled(false);
+		spinnerNodePosition6.setBounds(624, 54, 47, 22);
+		nodePosition[6] = spinnerNodePosition6;
+		
+		Spinner spinnerNodePosition7 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition7.setMaximum(15);
+		spinnerNodePosition7.setSelection(7);
+		spinnerNodePosition7.setEnabled(false);
+		spinnerNodePosition7.setBounds(688, 54, 47, 22);
+		nodePosition[7] = spinnerNodePosition7;
+		
+		Spinner spinnerNodePosition8 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition8.setMaximum(15);
+		spinnerNodePosition8.setSelection(8);
+		spinnerNodePosition8.setEnabled(false);
+		spinnerNodePosition8.setBounds(688, 91, 47, 22);
+		nodePosition[8] = spinnerNodePosition8;
+		
+		Spinner spinnerNodePosition9 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition9.setMaximum(15);
+		spinnerNodePosition9.setSelection(9);
+		spinnerNodePosition9.setEnabled(false);
+		spinnerNodePosition9.setBounds(624, 91, 47, 22);
+		nodePosition[9] = spinnerNodePosition9;
+		
+		Spinner spinnerNodePosition10 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition10.setMaximum(15);
+		spinnerNodePosition10.setSelection(10);
+		spinnerNodePosition10.setEnabled(false);
+		spinnerNodePosition10.setBounds(557, 91, 47, 22);
+		nodePosition[10] = spinnerNodePosition10;
+		
+		Spinner spinnerNodePosition11 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition11.setMaximum(15);
+		spinnerNodePosition11.setSelection(11);
+		spinnerNodePosition11.setEnabled(false);
+		spinnerNodePosition11.setBounds(494, 91, 47, 22);
+		nodePosition[11] = spinnerNodePosition11;
+		
+		Spinner spinnerNodePosition12 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition12.setMaximum(15);
+		spinnerNodePosition12.setSelection(12);
+		spinnerNodePosition12.setEnabled(false);
+		spinnerNodePosition12.setBounds(424, 91, 47, 22);
+		nodePosition[12] = spinnerNodePosition12;
+		
+		Spinner spinnerNodePosition13 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition13.setMaximum(15);
+		spinnerNodePosition13.setSelection(13);
+		spinnerNodePosition13.setEnabled(false);
+		spinnerNodePosition13.setBounds(360, 91, 47, 22);
+		nodePosition[13] = spinnerNodePosition13;
+		
+		Spinner spinnerNodePosition14 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition14.setMaximum(15);
+		spinnerNodePosition14.setSelection(14);
+		spinnerNodePosition14.setEnabled(false);
+		spinnerNodePosition14.setBounds(293, 91, 47, 22);
+		nodePosition[14] = spinnerNodePosition14;
+		
+		Spinner spinnerNodePosition15 = new Spinner(grpNodeArranger, SWT.BORDER);
+		spinnerNodePosition15.setMaximum(15);
+		spinnerNodePosition15.setSelection(15);
+		spinnerNodePosition15.setEnabled(false);
+		spinnerNodePosition15.setBounds(227, 91, 47, 22);
+		nodePosition[15] = spinnerNodePosition15;
+		
+		Button btnSubmit = new Button(grpNodeArranger, SWT.NONE);
+		btnSubmit.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//the index in nodeArrangement is the position, the value is the nodeID
+				nodeArrangement = new int[16];
+				int i = 0;
+				for (Spinner position: nodePosition) {
+					nodeArrangement[i] = position.getSelection();
+					System.out.println(nodeArrangement[i]);
+					i ++;
+				}
+				drawRingTopology(nodeArrangement);
+				//TODO update the Node Arranger console
+			}
+		});
+		btnSubmit.setToolTipText("Click when finshed (will update the architecture).");
+		btnSubmit.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD | SWT.ITALIC));
+		btnSubmit.setBounds(790, 119, 75, 25);
+		btnSubmit.setText("Submit");
+		
+	}//end Node Arranger group
+	
+	private void updateNodeArrangement() {
+		int positionToChangeNodeID = 0;
+		//Check which slider (nodePosition) is being edited by the user
+		for (int i = 0; i < nodePosition.length; i ++) {
+			if (nodePosition[i].getEnabled()) {
+				positionToChangeNodeID = i;
+			}
+		}
+		
+		int usersInput = nodePosition[positionToChangeNodeID].getSelection();
+		//This check will disqualify the usersInput if the nodeID has already been swapped once
+		if (!nodePositionButton[usersInput].getEnabled()) {
+			//didn't pass check, so set nodeID back to the default
+			nodePosition[positionToChangeNodeID].setSelection(defaultValues[positionToChangeNodeID]);
+			
+		} else {//passed, so swap the two nodes with their positions
+			
+			//the nodes can only be swapped once, so they are being swapped from their default values
+			//in which the default value (node ID) is equal to the position
+			nodePosition[positionToChangeNodeID].setSelection(usersInput);
+			nodePosition[usersInput].setSelection(positionToChangeNodeID);
+			nodePositionButton[usersInput].setEnabled(false);
+			nodePositionButton[positionToChangeNodeID].setEnabled(false);
+			nodePosition[positionToChangeNodeID].setEnabled(false);
+		}
 	}
 
+	private void setAllTextEnabledToFalse(int button) {
+		for (int i = 0; i < nodePositionButton.length; i ++) {
+			if (button != i) {
+				nodePositionButton[i].setSelection(false);
+			}
+		}
+		
+		for (Spinner position: nodePosition) {
+			position.setEnabled(false);
+		}
+	}
+	
+	private void createMRRSWitchArranger(Group groupNetworkConfigure) {
+		//TODO finish this once the switches are integrated
+		Group grpMrrSwitchArranger = new Group(groupNetworkConfigure, SWT.NONE);
+		grpMrrSwitchArranger.setText("MRR Switch Arranger");
+		grpMrrSwitchArranger.setBounds(10, 198, 875, 170);
+		
+	}//end MRR Switch Arranger group
+	
+	private void createNetworkSingleHops(Group groupNetworkConfigure) {
+		//TODO, make it work....
+		Group grpNetworkSingleHops = new Group(groupNetworkConfigure, SWT.NONE);
+		grpNetworkSingleHops.setText("Network Single Hops");
+		grpNetworkSingleHops.setBounds(10, 382, 875, 170);
+		
+		StyledText styledTextNSHOutput = new StyledText(grpNetworkSingleHops, SWT.BORDER | SWT.READ_ONLY);
+		styledTextNSHOutput.setDoubleClickEnabled(false);
+		styledTextNSHOutput.setEnabled(false);
+		styledTextNSHOutput.setEditable(false);
+		styledTextNSHOutput.setBounds(10, 20, 855, 140);
+		
+	}//end Network Single Hops group
 }//end class

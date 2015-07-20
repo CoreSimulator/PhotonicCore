@@ -52,7 +52,7 @@ public class CyclicalUnMappedArchitecture extends CyclicalArchitecture
 	{
 		super(numberOfCoreNodes, bitsPerFlit, teardownTime, mrrSwitchesTopLeftNodeNumbers, 
 				printTaskInfo);
-		if (mrrSwitchesTopLeftNodeNumbers == null) 
+		if (mrrSwitchesTopLeftNodeNumbers != null) 
 		{
 			setUpMRRSwitchLinks();
 		}

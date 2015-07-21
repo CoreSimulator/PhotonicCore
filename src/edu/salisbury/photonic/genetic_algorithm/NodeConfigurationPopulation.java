@@ -25,8 +25,9 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 	private int numberOfParents;
 	private int numberOfAllTimeFittestKept = 0;
 	
-	//TODO add an Array of the most successful configurations from all time to always add to the pool
+	//add an Array of the most successful configurations from all time to always add to the pool
 	private List<NodeConfiguration> allTimeFittest;
+	
 	private int generationNumber = 0; //TODO add generationNumber
 	
 	
@@ -123,31 +124,30 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 	}
 	
 	@Override
-	public List<NodeConfiguration> evaluation(List<NodeConfiguration> population)
+	public void evaluation()
 	{
 		//in our case, the lower the fitness levels the better
-		for(int i = 0; i < population.size(); i++)
+		for(int i = 0; i < currentPop.size(); i++)
 		{
 			//System.out.println("Evaluating: " + i);
-			population.get(i).evaluateFitness();
+			currentPop.get(i).evaluateFitness();
 		}
-		return population;
 	}
 	
 	@Override
-	public List<NodeConfiguration> selection(List<NodeConfiguration> population)
+	public List<NodeConfiguration> selection()
 	{
-		if(population.size() < 2)
+		if(currentPop.size() < 2)
 		{
 			throw new IllegalArgumentException("Pop needs to have at least two values");
 		}
 		
-		List<NodeConfiguration> sortedScores = new ArrayList<NodeConfiguration>(population.size());
+		List<NodeConfiguration> sortedScores = new ArrayList<NodeConfiguration>(currentPop.size());
 		
 		//construct a sorted List of the scores with their configurations
-		for(int i = 0; i < population.size(); i++)
+		for(int i = 0; i < currentPop.size(); i++)
 		{
-			SortingHelper.binaryInsertionSort(sortedScores, population.get(i));
+			SortingHelper.binaryInsertionSort(sortedScores, currentPop.get(i));
 		}
 		
 		//If alltimeFittest has not yet been filled
@@ -213,14 +213,11 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 			
 			HashMap<Integer,Integer> possibleSwitchingMap = toAdd.getSwitchingMapRef();
 			
-			//System.out.println("Stuck");
 			while(previousCreations.contains(possibleSwitchingMap))
 			{
-				System.out.println(possibleSwitchingMap.hashCode());
 				swap(possibleSwitchingMap);
 			}
 			previousCreations.add(possibleSwitchingMap);
-			//System.out.println("unstuck");
 			newPop.add(i, toAdd);
 		}
 		return newPop;
@@ -258,8 +255,8 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 	public void runForGeneration()
 	{
 			System.out.println("Evaluating and picking fittest...");
-			List<NodeConfiguration> fitList = evaluation(currentPop);
-			List<NodeConfiguration> selectionList = selection(fitList);
+			evaluation();
+			List<NodeConfiguration> selectionList = selection();
 			
 			
 			System.out.println("Generating next generation of configurations via crossover...");
@@ -268,7 +265,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 			currentPop = mutation(crossoverList);
 			generationNumber++;
 	}
-
+	
 	/**
 	 * @return the populationSize
 	 */

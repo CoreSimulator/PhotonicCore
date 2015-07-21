@@ -171,7 +171,6 @@ public class NodeConfiguration extends GeneticIndividual implements SortableValu
 				Integer lowerNodePosition = switchingMap.get(i);
 				lowerNodePosition = (lowerNodePosition == null) ? i : lowerNodePosition;
 				Integer higherNodePosition = switchingMap.get(i + 1);
-				//TODO Changed from i to i+1 should make a difference, check though.
 				higherNodePosition = (higherNodePosition == null) ? i + 1 : higherNodePosition;
 				
 				Coordinate toAdd = new Coordinate(lowerNodePosition,higherNodePosition);
@@ -483,7 +482,6 @@ public class NodeConfiguration extends GeneticIndividual implements SortableValu
 		return fitness;
 	}
 	
-	//TODO put a getFitness thing here
 
 	/**
 	 * @return the configuration

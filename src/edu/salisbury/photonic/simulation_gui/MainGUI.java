@@ -1,5 +1,7 @@
 package edu.salisbury.photonic.simulation_gui;
 
+import javax.swing.SwingUtilities;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.SWT;
@@ -70,6 +72,12 @@ public class MainGUI {
 	protected Spinner spinnerEndingIndex;
 	private boolean userSpecifiesSection = false;
 	public static StyledText styledTextConsoleOutput;
+	//Genetic Algorithm Variables (= default vale)
+	private Spinner spinnerPopulationSize;
+	private Spinner spinnerParents;
+	private Spinner spinnerGenerations;
+	private Spinner spinnerMutationsPerGen;
+	private Spinner spinnerBestFittestKept;
 	
 	//Network Configuration Variables (= default value)
 	private ToolBar toolBarPositionTopRow;
@@ -78,6 +86,7 @@ public class MainGUI {
 	private ToolItem[] nodePositionButton = new ToolItem[16];
 	private int[] defaultValues = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 	private int[] nodeArrangement = null;
+	StyledText styledTextNSHOutput;
 	
 
 
@@ -308,25 +317,28 @@ public class MainGUI {
 	}//end architecture preview group
 	
 	protected void drawRingTopology(final int[] nodes) {	
-		//TODO for some reason the canvas is not redrawn... fix that!!!
-		//Also this is sloppy looking, make this look better!!
 		canvasTopologyPreview.setFocus();
 		canvasTopologyPreview.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent e) {
+				//dimensional variables
+				int diameter = 50; //diameter of circles (nodes)
+				int xInit = 10 + 48; //initial starting X (nodes)
+				int yInit = 23 + 15; //initial starting y (nodes)
+				int xOffset = 46; //offset from node to node (X)
+				int yOffset = 41; //offset from node to node (Y)
+				int x1 = xInit + diameter; //x1 for the links
+				int y1 = yInit + diameter/2; //y1 for the links
+				int x2; //x2 for the links
+				int y2 = yInit + diameter + yOffset + diameter/2; //y2 for the links
+				int j = 15; //negative counter for cyclical wrapping of node IDS
+				
+				//creates a background (acts as a 'clear canvas' when redrawing 
 				e.gc.fillRectangle(0, 0, 855, 211);
-				int diameter = 50;
-				int xInit = 10 + 48;
-				int yInit = 23 + 15;
-				int xOffset = 46;
-				int yOffset = 41;
-				int x1 = xInit + diameter;
-				int y1 = yInit + diameter/2;
-				int x2;
-				int y2 = yInit + diameter + yOffset + diameter/2;
-				int j = 15;
+				
 				//draw left and right vertical link
 				e.gc.drawLine(xInit + diameter/2, y1 + diameter/2, xInit + diameter/2, y1 + diameter/2 + yOffset);
 				e.gc.drawLine(xInit + (diameter + xOffset)*7 + diameter/2, y1 + diameter/2, xInit + (diameter + xOffset)*7 + diameter/2, y1 + diameter/2 + yOffset);
+				
 				//draw body cores and horizontal links
 				for (int i = 0; i < 8; i++) {
 					//draw circles (nodes)
@@ -340,7 +352,7 @@ public class MainGUI {
 					j --;
 					
 					if (i < 7) {
-						//draw links
+						//draw horizontal links
 						x2 = x1 + xOffset;
 						e.gc.drawLine(x1, y1, x2, y1);
 						e.gc.drawLine(x1, y2, x2, y2);
@@ -375,24 +387,50 @@ public class MainGUI {
 		Button btnSimulate = new Button(group, SWT.NONE);
 		btnSimulate.setLocation(810, 534);
 		btnSimulate.setSize(75, 25);
-		btnSimulate.addSelectionListener(new SelectionAdapter() {
+		btnSimulate.addSelectionListener(new SelectionAdapter() 
+		{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				if (progressBar.getSelection() != 0) {
+					return;
+				}
 				printToConsole("Simulating...");
 				CoreLog basicLog = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
 				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime, basicLog, nodeArrangement);
 				Thread simulatorThread = new Thread(simulator);
 				simulatorThread.start();
 				progressBar.setMaximum(basicLog.logSize());
-				while (totalTasks <= progressBar.getMaximum() - 1) {
-					try {Thread.sleep(100); } 
-					catch (Throwable th) {}
-					progressBar.setSelection(totalTasks);
-				}
-				printToConsole("Simulation Completed... Total requesting time = " + totalRequestingTime + " | Total tasks = " + totalTasks + 
-						" | Total latency = " + (totalRequestingTime - (2*totalTasks)));
-				totalRequestingTime = 0;
-				totalTasks = 0;
+				new Thread() {
+					
+					boolean finished = false;
+					public void run() {
+						while (!finished)//totalTasks <= progressBar.getMaximum() - 1) 
+						{
+							try {Thread.sleep(100);} 
+							catch (Throwable th) {}
+							
+							
+							Display.getDefault().asyncExec(new Runnable(){
+									public void run(){
+										progressBar.setSelection(totalTasks);
+										if(finished == true) return;
+										else if (totalTasks >= progressBar.getMaximum()-1) {
+											finished = true;
+											progressBar.setSelection(0);
+											printToConsole("Simulation Completed... Total requesting time = " + totalRequestingTime + " | Total tasks = " + totalTasks + 
+													" | Total latency = " + (totalRequestingTime - (2*totalTasks)));
+											totalRequestingTime = 0;
+											totalTasks = 0;
+										}
+									}
+								});
+							
+						}
+						System.out.println("Finished");
+					}
+				}.start();
+				
+				
 			}
 		});
 		btnSimulate.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD | SWT.ITALIC));
@@ -505,12 +543,9 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (userSpecifiesSection) {
-					int start = spinnerStartingIndex.getSelection();
-					int end = spinnerEndingIndex.getSelection();
-					start = validateStartingIndex(start);
-					end = validateEndingIndex(end);
-					if (start >= end) { printToConsoleDA("The starting index must be smaller than the ending index."); } 
-					else { DataAnalyzer.analyzeDominantFlow(start, end, fileName); }
+					int[] index = validateIndex(spinnerStartingIndex.getSelection(), spinnerEndingIndex.getSelection());
+					if (index[0] >= index[1]) { printToConsoleDA("The starting index must be smaller than the ending index."); } 
+					else { DataAnalyzer.analyzeDominantFlow(index[0], index[1], fileName); }
 				} else {
 					DataAnalyzer.analyzeDominantFlow(numOfSections, fileName);
 				}	
@@ -535,19 +570,18 @@ public class MainGUI {
 		
 	}//end dominant flow analyzer group
 	
-	private int validateStartingIndex(int start) {
+	private int[] validateIndex(int start, int end) {
 		if (start < spinnerStartingIndex.getMinimum()) { start = spinnerStartingIndex.getMinimum(); } 
 		else if (start > spinnerStartingIndex.getMaximum()) { start = spinnerStartingIndex.getMaximum(); }
 		spinnerStartingIndex.setSelection(start);
-		return start;
-	}//end validateStartingIndex function
-
-	private int validateEndingIndex(int end) {
+		
 		if (end < spinnerEndingIndex.getMinimum()) { end = spinnerEndingIndex.getMinimum(); } 
 		else if (end > spinnerEndingIndex.getMaximum()) { end = spinnerEndingIndex.getMaximum(); }
 		spinnerEndingIndex.setSelection(end);
-		return end;
-	}//end validateEndingIndex function
+		
+		int[] index = {start, end};
+		return index;
+	}
 	
 	private void createGeneticAlgorithmAnalyzer(Group grpDataAnalyzer) {
 		Group grpGeneticAlgorithm = new Group(grpDataAnalyzer, SWT.NONE);
@@ -559,11 +593,78 @@ public class MainGUI {
 		btnGeneticAlgorithm.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//TODO once pulled GA, then make it happen at the push of this button
+				if (userSpecifiesSection) {
+					int[] index = validateIndex(spinnerStartingIndex.getSelection(), spinnerEndingIndex.getSelection());
+					if (index[0] >= index[1]) { 
+						printToConsoleDA("The starting index must be smaller than the ending index."); 
+					} else { 
+						GeneticAlgorithm genetic = new GeneticAlgorithm(fileName, index[0], index[1], nodeArrangement, simulatorFlitPacketSize, simulatorTearDownTime, 
+								spinnerPopulationSize.getSelection(), spinnerMutationsPerGen.getSelection());
+						genetic.setNumberOfAllTimeFittestKept(spinnerBestFittestKept.getSelection());
+						genetic.setNumberOfGenerations(spinnerGenerations.getSelection());
+						genetic.setNumberOfParents(spinnerParents.getSelection());
+						Thread geneticThread = new Thread(genetic);
+						geneticThread.start();
+					}
+				} else {
+					printToConsoleDA("You must specify the section of the log to use Genetic Algorithm.");
+				}	
 			}
 		});
 		btnGeneticAlgorithm.setBounds(345, 235, 75, 25);
 		btnGeneticAlgorithm.setText("Algorithize!");
+		
+		Label lblPopulationSize = new Label(grpGeneticAlgorithm, SWT.NONE);
+		lblPopulationSize.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblPopulationSize.setBounds(10, 32, 85, 15);
+		lblPopulationSize.setText("Population Size");
+		
+		spinnerPopulationSize = new Spinner(grpGeneticAlgorithm, SWT.BORDER);
+		spinnerPopulationSize.setMaximum(1000);
+		spinnerPopulationSize.setMinimum(3);
+		spinnerPopulationSize.setSelection(30);
+		spinnerPopulationSize.setBounds(274, 29, 58, 22);
+		
+		Label lblNumOfParents = new Label(grpGeneticAlgorithm, SWT.NONE);
+		lblNumOfParents.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblNumOfParents.setBounds(10, 79, 114, 15);
+		lblNumOfParents.setText("Number of Parents");
+		
+		spinnerParents = new Spinner(grpGeneticAlgorithm, SWT.BORDER);
+		spinnerParents.setMinimum(2);
+		spinnerParents.setSelection(3);
+		spinnerParents.setMaximum(spinnerPopulationSize.getSelection() - 1);
+		spinnerParents.setBounds(274, 76, 58, 22);
+
+		Label lblNumOfGenertations = new Label(grpGeneticAlgorithm, SWT.NONE);
+		lblNumOfGenertations.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblNumOfGenertations.setBounds(10, 126, 150, 15);
+		lblNumOfGenertations.setText("Number of Generations");
+		
+		spinnerGenerations = new Spinner(grpGeneticAlgorithm, SWT.BORDER);
+		spinnerGenerations.setMaximum(10000);
+		spinnerGenerations.setSelection(1000);
+		spinnerGenerations.setBounds(274, 119, 58, 22);
+		
+		Label lblNumOfMutationsPerGen = new Label(grpGeneticAlgorithm, SWT.NONE);
+		lblNumOfMutationsPerGen.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblNumOfMutationsPerGen.setBounds(10, 173, 218, 15);
+		lblNumOfMutationsPerGen.setText("Number of Mutations per Generation");
+		
+		spinnerMutationsPerGen = new Spinner(grpGeneticAlgorithm, SWT.BORDER);
+		spinnerMutationsPerGen.setMaximum(1000);
+		spinnerMutationsPerGen.setSelection(2);
+		spinnerMutationsPerGen.setBounds(274, 166, 58, 22);
+		
+		Label lblNumOfBestFittestKept = new Label(grpGeneticAlgorithm, SWT.NONE);
+		lblNumOfBestFittestKept.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.BOLD));
+		lblNumOfBestFittestKept.setBounds(10, 220, 186, 15);
+		lblNumOfBestFittestKept.setText("Number of All Time Fittest Kept");
+		
+		spinnerBestFittestKept = new Spinner(grpGeneticAlgorithm, SWT.BORDER);
+		spinnerBestFittestKept.setMaximum(spinnerParents.getSelection() - 1);
+		spinnerBestFittestKept.setSelection(1);
+		spinnerBestFittestKept.setBounds(274, 213, 58, 22);
 		
 	}//end genetic algorithm group
 	
@@ -612,7 +713,7 @@ public class MainGUI {
 		
 		Label lblNodeArrangerHelp = new Label(grpNodeArranger, SWT.WRAP);
 		lblNodeArrangerHelp.setFont(SWTResourceManager.getFont("Segoe UI", 8, SWT.ITALIC));
-		lblNodeArrangerHelp.setBounds(10, 21, 169, 149);
+		lblNodeArrangerHelp.setBounds(10, 21, 169, 139);
 		lblNodeArrangerHelp.setText("o Click on the position for which you would like to change the node. \r\no Then type in the node ID# that you would like to swap to that position and click 'Swap'.\r\no The node at that position will switch positions with the node that you input.\r\no Each node can only be swapped once. Click 'Submit' to finish.");
 		
 		Button btnSwapNodeArranger = new Button(grpNodeArranger, SWT.NONE);
@@ -811,7 +912,7 @@ public class MainGUI {
 		});
 		tltmNodePosition8.setText("Position 8");
 		
-		//TODO loop this or something.....
+		//TODO loop this into the designated arrays or something.....
 		Spinner spinnerNodePosition0 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition0.setEnabled(false);
 		spinnerNodePosition0.setMaximum(15);
@@ -932,11 +1033,10 @@ public class MainGUI {
 				int i = 0;
 				for (Spinner position: nodePosition) {
 					nodeArrangement[i] = position.getSelection();
-					System.out.println(nodeArrangement[i]);
 					i ++;
 				}
 				drawRingTopology(nodeArrangement);
-				//TODO update the Node Arranger console
+				printNetworkSingleHops();
 			}
 		});
 		btnSubmit.setToolTipText("Click when finshed (will update the architecture).");
@@ -994,16 +1094,60 @@ public class MainGUI {
 	}//end MRR Switch Arranger group
 	
 	private void createNetworkSingleHops(Group groupNetworkConfigure) {
-		//TODO, make it work....
 		Group grpNetworkSingleHops = new Group(groupNetworkConfigure, SWT.NONE);
 		grpNetworkSingleHops.setText("Network Single Hops");
 		grpNetworkSingleHops.setBounds(10, 382, 875, 170);
 		
-		StyledText styledTextNSHOutput = new StyledText(grpNetworkSingleHops, SWT.BORDER | SWT.READ_ONLY);
+		styledTextNSHOutput = new StyledText(grpNetworkSingleHops, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP);
 		styledTextNSHOutput.setDoubleClickEnabled(false);
 		styledTextNSHOutput.setEnabled(false);
 		styledTextNSHOutput.setEditable(false);
 		styledTextNSHOutput.setBounds(10, 20, 855, 140);
 		
 	}//end Network Single Hops group
+	
+	private void printNetworkSingleHops() {
+		//TODO add mrrSwitch arrangement considerations when they are complete
+		//topology should be a parameter
+		String message = "";
+		int nodeID;
+		int prevNodeID;
+		int nextNodeID;
+		int columns = 0;
+		boolean twoTwoDigits = false;
+		for (int i = 0; i < nodePosition.length; i ++) {
+			nodeID = nodePosition[i].getSelection();
+			//get previous connected node
+			if (i == 0) { prevNodeID = nodePosition[nodePosition.length - 1].getSelection(); }
+			else { prevNodeID = nodePosition[i - 1].getSelection(); }
+			//get next connected node
+			if (i == 15) { nextNodeID = nodePosition[0].getSelection(); }
+			else { nextNodeID = nodePosition[i + 1].getSelection(); }
+			//add info to message, to be printed to console
+			twoTwoDigits = setsOfTwoTwoDigits(nodeID, prevNodeID, nextNodeID);
+			if (columns >= 4) {//next line
+				message += ("" + nodeID + " --> " + prevNodeID + " , " + nextNodeID + "\t\t\n\n");
+				columns = 0;
+			} else {//same line
+				message += ("" + nodeID + " --> " + prevNodeID + " , " + nextNodeID + "\t\t");
+				if (!twoTwoDigits) {
+					message += ("\t");
+				}
+				columns ++;
+			}
+		}
+		styledTextNSHOutput.setText(message);
+	}
+
+	private boolean setsOfTwoTwoDigits(int nodeID, int prevNodeID,
+			int nextNodeID) {
+		if (nodeID/10.0 < 1) {
+			if (prevNodeID/10.0 >= 1 && nextNodeID/10.0 >= 1) { return true; }
+			else {return false;}
+		} else {
+			if (prevNodeID/10.0 >= 1 || nextNodeID/10.0 >= 1) { return true; }
+			else { return false; }
+		}
+	}
+	
 }//end class

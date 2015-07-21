@@ -11,6 +11,8 @@ import edu.salisbury.photonic.cyclical_core_simulator.CyclicalMappedArchitecture
 import edu.salisbury.photonic.cyclical_core_simulator.CyclicalSimOverseer;
 import edu.salisbury.photonic.core_simulator.Coordinate;
 import edu.salisbury.photonic.core_simulator.CoreLog;
+import edu.salisbury.photonic.core_simulator.SortingHelper.SortableValue;
+
 
 /**
  * A specific mapping of nodes which is modeled as an individual which could be part of a larger 
@@ -18,7 +20,7 @@ import edu.salisbury.photonic.core_simulator.CoreLog;
  * @author timfoil
  *
  */
-public class NodeConfiguration extends GeneticIndividual
+public class NodeConfiguration extends GeneticIndividual implements SortableValue
 {
 	private CyclicalMappedArchitecture configuration;
 	private CoreLog log;
@@ -50,7 +52,7 @@ public class NodeConfiguration extends GeneticIndividual
 	 * @param coordsToNumberMapping The mapping used for the coordinate to integer values.
 	 * @param log The log used to test this NodeConfiguration
 	 */
-	public NodeConfiguration(List <GeneticIndividual> mostSuccessful, int bitsPerFlit, 
+	public NodeConfiguration(List <NodeConfiguration> mostSuccessful, int bitsPerFlit, 
 			int tearDownTime, HashMap <Coordinate, Integer> coordsToNumberMapping, CoreLog log)
 	{
 		if(log == null)
@@ -58,20 +60,19 @@ public class NodeConfiguration extends GeneticIndividual
 			throw new NullPointerException("Log should not be null");
 		}
 		this.log = log;
+		
 		configuration = new CyclicalMappedArchitecture( 
 				bitsPerFlit, tearDownTime, coordsToNumberMapping); 
 		
-		GenePool pool = 
-				new GenePool(((NodeConfiguration) mostSuccessful.get(0))
-						.getConfiguration().getSwitchingMapCopy(), 
-				((NodeConfiguration) mostSuccessful.get(0))
-				.getConfiguration().getNumberOfCoreNodes());
+		GenePool pool = new GenePool(mostSuccessful.get(0).getConfiguration().getSwitchingMapCopy(), 
+				mostSuccessful.get(0).getConfiguration().getNumberOfCoreNodes());
 		
 		for(int i = 1; i < mostSuccessful.size(); i++)
 		{
 			pool.addMapToPool(((NodeConfiguration) mostSuccessful.get(i))
 					.getConfiguration().getSwitchingMapCopy());
 		}
+		
 		configuration.checkAndSetIntegerSwapMap(pool.generateSwitchingMap());
 	}
 	
@@ -473,6 +474,14 @@ public class NodeConfiguration extends GeneticIndividual
 		fitness = simulation.simulateWithLog(log);
 		return fitness;
 	}
+	/**
+	 * Returns the fitness score for this object. 
+	 * @return null if fitness has not yet been set/evaluated
+	 */
+	public Integer getFitness()
+	{
+		return fitness;
+	}
 	
 	//TODO put a getFitness thing here
 
@@ -490,5 +499,11 @@ public class NodeConfiguration extends GeneticIndividual
 	public HashMap<Integer, Integer> getSwitchingMapRef()
 	{
 		return configuration.getSwitchingMapRef();
+	}
+	
+	@Override
+	public Integer getSortableVal()
+	{
+		return fitness;
 	}
 }

@@ -28,9 +28,6 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 	//add an Array of the most successful configurations from all time to always add to the pool
 	private List<NodeConfiguration> allTimeFittest;
 	
-	private int generationNumber = 0; //TODO add generationNumber
-	
-	
 	private HashSet<HashMap<Integer, Integer>> previousCreations = 
 			new HashSet<HashMap<Integer, Integer>>();
 	
@@ -59,15 +56,20 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 		setTeardownTime(teardownTime);
 		setLog(log);
 		setCoordsToNumberMapping(coordsToNumberMapping);
-		currentPop = new ArrayList<NodeConfiguration>(populationSize);
 		allTimeFittest = new ArrayList<NodeConfiguration>(numberOfAllTimeFittestKept);
+		
+		generateNewPopulation();
+	}
+	
+	public void generateNewPopulation()
+	{
+		currentPop = new ArrayList<NodeConfiguration>(populationSize);
+		
 		for(int i = 0; i < populationSize; i++)
 		{
 			currentPop.add(i, generateIndividual());
 		}
 	}
-	
-	
 	
 	public NodeConfiguration generateIndividual()
 	{
@@ -129,7 +131,6 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 		//in our case, the lower the fitness levels the better
 		for(int i = 0; i < currentPop.size(); i++)
 		{
-			//System.out.println("Evaluating: " + i);
 			currentPop.get(i).evaluateFitness();
 		}
 	}
@@ -158,7 +159,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 		}
 		
 		//If any of the scores in this generation are greater than the least allTimeFittest score
-		while(!sortedScores.isEmpty() && 
+		while(!sortedScores.isEmpty() && allTimeFittest.size() > 0 &&
 				sortedScores.get(0).getFitness() < 
 				allTimeFittest.get(allTimeFittest.size() - 1).getFitness() )
 		{
@@ -169,32 +170,21 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 			SortingHelper.binaryInsertionSort(allTimeFittest, sortedScores.remove(0)); 
 		}
 		
-		System.out.println("lowest from highscore: "+ 
-		allTimeFittest.get(allTimeFittest.size() - 1).getFitness() + "\t lowest from generation: " +
-				sortedScores.get(0).getFitness());
-		
-		//TODO delete. check to see that allTimeFittest conforms to the one specified
-		if(allTimeFittest.size() != numberOfAllTimeFittestKept) 
-		{
-			throw new RuntimeException("AllTime size is not the same as the one specified");
-			
-		}
-		
 		List<NodeConfiguration> newParents = new ArrayList<NodeConfiguration>(numberOfParents);
 		
-		int j = 1; //TODO delete
+		//int j = 1; //TODO delete
 		
-		//TODO begin construct the list to return from the all time best
+		// begin construct the list to return from the all time best
 		for(int i = 0; i < allTimeFittest.size() && newParents.size() < numberOfParents; i++)
 		{
-			System.out.println(j++ + ": " + allTimeFittest.get(i).getFitness()); //TODO delete
+			//System.out.println(j++ + ": " + allTimeFittest.get(i).getFitness()); //TODO delete
 			newParents.add(allTimeFittest.get(i));
 		}
 		
-		//TODO finish construction with the parents from previous generation
+		// finish construction with the parents from previous generation
 		for(int i = 0; i < sortedScores.size() && newParents.size() < numberOfParents; i++)
 		{
-			System.out.println(j++ + ": " + sortedScores.get(i).getFitness()); //TODO delete
+			//System.out.println(j++ + ": " + sortedScores.get(i).getFitness()); //TODO delete
 			newParents.add(sortedScores.get(i));
 		}
 		
@@ -202,7 +192,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 	}
 
 	@Override
-	public List<NodeConfiguration> crossover(List<NodeConfiguration> selected)
+	public void crossover(List<NodeConfiguration> selected)
 	{
 		List<NodeConfiguration> newPop = new ArrayList<NodeConfiguration>(populationSize);
 		
@@ -220,17 +210,17 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 			previousCreations.add(possibleSwitchingMap);
 			newPop.add(i, toAdd);
 		}
-		return newPop;
+		this.currentPop = newPop;
 	}
 
 	@Override
-	public List<NodeConfiguration> mutation(List<NodeConfiguration> toMutate)
+	public void mutation()
 	{
 		Random randGen = new Random();
 		for(int i = 0; i < mutationsPerGeneration; i++)
 		{
 			HashMap<Integer, Integer> aMap = 
-					toMutate.get(randGen.nextInt(toMutate.size())).getSwitchingMapRef();
+					currentPop.get(randGen.nextInt(currentPop.size())).getSwitchingMapRef();
 			
 			previousCreations.remove(aMap);
 			
@@ -240,8 +230,6 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 			}
 			while(previousCreations.contains(aMap));
 		}
-		
-		return toMutate;
 	}
 	
 	public void runForGenerations(int numberOfGenerationsToRunFor)
@@ -260,10 +248,9 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 			
 			
 			System.out.println("Generating next generation of configurations via crossover...");
-			List<NodeConfiguration> crossoverList = crossover(selectionList);
+			crossover(selectionList);
 			System.out.println("Performing mutations");
-			currentPop = mutation(crossoverList);
-			generationNumber++;
+			mutation();
 	}
 	
 	/**

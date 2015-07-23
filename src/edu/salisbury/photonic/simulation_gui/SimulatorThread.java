@@ -46,7 +46,7 @@ public class SimulatorThread implements Runnable{
 			case "Ring":
 				CyclicalSimOverseer test = new CyclicalSimOverseer(flitPacketSize, tearDownTime, 
 						switchingMap, dominantFlowMap, mrrSwitchesTopLeftNodeNumber, false); //TODO change back to true
-				test.simulateWithLog(basicLog);
+				System.out.println(test.simulateWithLog(basicLog));
 				break;
 			default:
 				CyclicalSimOverseer test1 = new CyclicalSimOverseer(

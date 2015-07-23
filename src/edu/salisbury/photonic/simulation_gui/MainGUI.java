@@ -62,7 +62,7 @@ public class MainGUI {
 	private int simulatorFlitPacketSize = 64; 
 	private int simulatorTearDownTime = 1;
 	//private int simulatorNumOfSwitches = 0;
-	private Canvas canvasTopologyPreview;;
+	private Canvas canvasTopologyPreview;
 	private Label lblConsoleOutput;
 	
 	//Data Analyzer Variables (= default value)
@@ -72,7 +72,6 @@ public class MainGUI {
 	protected Spinner spinnerEndingIndex;
 	private boolean userSpecifiesSection = false;
 	public static StyledText styledTextConsoleOutput;
-	//Genetic Algorithm Variables (= default vale)
 	private Spinner spinnerPopulationSize;
 	private Spinner spinnerParents;
 	private Spinner spinnerGenerations;

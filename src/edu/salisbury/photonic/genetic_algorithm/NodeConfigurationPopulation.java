@@ -41,13 +41,13 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 	public NodeConfigurationPopulation(CoreLog log, 
 			HashMap<Coordinate, Integer> coordsToNumberMapping, int bitsPerFlit, int teardownTime)
 	{
-		this(log, coordsToNumberMapping, bitsPerFlit, teardownTime, 30, 2);
+		this(log, coordsToNumberMapping, bitsPerFlit, teardownTime, 30, 2, 3);
 	}
 	
 	
 	public NodeConfigurationPopulation(CoreLog log, 
 			HashMap<Coordinate, Integer> coordsToNumberMapping, int bitsPerFlit, int teardownTime, 
-			int populationSize, int mutationsPerGeneration)
+			int populationSize, int mutationsPerGeneration, int numberOfParents)
 	{
 		
 		setPopulationSize(populationSize);
@@ -55,6 +55,7 @@ public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfigur
 		setBitsPerFlit(bitsPerFlit);
 		setTeardownTime(teardownTime);
 		setLog(log);
+		setNumberOfParents(numberOfParents);
 		setCoordsToNumberMapping(coordsToNumberMapping);
 		allTimeFittest = new ArrayList<NodeConfiguration>(numberOfAllTimeFittestKept);
 		

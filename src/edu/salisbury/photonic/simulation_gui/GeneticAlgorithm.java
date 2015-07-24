@@ -1,10 +1,12 @@
 package edu.salisbury.photonic.simulation_gui;
 
 import java.util.HashMap;
+import java.util.List;
 
 import edu.salisbury.photonic.core_simulator.Coordinate;
 import edu.salisbury.photonic.core_simulator.CoreLog;
 import edu.salisbury.photonic.core_simulator.LogReader;
+import edu.salisbury.photonic.genetic_algorithm.NodeConfiguration;
 import edu.salisbury.photonic.genetic_algorithm.NodeConfigurationPopulation;
 
 public class GeneticAlgorithm implements Runnable{
@@ -17,6 +19,7 @@ public class GeneticAlgorithm implements Runnable{
 	private int numberOfGenerations = 15;
 	private int numberOfParents = 2;
 	private int numberOfAllTimeFittestKept = 1;
+	private NodeConfigurationPopulation primordialSoup;
 	
 	public GeneticAlgorithm (String filename, int startingSection, int endingSection, int[] nodeArrangement, int bitsPerFlit, int teardownTime,
 			int populationSize, int mutationsPerGeneration) {
@@ -31,13 +34,34 @@ public class GeneticAlgorithm implements Runnable{
 	
 	@Override
 	public void run() {
-		NodeConfigurationPopulation genetic = new NodeConfigurationPopulation(coreLog, coordsToNumberMapping, 
-				bitsPerFlit, teardownTime, populationSize, mutationsPerGeneration);
-		genetic.runForGenerations(numberOfGenerations);
-		genetic.setMutationsPerGeneration(mutationsPerGeneration);
-		genetic.setNumberOfParents(numberOfParents);
-		genetic.setNumberOfAllTimeFittestKept(numberOfAllTimeFittestKept);
+		primordialSoup = new NodeConfigurationPopulation(coreLog, coordsToNumberMapping, 
+				bitsPerFlit, teardownTime, populationSize, mutationsPerGeneration, numberOfParents);
+		primordialSoup.setMutationsPerGeneration(mutationsPerGeneration);
+		primordialSoup.setNumberOfAllTimeFittestKept(numberOfAllTimeFittestKept);
+		runGenerations(numberOfGenerations);
 	}
+	
+	public void runGenerations(int numOfGenerations)
+	{
+		for(int i = 0; i < numOfGenerations; i++)
+		{
+		 	System.out.println("Evaluating configurations");
+	    	primordialSoup.evaluation();
+			List<NodeConfiguration> selectionList = primordialSoup.selection();
+			addToDataSets(selectionList, i);
+			primordialSoup.crossover(selectionList);
+			primordialSoup.mutation();
+		}
+    }
+	 
+	public void addToDataSets(List<NodeConfiguration> toAdd, int genNumber)
+    {
+		System.out.println("Best fitness for generation " + genNumber);
+    	for(int i = 0; i < toAdd.size(); i++)
+    	{
+    		System.out.println("parent"+ i + ": " + toAdd.get(i).getFitness());
+    	}
+    }
 	
 	private HashMap<Coordinate, Integer> getCoordsToNumberMapping() {
 		HashMap<Coordinate, Integer> switchingMap =  new HashMap<Coordinate, Integer>();

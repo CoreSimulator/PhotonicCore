@@ -693,7 +693,7 @@ public class MainGUI {
 		btnResetNodeArranger.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//restore the default values and deselect any selected buttons
+				//restore the default nodes to their corresponding position
 				for (int position = 0; position < nodeIDs.length; position ++) {
 					nodeIDs[position].setSelection(defaultNodeIDs[position]);
 				}
@@ -707,7 +707,7 @@ public class MainGUI {
 		Label lblNodeArrangerHelp = new Label(grpNodeArranger, SWT.WRAP);
 		lblNodeArrangerHelp.setFont(SWTResourceManager.getFont("Segoe UI", 8, SWT.ITALIC));
 		lblNodeArrangerHelp.setBounds(10, 21, 169, 139);
-		lblNodeArrangerHelp.setText("o Click on the position for which you would like to change the node. \r\no Then type in the node ID# that you would like to swap to that position and click 'Swap'.\r\no The node at that position will switch positions with the node that you input.\r\no Each node can only be swapped once. Click 'Submit' to finish.");
+		lblNodeArrangerHelp.setText("o Click on the 'slider' under the position for which you would like to change the node.\r\no Change the position of all the desired nodes and click 'Submit' when finished.\r\no Each node can only appear once.\r\no Click 'reset' to set the nodes back to their original positions.");
 		
 		//TODO loop this into the designated arrays or something.....
 		Spinner spinnerNodePosition0 = new Spinner(grpNodeArranger, SWT.BORDER);

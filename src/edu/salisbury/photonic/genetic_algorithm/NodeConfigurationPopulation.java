@@ -9,11 +9,12 @@ import java.util.Random;
 
 import edu.salisbury.photonic.core_simulator.Coordinate;
 import edu.salisbury.photonic.core_simulator.CoreLog;
+import edu.salisbury.photonic.core_simulator.SortingHelper;
 import edu.salisbury.photonic.cyclical_core_simulator.CyclicalMappedArchitecture;
 
-public class NodeConfigurationPopulation extends GeneticPopulation
+public class NodeConfigurationPopulation extends GeneticPopulation <NodeConfiguration> 
 {
-	private List<GeneticIndividual> currentPop;
+	private List<NodeConfiguration> currentPop;
 	private CoreLog log;
 	private HashMap<Coordinate, Integer> coordsToNumberMapping;
 	private int populationSize;
@@ -24,10 +25,8 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 	private int numberOfParents;
 	private int numberOfAllTimeFittestKept = 0;
 	
-	//TODO add an Array of the most successful configurations from all time to always add to the pool
-	private List<HighScoreEntry> allTimeFittest;
-	private int generationNumber = 0; //TODO add generationNumber
-	
+	//add an Array of the most successful configurations from all time to always add to the pool
+	private List<NodeConfiguration> allTimeFittest;
 	
 	private HashSet<HashMap<Integer, Integer>> previousCreations = 
 			new HashSet<HashMap<Integer, Integer>>();
@@ -57,15 +56,20 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 		setTeardownTime(teardownTime);
 		setLog(log);
 		setCoordsToNumberMapping(coordsToNumberMapping);
-		currentPop = new ArrayList<GeneticIndividual>(populationSize);
-		allTimeFittest = new ArrayList<HighScoreEntry>(numberOfAllTimeFittestKept);
+		allTimeFittest = new ArrayList<NodeConfiguration>(numberOfAllTimeFittestKept);
+		
+		generateNewPopulation();
+	}
+	
+	public void generateNewPopulation()
+	{
+		currentPop = new ArrayList<NodeConfiguration>(populationSize);
+		
 		for(int i = 0; i < populationSize; i++)
 		{
 			currentPop.add(i, generateIndividual());
 		}
 	}
-	
-	
 	
 	public NodeConfiguration generateIndividual()
 	{
@@ -122,90 +126,75 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 	}
 	
 	@Override
-	public int[] evaluation(List<GeneticIndividual> population)
+	public void evaluation()
 	{
 		//in our case, the lower the fitness levels the better
-		int[] fitnessLevels = new int[populationSize];
-		for(int i = 0; i < populationSize; i++)
+		for(int i = 0; i < currentPop.size(); i++)
 		{
-			//System.out.println("Evaluating: " + i);
-			fitnessLevels[i] = population.get(i).evaluateFitness();
+			currentPop.get(i).evaluateFitness();
 		}
-		return fitnessLevels;
 	}
 	
 	@Override
-	public List<GeneticIndividual> selection(int[] fitness)
+	public List<NodeConfiguration> selection()
 	{
-		if(fitness.length < 2)
+		if(currentPop.size() < 2)
 		{
-			throw new IllegalArgumentException("Needs to have at least two values");
+			throw new IllegalArgumentException("Pop needs to have at least two values");
 		}
 		
-		List<HighScoreEntry> scoreEntries = new ArrayList<HighScoreEntry>(fitness.length);
+		List<NodeConfiguration> sortedScores = new ArrayList<NodeConfiguration>(currentPop.size());
 		
 		//construct a sorted List of the scores with their configurations
-		for(int i = 0; i < fitness.length; i++)
+		for(int i = 0; i < currentPop.size(); i++)
 		{
-			HighScoreEntry currentEvaluation = 
-					new HighScoreEntry(fitness[i], (NodeConfiguration) currentPop.get(i));
-			scoreSort(scoreEntries, currentEvaluation);
+			SortingHelper.binaryInsertionSort(sortedScores, currentPop.get(i));
 		}
 		
 		//If alltimeFittest has not yet been filled
-		while(allTimeFittest.size() < numberOfAllTimeFittestKept)
+		while(!sortedScores.isEmpty() && (allTimeFittest.size() < numberOfAllTimeFittestKept))
 		{
 			//remove the score the current generation and place them in the allTimeFittestStore list
-			scoreSort(allTimeFittest, scoreEntries.remove(0)); 
+			SortingHelper.binaryInsertionSort(allTimeFittest, sortedScores.remove(0)); 
 		}
 		
 		//If any of the scores in this generation are greater than the least allTimeFittest score
-		while(!scoreEntries.isEmpty() && 
-				scoreEntries.get(0).getScore() < 
-				allTimeFittest.get(allTimeFittest.size() - 1).getScore() )
+		while(!sortedScores.isEmpty() && allTimeFittest.size() > 0 &&
+				sortedScores.get(0).getFitness() < 
+				allTimeFittest.get(allTimeFittest.size() - 1).getFitness() )
 		{
-			System.out.println("score is bigger");
 			//remove the least allTime fittest score
 			allTimeFittest.remove(allTimeFittest.size() - 1);
 			
 			//remove the score the current generation and place them in the allTimeFittestStore list
-			scoreSort(allTimeFittest, scoreEntries.remove(0)); 
+			SortingHelper.binaryInsertionSort(allTimeFittest, sortedScores.remove(0)); 
 		}
-		System.out.println("lowest from highscore: "+ 
-		allTimeFittest.get(allTimeFittest.size() - 1).getScore() + "\t lowest from generation: " +
-				scoreEntries.get(0).getScore());
 		
-		//TODO delete. check to see that allTimeFittest conforms to the one specified
-		if(allTimeFittest.size() != numberOfAllTimeFittestKept) 
-		{
-			throw new RuntimeException("AllTime size is not the same as the one specified");
-			
-		}
-		List<GeneticIndividual> newParents = new ArrayList<GeneticIndividual>(numberOfParents);
+		List<NodeConfiguration> newParents = new ArrayList<NodeConfiguration>(numberOfParents);
 		
-		int j = 1; //TODO delete
+		//int j = 1; //TODO delete
 		
-		//TODO begin construct the list to return from the all time best
+		// begin construct the list to return from the all time best
 		for(int i = 0; i < allTimeFittest.size() && newParents.size() < numberOfParents; i++)
 		{
-			System.out.println(j++ + ": " + allTimeFittest.get(i).getScore()); //TODO delete
-			newParents.add(allTimeFittest.get(i).getPlayer());
+			//System.out.println(j++ + ": " + allTimeFittest.get(i).getFitness()); //TODO delete
+			newParents.add(allTimeFittest.get(i));
 		}
 		
-		//TODO finish construction with the parents from previous generation
-		for(int i = 0; i < scoreEntries.size() && newParents.size() < numberOfParents; i++)
+		// finish construction with the parents from previous generation
+		for(int i = 0; i < sortedScores.size() && newParents.size() < numberOfParents; i++)
 		{
-			System.out.println(j++ + ": " + scoreEntries.get(i).getScore()); //TODO delete
-			newParents.add(scoreEntries.get(i).getPlayer());
+			//System.out.println(j++ + ": " + sortedScores.get(i).getFitness()); //TODO delete
+			newParents.add(sortedScores.get(i));
 		}
 		
 		return newParents;
 	}
 
 	@Override
-	public List<GeneticIndividual> crossover(List<GeneticIndividual> selected)
+	public void crossover(List<NodeConfiguration> selected)
 	{
-		List<GeneticIndividual> newPop = new ArrayList<GeneticIndividual>(populationSize);
+		List<NodeConfiguration> newPop = new ArrayList<NodeConfiguration>(populationSize);
 		
 		for(int i = 0; i < populationSize; i++)
 		{
@@ -214,28 +203,24 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 			
 			HashMap<Integer,Integer> possibleSwitchingMap = toAdd.getSwitchingMapRef();
 			
-			//System.out.println("Stuck");
 			while(previousCreations.contains(possibleSwitchingMap))
 			{
-				System.out.println(possibleSwitchingMap.hashCode());
 				swap(possibleSwitchingMap);
 			}
 			previousCreations.add(possibleSwitchingMap);
-			//System.out.println("unstuck");
 			newPop.add(i, toAdd);
 		}
-		return newPop;
+		this.currentPop = newPop;
 	}
 
 	@Override
-	public List<GeneticIndividual> mutation(List<GeneticIndividual> toMutate)
+	public void mutation()
 	{
 		Random randGen = new Random();
 		for(int i = 0; i < mutationsPerGeneration; i++)
 		{
-			HashMap<Integer, Integer> aMap = (
-					(NodeConfiguration) toMutate.get(
-							randGen.nextInt(toMutate.size()))).getSwitchingMapRef();
+			HashMap<Integer, Integer> aMap = 
+					currentPop.get(randGen.nextInt(currentPop.size())).getSwitchingMapRef();
 			
 			previousCreations.remove(aMap);
 			
@@ -245,27 +230,29 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 			}
 			while(previousCreations.contains(aMap));
 		}
-		
-		return toMutate;
 	}
 	
 	public void runForGenerations(int numberOfGenerationsToRunFor)
 	{
 		for(int i = 0; i < numberOfGenerationsToRunFor; i++)
 		{
+			runForGeneration();
+		}
+	}
+	
+	public void runForGeneration()
+	{
 			System.out.println("Evaluating and picking fittest...");
-			int[] fitList = evaluation(currentPop);
-			List<GeneticIndividual> selectionList = selection(fitList);
+			evaluation();
+			List<NodeConfiguration> selectionList = selection();
 			
 			
 			System.out.println("Generating next generation of configurations via crossover...");
-			List<GeneticIndividual> crossoverList = crossover(selectionList);
+			crossover(selectionList);
 			System.out.println("Performing mutations");
-			currentPop = mutation(crossoverList);
-			generationNumber++;
-		}
+			mutation();
 	}
-
+	
 	/**
 	 * @return the populationSize
 	 */
@@ -491,102 +478,5 @@ public class NodeConfigurationPopulation extends GeneticPopulation
 	public int getMutationsPerGeneration()
 	{
 		return mutationsPerGeneration;
-	}
-	
-	
-	private static class HighScoreEntry
-	{
-		private int score;
-		private NodeConfiguration player;
-		
-		public HighScoreEntry(int score, NodeConfiguration player)
-		{
-			setScore(score);
-			setPlayer(player);
-		}
-
-		private void setPlayer(NodeConfiguration player)
-		{
-			if(player == null) throw new NullPointerException("Player cannot be null");
-			this.player = player;
-		}
-
-		private void setScore(int score)
-		{
-			if(score < 0) throw new IllegalArgumentException("In this scoring system the score, " +
-					"cannot be less than 0");
-			this.score = score;
-		}
-		
-		private int getScore()
-		{
-			return score;
-		}
-		
-		private NodeConfiguration getPlayer()
-		{
-			return player;
-		}
-	}
-	
-	public static int scoreSort(List<HighScoreEntry> sortedList, HighScoreEntry toSort)
-	{
-		if(sortedList == null) throw new NullPointerException();
-		
-		if(sortedList.isEmpty()) 
-		{
-			sortedList.add(toSort);
-			return 0;
-		}
-			
-		int min = 0;
-		int max = sortedList.size() - 1;
-		
-		while(true)
-		{
-			int mid = (min + max)/2;
-			if(min == max)
-			{
-				if( toSort.getScore() > sortedList.get(mid).getScore())
-				{
-					sortedList.add(mid + 1, toSort);
-					return mid + 1;
-				} 
-				else if(toSort.getScore() <= sortedList.get(mid).getScore())
-				{
-					sortedList.add(mid, toSort);
-					return mid;
-				}
-				else
-				{
-					throw new RuntimeException("Error Binary sort implementation");
-				}
-			} 
-			else if (min < max) 
-			{
-				if( toSort.getScore() == sortedList.get(mid).getScore())
-				{
-					sortedList.add(mid, toSort);
-					return mid;
-				} 
-				else if(toSort.getScore() > sortedList.get(mid).getScore())
-				{
-					min = mid + 1;
-				}
-				else if(toSort.getScore() < sortedList.get(mid).getScore())
-				{
-					max = mid - 1;
-				}
-				else
-				{
-					throw new RuntimeException("Error Binary sort implementation");
-				}
-			} 
-			else if (min > max)
-			{
-				sortedList.add(min, toSort);
-				return min;
-			}
-		}
 	}
 }

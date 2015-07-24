@@ -45,13 +45,13 @@ public class SimulatorThread implements Runnable{
 		switch(topology) {
 			case "Ring":
 				CyclicalSimOverseer test = new CyclicalSimOverseer(flitPacketSize, tearDownTime, 
-						switchingMap, dominantFlowMap, mrrSwitchesTopLeftNodeNumber, true);
-				test.simulateWithLog(basicLog);
+						switchingMap, dominantFlowMap, mrrSwitchesTopLeftNodeNumber, false); //TODO change back to true
+				System.out.println(test.simulateWithLog(basicLog));
 				break;
 			default:
 				CyclicalSimOverseer test1 = new CyclicalSimOverseer(
 						flitPacketSize, tearDownTime, switchingMap, null, 
-						mrrSwitchesTopLeftNodeNumber, true);
+						mrrSwitchesTopLeftNodeNumber, false); //TODO change back to true
 				
 				test1.simulateWithLog(basicLog);
 				break;
@@ -73,7 +73,6 @@ public class SimulatorThread implements Runnable{
 				dominantFlowMap.put(new Coordinate(2,nodeArrangement.length - 1 -nodeArrangement[position]), new Coordinate(2,nodeArrangement.length - 1 -position));
 			}
 		}
-		System.out.println(dominantFlowMap.keySet());
 		return dominantFlowMap;
 	}
 	

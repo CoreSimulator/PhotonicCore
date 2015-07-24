@@ -72,6 +72,33 @@ public class NonDirectionalPairAnalyzer extends Analyzer
 		return sortMapEntriesByDescendingValue(sortedList);
 	}
 	
+	public HashMap<CoordinatePair, Integer> analyzeNoString(CoreLog log) 
+	{
+		HashMap<CoordinatePair, Integer> sentMessages = new HashMap<>();
+		
+		for(int i = 0; i < log.logSize(); i++)
+		{
+			LogEntry entry = log.getEntry(i);
+			
+			Coordinate sourceCoord = new Coordinate(entry.sourceX(), entry.sourceY());
+			Coordinate destCoord = new Coordinate(entry.destX(), entry.destY());
+			CoordinatePair pair = coordinatePairEquivalence(sourceCoord, destCoord);
+			
+			//If the key already exists update the value, timesOccured
+			//otherwise put a new entry in for the key
+			if(sentMessages.containsKey(pair))
+			{
+				int timesOccured = sentMessages.remove(pair);
+				sentMessages.put(pair, ++timesOccured);
+			} 
+			else 
+			{
+				sentMessages.put(pair, 1);
+			}
+		}
+		return sentMessages;
+	}
+	
 	/*
 	 * In non-directional/bi-directional pairs, the order in which the coordinates are ordered do not/should not matter. 
 	 * However, we are using a HashMap with a coordinate pair key to arrange our results. Since the equivalence method 

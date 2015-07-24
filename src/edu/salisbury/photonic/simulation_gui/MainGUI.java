@@ -902,7 +902,6 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//the index in nodeArrangement is the position, the value is the nodeID
-				//TODO test!
 				if (nodeArrangementIsValid()) {
 					nodeArrangement = new int[16];
 					int i = 0;
@@ -913,7 +912,6 @@ public class MainGUI {
 					drawRingTopology(nodeArrangement);
 					printNetworkSingleHops();
 				} else {
-					//TODO popUp window saying numbers are not valid
 					JOptionPane.showMessageDialog(null, "Make sure each number (node ID) is only used once.");
 				}
 			}

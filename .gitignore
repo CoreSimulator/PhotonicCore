@@ -10,6 +10,7 @@
 *.tar
 *.zip
 *.jar
+*.DS_Store
 
 # log file output #
 *.log
@@ -22,5 +23,7 @@
 /data_output1.txt
 /test.txt
 /bin
+/build
+/.gradle
 /tests
 /intelliJFiles

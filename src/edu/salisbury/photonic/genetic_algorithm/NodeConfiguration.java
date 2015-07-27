@@ -45,8 +45,7 @@ public class NodeConfiguration extends GeneticIndividual implements SortableValu
 	/**
 	 * Create a node configuration with a specific mapping given 2 parent node configurations
 	 * 
-	 * @param mostSuccessful most successful parent individual
-	 * @param secondMostSuccesful second most succesful parent indivudal
+	 * @param mostSuccessful most successful parents individual
 	 * @param bitsPerFlit number of bits that are in a flit (16, 32, 64)
 	 * @param tearDownTime Time it takes to tear down a connection
 	 * @param coordsToNumberMapping The mapping used for the coordinate to integer values.

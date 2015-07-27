@@ -1,5 +1,6 @@
 package edu.salisbury.photonic.simulation_gui;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.eclipse.swt.widgets.Display;
@@ -77,13 +78,8 @@ public class MainGUI {
 	private Spinner spinnerGenerations;
 	private Spinner spinnerMutationsPerGen;
 	private Spinner spinnerBestFittestKept;
-	
-	//Network Configuration Variables (= default value)
-	private ToolBar toolBarPositionTopRow;
-	private ToolBar toolBarPositionBottomRow;
-	private Spinner[] nodePosition = new Spinner[16];
-	private ToolItem[] nodePositionButton = new ToolItem[16];
-	private int[] defaultValues = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	private Spinner[] nodeIDs = new Spinner[16];
+	private int[] defaultNodeIDs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 	private int[] nodeArrangement = null;
 	StyledText styledTextNSHOutput;
 	
@@ -207,7 +203,7 @@ public class MainGUI {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				simulatorTopology = "Ring";
-				if (nodeArrangement == null) { drawRingTopology(defaultValues); }
+				if (nodeArrangement == null) { drawRingTopology(defaultNodeIDs); }
 				else { drawRingTopology(nodeArrangement); }
 				
 			}
@@ -311,7 +307,7 @@ public class MainGUI {
 		
 		canvasTopologyPreview = new Canvas(grpArchitecturePreview, SWT.BORDER | SWT.NO_REDRAW_RESIZE);
 		canvasTopologyPreview.setBounds(10, 23, 855, 211);
-		drawRingTopology(defaultValues); //default preview
+		drawRingTopology(defaultNodeIDs); //default preview
 		
 	}//end architecture preview group
 	
@@ -697,11 +693,9 @@ public class MainGUI {
 		btnResetNodeArranger.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//restore the default values and deselect any selected buttons
-				for (int i = 0; i < nodePosition.length; i ++) {
-					nodePosition[i].setSelection(defaultValues[i]);
-					nodePositionButton[i].setEnabled(true);
-					nodePositionButton[i].setSelection(false);
+				//restore the default nodes to their corresponding position
+				for (int position = 0; position < nodeIDs.length; position ++) {
+					nodeIDs[position].setSelection(defaultNodeIDs[position]);
 				}
 			}
 		});
@@ -713,329 +707,213 @@ public class MainGUI {
 		Label lblNodeArrangerHelp = new Label(grpNodeArranger, SWT.WRAP);
 		lblNodeArrangerHelp.setFont(SWTResourceManager.getFont("Segoe UI", 8, SWT.ITALIC));
 		lblNodeArrangerHelp.setBounds(10, 21, 169, 139);
-		lblNodeArrangerHelp.setText("o Click on the position for which you would like to change the node. \r\no Then type in the node ID# that you would like to swap to that position and click 'Swap'.\r\no The node at that position will switch positions with the node that you input.\r\no Each node can only be swapped once. Click 'Submit' to finish.");
-		
-		Button btnSwapNodeArranger = new Button(grpNodeArranger, SWT.NONE);
-		btnSwapNodeArranger.setToolTipText("Click to swap the current node to the current position.");
-		btnSwapNodeArranger.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				updateNodeArrangement();
-			}
-		});
-		btnSwapNodeArranger.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
-		btnSwapNodeArranger.setBounds(790, 71, 75, 25);
-		btnSwapNodeArranger.setText("Swap");
-		
-		toolBarPositionTopRow = new ToolBar(grpNodeArranger, SWT.FLAT | SWT.RIGHT);
-		toolBarPositionTopRow.setBounds(217, 21, 528, 27);
-		
-		ToolItem tltmNodePosition0 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[0] = tltmNodePosition0;
-		tltmNodePosition0.setWidth(59);
-		tltmNodePosition0.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(0);
-				nodePosition[0].setEnabled(true);
-			}
-		});
-		tltmNodePosition0.setText("Position 0 ");
-		
-		ToolItem tltmNodePosition1 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[1] = tltmNodePosition1;
-		tltmNodePosition1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(1);
-				nodePosition[1].setEnabled(true);
-			}
-		});
-		tltmNodePosition1.setText("Position 1 ");
-		
-		ToolItem tltmNodePosition2 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[2] = tltmNodePosition2;
-		tltmNodePosition2.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(2);
-				nodePosition[2].setEnabled(true);
-			}
-		});
-		tltmNodePosition2.setText("Position 2 ");
-		
-		ToolItem tltmNodePosition3 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[3] = tltmNodePosition3;
-		tltmNodePosition3.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(3);
-				nodePosition[3].setEnabled(true);
-			}
-		});
-		tltmNodePosition3.setText("Position 3 ");
-		
-		ToolItem tltmNodePosition4 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[4] = tltmNodePosition4;
-		tltmNodePosition4.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(4);
-				nodePosition[4].setEnabled(true);
-			}
-		});
-		tltmNodePosition4.setText("Position 4 ");
-		
-		ToolItem tltmNodePosition5 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[5] = tltmNodePosition5;
-		tltmNodePosition5.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(5);
-				nodePosition[5].setEnabled(true);
-			}
-		});
-		tltmNodePosition5.setText("Position 5 ");
-		
-		ToolItem tltmNodePosition6 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[6] = tltmNodePosition6;
-		tltmNodePosition6.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(6);
-				nodePosition[6].setEnabled(true);
-			}
-		});
-		tltmNodePosition6.setText("Position 6 ");
-		
-		ToolItem tltmNodePosition7 = new ToolItem(toolBarPositionTopRow, SWT.RADIO);
-		nodePositionButton[7] = tltmNodePosition7;
-		tltmNodePosition7.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(7);
-				nodePosition[7].setEnabled(true);
-			}
-		});
-		tltmNodePosition7.setText("Position 7 ");
-		
-		toolBarPositionBottomRow = new ToolBar(grpNodeArranger, SWT.FLAT | SWT.RIGHT);
-		toolBarPositionBottomRow.setBounds(211, 119, 540, 27);
-		
-		ToolItem tltmNodePosition15 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[15] = tltmNodePosition15;
-		tltmNodePosition15.setWidth(59);
-		tltmNodePosition15.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(15);
-				nodePosition[15].setEnabled(true);
-			}
-		});
-		tltmNodePosition15.setText("Position 15");
-		
-		ToolItem tltmNodePosition14 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[14] = tltmNodePosition14;
-		tltmNodePosition14.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(14);
-				nodePosition[14].setEnabled(true);
-			}
-		});
-		tltmNodePosition14.setText("Position 14");
-		
-		ToolItem tltmNodePosition13 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[13] = tltmNodePosition13;
-		tltmNodePosition13.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(13);
-				nodePosition[13].setEnabled(true);
-			}
-		});
-		tltmNodePosition13.setText("Position 13");
-		
-		ToolItem tltmNodePosition12 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[12] = tltmNodePosition12;
-		tltmNodePosition12.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(12);
-				nodePosition[12].setEnabled(true);
-			}
-		});
-		tltmNodePosition12.setText("Position 12");
-		
-		ToolItem tltmNodePosition11 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[11] = tltmNodePosition11;
-		tltmNodePosition11.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(11);
-				nodePosition[11].setEnabled(true);
-			}
-		});
-		tltmNodePosition11.setText("Position 11");
-		
-		ToolItem tltmNodePosition10 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[10] = tltmNodePosition10;
-		tltmNodePosition10.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(10);
-				nodePosition[10].setEnabled(true);
-			}
-		});
-		tltmNodePosition10.setText("Position 10");
-		
-		ToolItem tltmNodePosition9 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[9] = tltmNodePosition9;
-		tltmNodePosition9.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(9);
-				nodePosition[9].setEnabled(true);
-			}
-		});
-		tltmNodePosition9.setText("Position 9");
-		
-		ToolItem tltmNodePosition8 = new ToolItem(toolBarPositionBottomRow, SWT.RADIO);
-		nodePositionButton[8] = tltmNodePosition8;
-		tltmNodePosition8.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setAllTextEnabledToFalse(8);
-				nodePosition[8].setEnabled(true);
-			}
-		});
-		tltmNodePosition8.setText("Position 8");
+		lblNodeArrangerHelp.setText("o Click on the 'slider' under the position for which you would like to change the node.\r\no Change the position of all the desired nodes and click 'Submit' when finished.\r\no Each node can only appear once.\r\no Click 'reset' to set the nodes back to their original positions.");
 		
 		//TODO loop this into the designated arrays or something.....
 		Spinner spinnerNodePosition0 = new Spinner(grpNodeArranger, SWT.BORDER);
-		spinnerNodePosition0.setEnabled(false);
 		spinnerNodePosition0.setMaximum(15);
 		spinnerNodePosition0.setBounds(227, 54, 47, 22);
-		nodePosition[0] = spinnerNodePosition0;
+		nodeIDs[0] = spinnerNodePosition0;
 		
 		Spinner spinnerNodePosition1 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition1.setMaximum(15);
 		spinnerNodePosition1.setSelection(1);
-		spinnerNodePosition1.setEnabled(false);
 		spinnerNodePosition1.setBounds(293, 54, 47, 22);
-		nodePosition[1] = spinnerNodePosition1;
+		nodeIDs[1] = spinnerNodePosition1;
 		
 		Spinner spinnerNodePosition2 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition2.setMaximum(15);
 		spinnerNodePosition2.setSelection(2);
-		spinnerNodePosition2.setEnabled(false);
 		spinnerNodePosition2.setBounds(360, 54, 47, 22);
-		nodePosition[2] = spinnerNodePosition2;
+		nodeIDs[2] = spinnerNodePosition2;
 		
 		Spinner spinnerNodePosition3 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition3.setMaximum(15);
 		spinnerNodePosition3.setSelection(3);
-		spinnerNodePosition3.setEnabled(false);
 		spinnerNodePosition3.setBounds(424, 54, 47, 22);
-		nodePosition[3] = spinnerNodePosition3;
+		nodeIDs[3] = spinnerNodePosition3;
 		
 		Spinner spinnerNodePosition4 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition4.setMaximum(15);
 		spinnerNodePosition4.setSelection(4);
-		spinnerNodePosition4.setEnabled(false);
 		spinnerNodePosition4.setBounds(494, 54, 47, 22);
-		nodePosition[4] = spinnerNodePosition4;
+		nodeIDs[4] = spinnerNodePosition4;
 		
 		Spinner spinnerNodePosition5 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition5.setMaximum(15);
 		spinnerNodePosition5.setSelection(5);
-		spinnerNodePosition5.setEnabled(false);
 		spinnerNodePosition5.setBounds(557, 54, 47, 22);
-		nodePosition[5] = spinnerNodePosition5;
+		nodeIDs[5] = spinnerNodePosition5;
 		
 		Spinner spinnerNodePosition6 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition6.setMaximum(15);
 		spinnerNodePosition6.setSelection(6);
-		spinnerNodePosition6.setEnabled(false);
 		spinnerNodePosition6.setBounds(624, 54, 47, 22);
-		nodePosition[6] = spinnerNodePosition6;
+		nodeIDs[6] = spinnerNodePosition6;
 		
 		Spinner spinnerNodePosition7 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition7.setMaximum(15);
 		spinnerNodePosition7.setSelection(7);
-		spinnerNodePosition7.setEnabled(false);
 		spinnerNodePosition7.setBounds(688, 54, 47, 22);
-		nodePosition[7] = spinnerNodePosition7;
+		nodeIDs[7] = spinnerNodePosition7;
 		
 		Spinner spinnerNodePosition8 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition8.setMaximum(15);
 		spinnerNodePosition8.setSelection(8);
-		spinnerNodePosition8.setEnabled(false);
 		spinnerNodePosition8.setBounds(688, 91, 47, 22);
-		nodePosition[8] = spinnerNodePosition8;
+		nodeIDs[8] = spinnerNodePosition8;
 		
 		Spinner spinnerNodePosition9 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition9.setMaximum(15);
 		spinnerNodePosition9.setSelection(9);
-		spinnerNodePosition9.setEnabled(false);
 		spinnerNodePosition9.setBounds(624, 91, 47, 22);
-		nodePosition[9] = spinnerNodePosition9;
+		nodeIDs[9] = spinnerNodePosition9;
 		
 		Spinner spinnerNodePosition10 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition10.setMaximum(15);
 		spinnerNodePosition10.setSelection(10);
-		spinnerNodePosition10.setEnabled(false);
 		spinnerNodePosition10.setBounds(557, 91, 47, 22);
-		nodePosition[10] = spinnerNodePosition10;
+		nodeIDs[10] = spinnerNodePosition10;
 		
 		Spinner spinnerNodePosition11 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition11.setMaximum(15);
 		spinnerNodePosition11.setSelection(11);
-		spinnerNodePosition11.setEnabled(false);
 		spinnerNodePosition11.setBounds(494, 91, 47, 22);
-		nodePosition[11] = spinnerNodePosition11;
+		nodeIDs[11] = spinnerNodePosition11;
 		
 		Spinner spinnerNodePosition12 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition12.setMaximum(15);
 		spinnerNodePosition12.setSelection(12);
-		spinnerNodePosition12.setEnabled(false);
 		spinnerNodePosition12.setBounds(424, 91, 47, 22);
-		nodePosition[12] = spinnerNodePosition12;
+		nodeIDs[12] = spinnerNodePosition12;
 		
 		Spinner spinnerNodePosition13 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition13.setMaximum(15);
 		spinnerNodePosition13.setSelection(13);
-		spinnerNodePosition13.setEnabled(false);
 		spinnerNodePosition13.setBounds(360, 91, 47, 22);
-		nodePosition[13] = spinnerNodePosition13;
+		nodeIDs[13] = spinnerNodePosition13;
 		
 		Spinner spinnerNodePosition14 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition14.setMaximum(15);
 		spinnerNodePosition14.setSelection(14);
-		spinnerNodePosition14.setEnabled(false);
 		spinnerNodePosition14.setBounds(293, 91, 47, 22);
-		nodePosition[14] = spinnerNodePosition14;
+		nodeIDs[14] = spinnerNodePosition14;
 		
 		Spinner spinnerNodePosition15 = new Spinner(grpNodeArranger, SWT.BORDER);
 		spinnerNodePosition15.setMaximum(15);
 		spinnerNodePosition15.setSelection(15);
-		spinnerNodePosition15.setEnabled(false);
 		spinnerNodePosition15.setBounds(227, 91, 47, 22);
-		nodePosition[15] = spinnerNodePosition15;
+		nodeIDs[15] = spinnerNodePosition15;
+		
+		Label lblPosition0 = new Label(grpNodeArranger, SWT.WRAP | SWT.CENTER);
+		lblPosition0.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition0.setBounds(219, 20, 55, 31);
+		lblPosition0.setText("Position \r\n0");
+		
+		Label lblPosition1 = new Label(grpNodeArranger, SWT.WRAP | SWT.CENTER);
+		lblPosition1.setText("Position\r\n1");
+		lblPosition1.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition1.setBounds(285, 20, 55, 31);
+		
+		Label lblPosition2 = new Label(grpNodeArranger, SWT.WRAP | SWT.CENTER);
+		lblPosition2.setText("Position\r\n2");
+		lblPosition2.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition2.setBounds(352, 20, 55, 28);
+		
+		Label lblPosition3 = new Label(grpNodeArranger, SWT.WRAP | SWT.CENTER);
+		lblPosition3.setText("Position\r\n3");
+		lblPosition3.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition3.setBounds(416, 20, 55, 28);
+		
+		Label lblPosition4 = new Label(grpNodeArranger, SWT.WRAP);
+		lblPosition4.setAlignment(SWT.CENTER);
+		lblPosition4.setText("Position\r\n4");
+		lblPosition4.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition4.setBounds(486, 20, 55, 28);
+		
+		Label lblPosition5 = new Label(grpNodeArranger, SWT.WRAP);
+		lblPosition5.setAlignment(SWT.CENTER);
+		lblPosition5.setText("Position\r\n5");
+		lblPosition5.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition5.setBounds(549, 20, 55, 28);
+		
+		Label lblPosition6 = new Label(grpNodeArranger, SWT.WRAP);
+		lblPosition6.setAlignment(SWT.CENTER);
+		lblPosition6.setText("Position\r\n6");
+		lblPosition6.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition6.setBounds(616, 20, 55, 28);
+		
+		Label lblPosition7 = new Label(grpNodeArranger, SWT.WRAP);
+		lblPosition7.setAlignment(SWT.CENTER);
+		lblPosition7.setText("Position\r\n7");
+		lblPosition7.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition7.setBounds(680, 20, 55, 28);
+		
+		Label lblPosition8 = new Label(grpNodeArranger, SWT.NONE);
+		lblPosition8.setAlignment(SWT.CENTER);
+		lblPosition8.setText("Position\r\n8");
+		lblPosition8.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition8.setBounds(688, 119, 55, 28);
+		
+		Label lblPosition9 = new Label(grpNodeArranger, SWT.NONE);
+		lblPosition9.setAlignment(SWT.CENTER);
+		lblPosition9.setText("Position\r\n9");
+		lblPosition9.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition9.setBounds(624, 119, 55, 28);
+		
+		Label lblPosition10 = new Label(grpNodeArranger, SWT.NONE);
+		lblPosition10.setAlignment(SWT.CENTER);
+		lblPosition10.setText("Position\r\n10");
+		lblPosition10.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition10.setBounds(550, 119, 61, 28);
+		
+		Label lblPosition11 = new Label(grpNodeArranger, SWT.NONE);
+		lblPosition11.setAlignment(SWT.CENTER);
+		lblPosition11.setText("Position\r\n11");
+		lblPosition11.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition11.setBounds(487, 119, 61, 28);
+		
+		Label lblPosition12 = new Label(grpNodeArranger, SWT.NONE);
+		lblPosition12.setAlignment(SWT.CENTER);
+		lblPosition12.setText("Position\r\n12");
+		lblPosition12.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition12.setBounds(416, 119, 65, 28);
+		
+		Label lblPosition13 = new Label(grpNodeArranger, SWT.NONE);
+		lblPosition13.setAlignment(SWT.CENTER);
+		lblPosition13.setText("Position\r\n13");
+		lblPosition13.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition13.setBounds(353, 119, 61, 28);
+		
+		Label lblPosition14 = new Label(grpNodeArranger, SWT.NONE);
+		lblPosition14.setAlignment(SWT.CENTER);
+		lblPosition14.setText("Position\r\n14");
+		lblPosition14.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition14.setBounds(286, 119, 61, 28);
+		
+		Label lblPosition15 = new Label(grpNodeArranger, SWT.WRAP);
+		lblPosition15.setAlignment(SWT.CENTER);
+		lblPosition15.setText("Position \r\n15");
+		lblPosition15.setFont(SWTResourceManager.getFont("Segoe UI", 9, SWT.ITALIC));
+		lblPosition15.setBounds(220, 119, 60, 31);
 		
 		Button btnSubmit = new Button(grpNodeArranger, SWT.NONE);
 		btnSubmit.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//the index in nodeArrangement is the position, the value is the nodeID
-				nodeArrangement = new int[16];
-				int i = 0;
-				for (Spinner position: nodePosition) {
-					nodeArrangement[i] = position.getSelection();
-					i ++;
+				if (nodeArrangementIsValid()) {
+					nodeArrangement = new int[16];
+					int i = 0;
+					for (Spinner position: nodeIDs) {
+						nodeArrangement[i] = position.getSelection();
+						i ++;
+					}
+					drawRingTopology(nodeArrangement);
+					printNetworkSingleHops();
+				} else {
+					JOptionPane.showMessageDialog(null, "Make sure each number (node ID) is only used once.");
 				}
-				drawRingTopology(nodeArrangement);
-				printNetworkSingleHops();
 			}
 		});
 		btnSubmit.setToolTipText("Click when finshed (will update the architecture).");
@@ -1045,43 +923,20 @@ public class MainGUI {
 		
 	}//end Node Arranger group
 	
-	private void updateNodeArrangement() {
-		int positionToChangeNodeID = 0;
-		//Check which slider (nodePosition) is being edited by the user
-		for (int i = 0; i < nodePosition.length; i ++) {
-			if (nodePosition[i].getEnabled()) {
-				positionToChangeNodeID = i;
+	private boolean nodeArrangementIsValid() {
+		int freq = 0;
+		for (int id: defaultNodeIDs) {
+			for (Spinner position: nodeIDs) {
+				if (id == position.getSelection()) {
+					freq ++;
+				}
 			}
-		}
-		
-		int usersInput = nodePosition[positionToChangeNodeID].getSelection();
-		//This check will disqualify the usersInput if the nodeID has already been swapped once
-		if (!nodePositionButton[usersInput].getEnabled()) {
-			//didn't pass check, so set nodeID back to the default
-			nodePosition[positionToChangeNodeID].setSelection(defaultValues[positionToChangeNodeID]);
-			
-		} else {//passed, so swap the two nodes with their positions
-			
-			//the nodes can only be swapped once, so they are being swapped from their default values
-			//in which the default value (node ID) is equal to the position
-			nodePosition[positionToChangeNodeID].setSelection(usersInput);
-			nodePosition[usersInput].setSelection(positionToChangeNodeID);
-			nodePositionButton[usersInput].setEnabled(false);
-			nodePositionButton[positionToChangeNodeID].setEnabled(false);
-			nodePosition[positionToChangeNodeID].setEnabled(false);
-		}
-	}
-
-	private void setAllTextEnabledToFalse(int button) {
-		for (int i = 0; i < nodePositionButton.length; i ++) {
-			if (button != i) {
-				nodePositionButton[i].setSelection(false);
+			if (freq > 1) {
+				return false;
 			}
+			freq = 0;
 		}
-		
-		for (Spinner position: nodePosition) {
-			position.setEnabled(false);
-		}
+		return true;
 	}
 	
 	private void createMRRSWitchArranger(Group groupNetworkConfigure) {
@@ -1114,14 +969,14 @@ public class MainGUI {
 		int nextNodeID;
 		int columns = 0;
 		boolean twoTwoDigits = false;
-		for (int i = 0; i < nodePosition.length; i ++) {
-			nodeID = nodePosition[i].getSelection();
+		for (int i = 0; i < nodeIDs.length; i ++) {
+			nodeID = nodeIDs[i].getSelection();
 			//get previous connected node
-			if (i == 0) { prevNodeID = nodePosition[nodePosition.length - 1].getSelection(); }
-			else { prevNodeID = nodePosition[i - 1].getSelection(); }
+			if (i == 0) { prevNodeID = nodeIDs[nodeIDs.length - 1].getSelection(); }
+			else { prevNodeID = nodeIDs[i - 1].getSelection(); }
 			//get next connected node
-			if (i == 15) { nextNodeID = nodePosition[0].getSelection(); }
-			else { nextNodeID = nodePosition[i + 1].getSelection(); }
+			if (i == 15) { nextNodeID = nodeIDs[0].getSelection(); }
+			else { nextNodeID = nodeIDs[i + 1].getSelection(); }
 			//add info to message, to be printed to console
 			twoTwoDigits = setsOfTwoTwoDigits(nodeID, prevNodeID, nextNodeID);
 			if (columns >= 4) {//next line
@@ -1148,5 +1003,4 @@ public class MainGUI {
 			else { return false; }
 		}
 	}
-	
 }//end class

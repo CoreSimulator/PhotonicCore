@@ -17,7 +17,7 @@ switch(System.getProperty('os.name').toLowerCase().split()[0]) {
 		artifactId = 'org.eclipse.swt.win32.win32.x86_64' 
     	break
 	case 'linux':
-		artifactId = '' 
+		artifactId = 'org.eclipse.swt.gtk.linux.x86_64' 
 		break
 	case 'mac':
 		artifactId = 'org.eclipse.swt.cocoa.macosx.x86_64'

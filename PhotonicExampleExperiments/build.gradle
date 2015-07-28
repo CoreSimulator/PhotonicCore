@@ -1,0 +1,19 @@
+apply plugin: 'application'
+
+sourceCompatibility = 1.7
+version = '1.0'
+mainClassName = 'edu.salisbury.photonic.TestingStuff.LogSectionAnalyzer'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'testing jar',
+                   'Implementation-Version': version
+    }
+}
+
+
+dependencies {
+    compile project(':PhotonicSimlib')
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+

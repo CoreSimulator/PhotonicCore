@@ -21,7 +21,7 @@ subprojects {
 
 jar {
 	manifest {
-		attributes	'Implementation-Title': 'GeneticPhotonicGraphs',
+		attributes	'Implementation-Title': 'PhotonicCoreSimulator',
 					'Implementation-Version': version
 		}
 	}

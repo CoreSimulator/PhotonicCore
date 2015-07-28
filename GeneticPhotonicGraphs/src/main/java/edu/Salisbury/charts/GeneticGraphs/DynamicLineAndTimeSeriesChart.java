@@ -135,12 +135,12 @@ public class DynamicLineAndTimeSeriesChart extends ApplicationFrame
         plot.setRangeGridlinePaint(Color.lightGray);
 
         ValueAxis xaxis = plot.getDomainAxis();
-        xaxis.setAutoRange(true); //TODO
+        xaxis.setAutoRange(true); 
         
         xaxis.setVerticalTickLabels(true);
 
         ValueAxis yaxis = plot.getRangeAxis();
-        yaxis.setRangeWithMargins(75000, 90000);
+        yaxis.setRangeWithMargins(0, 90000);
 
         return result;
     }

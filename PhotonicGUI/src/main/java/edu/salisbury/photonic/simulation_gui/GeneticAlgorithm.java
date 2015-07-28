@@ -9,7 +9,8 @@ import edu.salisbury.photonic.core_simulator.LogReader;
 import edu.salisbury.photonic.genetic_algorithm.NodeConfiguration;
 import edu.salisbury.photonic.genetic_algorithm.NodeConfigurationPopulation;
 
-public class GeneticAlgorithm implements Runnable{
+public class GeneticAlgorithm implements Runnable
+{
 	private CoreLog coreLog = new CoreLog();
 	private HashMap<Coordinate, Integer> coordsToNumberMapping;
 	private int bitsPerFlit;

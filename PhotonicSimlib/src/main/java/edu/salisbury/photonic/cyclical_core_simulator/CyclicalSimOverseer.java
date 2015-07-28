@@ -14,6 +14,8 @@ import edu.salisbury.photonic.core_simulator.LogEntry;
  */
 public class CyclicalSimOverseer extends CoreSimOverseer
 {	
+	public static int totalTasks = 0;
+	public static int totalRequestingTime = 0;
 	
 	/**
 	 * A constructor for CyclicalSimOverseer which utilizes a {@link CyclicalUnMappedArchitecture} 

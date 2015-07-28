@@ -1,9 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-sourceCompatibility = 1.7
-
-version = '1.0'
 jar {
 	manifest {
 		attributes 'Implementation-Title': 'PhotonicCoreSimulator',
@@ -25,14 +22,14 @@ switch(System.getProperty('os.name').toLowerCase().split()[0]) {
 	default:
     throw new Exception('Unknown OS')
 }
+
 String gradleShorthand = 'org.eclipse.swt:' + artifactId + ':4.4'
 println gradleShorthand
 
-repositories {
-	mavenCentral()
-}
 
 dependencies {
+
+	
 	compile gradleShorthand
 	testCompile group: 'junit', name: 'junit', version: '4.+'
 }

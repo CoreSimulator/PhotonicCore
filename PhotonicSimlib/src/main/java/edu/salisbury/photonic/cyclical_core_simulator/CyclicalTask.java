@@ -1,7 +1,6 @@
 package edu.salisbury.photonic.cyclical_core_simulator;
 
 import edu.salisbury.photonic.core_simulator.CoreTask;
-import edu.salisbury.photonic.simulation_gui.MainGUI;
 
 /**
  * A task that describes a message that needs to be passed from a source to destination node in a 
@@ -95,7 +94,7 @@ public class CyclicalTask extends CoreTask
 				break;
 			case TEARDOWN:
 				teardownTaskTime++;
-				MainGUI.totalTasks++;
+				CyclicalSimOverseer.totalTasks++;
 				break;
 			case COMPLETE:
 				completeTaskTime++;
@@ -177,7 +176,7 @@ public class CyclicalTask extends CoreTask
 				incrementTotalTaskTime();//increment teardown
 				((CyclicalNode) sourceNodeRef).teardownConnectionToDestNode(this);//teardown
 				status = CyclicalTaskStatus.COMPLETE;//change to complete
-				MainGUI.totalRequestingTime += requestingTaskTime;
+				CyclicalSimOverseer.totalRequestingTime += requestingTaskTime;
 				break;
 			case COMPLETE:
 				throw new RuntimeException("This task is already complete, " +

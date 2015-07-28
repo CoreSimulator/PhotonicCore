@@ -1,5 +1,5 @@
 #org.springsource.ide.eclipse.gradle.core.preferences.GradleProjectPreferences
-#Mon Jul 27 19:48:42 EDT 2015
-build.family.org.gradle.tooling.model.eclipse.HierarchicalEclipseProject=;
+#Tue Jul 28 10:33:42 EDT 2015
+build.family.org.gradle.tooling.model.eclipse.HierarchicalEclipseProject=;GeneticPhotonicGraphs;PhotonicGUI;PhotonicSimlib;
 org.springsource.ide.eclipse.gradle.linkedresources=
 org.springsource.ide.eclipse.gradle.rootprojectloc=

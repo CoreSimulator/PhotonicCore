@@ -7,9 +7,6 @@
  * user guide available at http://gradle.org/docs/2.5/userguide/tutorial_java_projects.html
  */
 
-// Apply the java plugin to add support for Java
-apply plugin: 'java'
-apply plugin: 'eclipse'
 
 
 

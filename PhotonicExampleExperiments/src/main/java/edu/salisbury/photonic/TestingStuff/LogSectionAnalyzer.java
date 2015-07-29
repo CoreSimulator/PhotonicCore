@@ -2,6 +2,7 @@ package edu.salisbury.photonic.TestingStuff;
 
 import edu.salisbury.photonic.core_simulator.CoreLog;
 import edu.salisbury.photonic.core_simulator.LogReader;
+import edu.salisbury.photonic.log_analyisis.NonDirectionalFlitPairAnalyzer;
 
 
 public class LogSectionAnalyzer 
@@ -15,7 +16,14 @@ public class LogSectionAnalyzer
 		System.out.println("Run task has been executed");
 		CoreLog barnesLogFile = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
 		System.out.println("Length of repeaterLess BarnesLog: " + barnesLogFile.logSize());
-		breakLogIntoSections(10, barnesLogFile);
+		CoreLog[] splitLog = breakLogIntoSections(10, barnesLogFile);
+		
+		for(int i = 0; i < splitLog.length; i++)
+		{
+			System.out.println("Logsplit Number: " + i);
+			splitLog[i].addExperiment(new NonDirectionalFlitPairAnalyzer());
+			System.out.println(splitLog[i].runExperiments());
+		}
 	}
 	
 	public static CoreLog[] breakLogIntoSections(int numberOfSections, CoreLog log)

@@ -6,7 +6,7 @@ mainClassName = 'edu.salisbury.photonic.TestingStuff.LogSectionAnalyzer'
 
 jar {
     manifest {
-        attributes 'Implementation-Title': 'testing jar',
+        attributes 'Implementation-Title': 'ExampleExpriments',
                    'Implementation-Version': version
     }
 }

@@ -1,4 +1,4 @@
 
 rootProject.name = 'PhotonicCoreSimulator'
 
-include "PhotonicSimlib", "GeneticPhotonicGraphs", "PhotonicGUI", "PhotonicExampleExperiments"
+include "PhotonicSimLib", "GeneticPhotonicGraphs", "PhotonicGUI", "PhotonicExampleExperiments"

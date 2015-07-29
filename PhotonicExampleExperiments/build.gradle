@@ -13,7 +13,7 @@ jar {
 
 
 dependencies {
-    compile project(':PhotonicSimlib')
+    compile project(':PhotonicSimLib')
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 

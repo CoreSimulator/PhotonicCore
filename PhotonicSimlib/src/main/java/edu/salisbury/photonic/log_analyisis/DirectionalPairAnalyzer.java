@@ -1,17 +1,24 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.log_analyisis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.salisbury.photonic.core_simulator.Coordinate;
+import edu.salisbury.photonic.core_simulator.CoordinatePair;
+import edu.salisbury.photonic.core_simulator.CoreLog;
+import edu.salisbury.photonic.core_simulator.LogEntry;
+import edu.salisbury.photonic.core_simulator.SortingHelper;
+
+
 /**
  * A subclass of {@link Analyzer} which can be used to discover pairs of cores that are sending/receiving
- * the most flits with the aim to discover the "dominant flows" among the cores.
+ * the most messages with the aim to discover the "dominant flows" among the cores.
  * 
- * <p>Similar to {@link FlitReceiverAnalyzer} and {@link FlitSenderAnalyzer} however the class enumerates 
- * communication core pairs rather than just single cores. The direction of the communication and order 
- * of the coordinates in the pair does matter. For instance, pair {(0, 0), (0, 1)} is not equivalent to 
- * {(0, 1), (0, 0)}.
+ * <p>Similar to {@link ReceiverAnalyzer} and {@link SenderAnalyzer} but it enumerates communication core 
+ * pairs rather than just single cores. The direction of the communication and order of the coordinates 
+ * in the pair does matter. For instance, pair {(0, 0), (0, 1)} is not equivalent to {(0, 1), (0, 0)}.
  * </p>
  * 
  * <p>
@@ -21,24 +28,24 @@ import java.util.Map;
  * @author timfoil
  *
  */
-public class DirectionalFlitPairAnalyzer extends Analyzer 
+public class DirectionalPairAnalyzer extends Analyzer 
 {
 	/**
-	 * Constructs a DirectionalFlitPairAnalyzer. With resultEntriesPerRow equal to 2.
+	 * Constructs a DirectionalPairAnalyzer. With resultEntriesPerRow equal to 2.
 	 */
-	public DirectionalFlitPairAnalyzer()
+	public DirectionalPairAnalyzer()
 	{
-		resultDescription = "Directional Core pair flit enumeration";
+		resultDescription = "Directional core pair message enumeration";
 	}
 	
 	/**
-	 * Constructor for DirectionalFlitPairAnalyzer
+	 * Constructor for DirectionalPairAnalyzer
 	 * @param resultEntriesPerRow for the resulting {@code String} of the experiment
 	 */
-	public DirectionalFlitPairAnalyzer(int resultEntriesPerRow)
+	public DirectionalPairAnalyzer(int resultEntriesPerRow)
 	{
 		this.resultEntriesPerRow = resultEntriesPerRow;
-		resultDescription = "Directional core pair flit enumeration";
+		resultDescription = "Directional core pair message enumeration";
 	}
 	
 	@Override
@@ -60,13 +67,14 @@ public class DirectionalFlitPairAnalyzer extends Analyzer
 			if(sentMessages.containsKey(pair))
 			{
 				int timesOccured = sentMessages.remove(pair);
-				sentMessages.put(pair, entry.packetSize() + timesOccured);
+				sentMessages.put(pair, ++timesOccured);
 			} 
 			else 
 			{
-				sentMessages.put(pair, entry.packetSize());
+				sentMessages.put(pair, 1);
 			}
 		}
+		
 		List<Map.Entry<CoordinatePair, Integer>> sortedList = 
 				SortingHelper.SortHashMapByValue(sentMessages);//analyze sentMessages
 		return sortMapEntriesByDescendingValue(sortedList);

@@ -1,6 +1,8 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.log_analyisis;
 
 import java.util.ArrayList;
+
+import edu.salisbury.photonic.core_simulator.CoreLog;
 
 /**
  * A class designed to group similar {@link Analyzer}s into a single Analyzer.

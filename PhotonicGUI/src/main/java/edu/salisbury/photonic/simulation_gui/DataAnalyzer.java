@@ -2,7 +2,7 @@ package edu.salisbury.photonic.simulation_gui;
 
 import edu.salisbury.photonic.core_simulator.CoreLog;
 import edu.salisbury.photonic.core_simulator.LogReader;
-import edu.salisbury.photonic.core_simulator.NonDirectionalPairAnalyzer;
+import edu.salisbury.photonic.log_analyisis.NonDirectionalPairAnalyzer;
 
 public class DataAnalyzer {
 	

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.salisbury.photonic.log_analyisis.Analyzer;
+
 /**
  * This class contains various sorting methods which assist in
  * organizing data to display for {@link Analyzer} subclasses.

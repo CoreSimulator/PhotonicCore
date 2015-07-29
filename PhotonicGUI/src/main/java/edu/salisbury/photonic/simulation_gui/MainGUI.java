@@ -31,7 +31,8 @@ import org.eclipse.swt.widgets.CoolItem;
 
 import edu.salisbury.photonic.core_simulator.CoreLog;
 import edu.salisbury.photonic.core_simulator.LogReader;
-import edu.salisbury.photonic.core_simulator.NonDirectionalPairAnalyzer;
+import edu.salisbury.photonic.log_analyisis.NonDirectionalPairAnalyzer;
+
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;

@@ -1,8 +1,14 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.log_analyisis;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.salisbury.photonic.core_simulator.Coordinate;
+import edu.salisbury.photonic.core_simulator.CoordinatePair;
+import edu.salisbury.photonic.core_simulator.CoreLog;
+import edu.salisbury.photonic.core_simulator.LogEntry;
+import edu.salisbury.photonic.core_simulator.SortingHelper;
 
 
 /**

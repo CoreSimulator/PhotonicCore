@@ -2,6 +2,8 @@ package edu.salisbury.photonic.core_simulator;
 
 import java.util.ArrayList;
 
+import edu.salisbury.photonic.log_analyisis.Analyzer;
+
 /**
  * An object that represents a log file that supervises communications between cores.
  * CoreLogs can be created by adding entries to an empty log or by loading a log from

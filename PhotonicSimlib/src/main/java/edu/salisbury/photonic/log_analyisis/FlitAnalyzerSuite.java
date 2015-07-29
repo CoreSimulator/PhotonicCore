@@ -1,4 +1,5 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.log_analyisis;
+
 
 /**
  * Subclass of {@link AnalyzerSuite} an accumulation of communication {@link Analyzer} classes.

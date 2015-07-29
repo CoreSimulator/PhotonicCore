@@ -1,7 +1,9 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.log_analyisis;
 
 import java.util.List;
 import java.util.Map;
+
+import edu.salisbury.photonic.core_simulator.CoreLog;
 
 /**
  * An abstract class which can be sub-classed to implement {@link String analyze(CoreLog analysis)}.

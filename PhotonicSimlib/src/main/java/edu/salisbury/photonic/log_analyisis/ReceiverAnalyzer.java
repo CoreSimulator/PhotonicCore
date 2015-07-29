@@ -1,35 +1,39 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.log_analyisis;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.salisbury.photonic.core_simulator.Coordinate;
+import edu.salisbury.photonic.core_simulator.CoreLog;
+import edu.salisbury.photonic.core_simulator.LogEntry;
+import edu.salisbury.photonic.core_simulator.SortingHelper;
+
 
 /**
  * A subclass of {@link Analyzer} which can be used to evaluate the number
- * of times each core has sent or received data based on a log-file 
- * represented by a {@link CoreLog} object.
+ * of times each core has received data based on a log-file  represented by a {@link CoreLog} object.
  * @author timfoil
  *
  */
-public class CumulativeIOAnalyzer extends Analyzer 
+public class ReceiverAnalyzer extends Analyzer 
 {
 	/**
-	 * Constructs a CumulativeIOAnalyzer. With resultEntriesPerRow equal to 2.
+	 * Constructs a ReceiverAnalyzer. With resultEntriesPerRow equal to 2.
 	 */
-	public CumulativeIOAnalyzer()
+	public ReceiverAnalyzer()
 	{
-		resultDescription = "Cores that are communicating the most (combined IO operations)";
+		resultDescription = "Cores that received the most messages";
 	}
 	
 	/**
-	 * Constructor for CumulativeIOAnalyzer
+	 *  Constructor for ReceiverAnalyzer
 	 * @param resultEntriesPerRow for the resulting {@code String} of the experiment
 	 */
-	public CumulativeIOAnalyzer(int resultEntriesPerRow)
+	public ReceiverAnalyzer(int resultEntriesPerRow)
 	{
 		this.resultEntriesPerRow = resultEntriesPerRow;
-		resultDescription = "Cores that are communicating the most (combined IO operations)";
+		resultDescription = "Cores that received the most messages";
 	}
 	
 	@Override
@@ -54,25 +58,11 @@ public class CumulativeIOAnalyzer extends Analyzer
 			{
 				sentMessages.put(destCoord, 1);
 			}
-			
-			Coordinate sourceCoord = new Coordinate(entry.sourceX(), entry.sourceY());
-			
-			//If the key already exists update the value, timesOccured
-			//otherwise put a new entry in for the key
-			if(sentMessages.containsKey(sourceCoord))
-			{
-				int timesOccured = sentMessages.remove(sourceCoord);
-				sentMessages.put(sourceCoord, ++timesOccured);
-			} 
-			else 
-			{
-				sentMessages.put(sourceCoord, 1);
-			}
-			
 		}
 		
 		List<Map.Entry<Coordinate, Integer>> sortedList = 
 				SortingHelper.SortHashMapByValue(sentMessages);//analyze sentMessages
+		
 		return sortMapEntriesByDescendingValue(sortedList);
 	}
 

@@ -1,4 +1,5 @@
-package edu.salisbury.photonic.core_simulator;
+package edu.salisbury.photonic.log_analyisis;
+
 
 public class SuperUltimateSweetestSuite extends AnalyzerSuite {
 

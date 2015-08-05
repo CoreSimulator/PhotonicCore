@@ -10,4 +10,4 @@ Navigate to the directory you cloned this into in your terminal and run.
 Gradle should install itself, the platform specific dependencies for the program, and compile all the code.
 
 ## More info about NoC and ONoC Architectures
-To be added.
+[A presentation on the subject of ONoC architectures](https://docs.google.com/presentation/d/12ivTKC-W6cyh1f2e5goYMDCK5rSDQlHtPsMjN68VmPc/edit?usp=sharing)

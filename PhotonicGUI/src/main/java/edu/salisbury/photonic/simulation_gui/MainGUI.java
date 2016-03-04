@@ -68,7 +68,7 @@ public class MainGUI {
 	private Label lblConsoleOutput;
 	
 	//Data Analyzer Variables (= default value)
-	private String fileName = "flow_barnes.log";
+	private String fileName = "c:\\Users\\J\\PhotonicCoreSimulator\\Flow_Router\\flow_barnes.log";
 	private int numOfSections = 1;
 	protected Spinner spinnerStartingIndex;
 	protected Spinner spinnerEndingIndex;
@@ -391,7 +391,7 @@ public class MainGUI {
 					return;
 				}
 				printToConsole("Simulating...");
-				CoreLog basicLog = LogReader.readLogIgnoreRepeaters("flow_barnes.log");
+				CoreLog basicLog = LogReader.readLogIgnoreRepeaters("c:\\Users\\J\\PhotonicCoreSimulator\\Flow_Router\\flow_barnes.log");
 				SimulatorThread simulator = new SimulatorThread(simulatorTopology, simulatorFlitPacketSize, simulatorTearDownTime, basicLog, nodeArrangement);
 				Thread simulatorThread = new Thread(simulator);
 				simulatorThread.start();
@@ -451,7 +451,7 @@ public class MainGUI {
 		tltmBarnesLog.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fileName = "flow_barnes.log";
+				fileName = "/PhotonicGUI/Flow_Router";
 			}
 		});
 		tltmBarnesLog.setText("o Barnes Log");
